@@ -8,9 +8,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/your-username/cyberclaw/stargazers"><img src="https://img.shields.io/github/stars/your-username/cyberclaw?style=for-the-badge&color=7209b7" alt="Stars"></a>
-  <a href="https://github.com/your-username/cyberclaw/network/members"><img src="https://img.shields.io/github/forks/your-username/cyberclaw?style=for-the-badge&color=f72585" alt="Forks"></a>
-  <a href="https://github.com/your-username/cyberclaw/issues"><img src="https://img.shields.io/github/issues/your-username/cyberclaw?style=for-the-badge&color=4cc9f0" alt="Issues"></a>
+  <a href="https://github.com/CyberPrince-Alien/CyberClaw/stargazers"><img src="https://img.shields.io/github/stars/CyberPrince-Alien/CyberClaw?style=for-the-badge&color=7209b7" alt="Stars"></a>
+  <a href="https://github.com/CyberPrince-Alien/CyberClaw/network/members"><img src="https://img.shields.io/github/forks/CyberPrince-Alien/CyberClaw?style=for-the-badge&color=f72585" alt="Forks"></a>
+  <a href="https://github.com/CyberPrince-Alien/CyberClaw/issues"><img src="https://img.shields.io/github/issues/CyberPrince-Alien/CyberClaw?style=for-the-badge&color=4cc9f0" alt="Issues"></a>
   <a href="https://www.facebook.com/ImDarkMagician/"><img src="https://img.shields.io/badge/Facebook-Cyber%20Prince-1877F2?style=for-the-badge&logo=facebook" alt="Facebook"></a>
   <a href="https://www.youtube.com/channel/UCxDA3V7IciBGKqoC-m0dvxQ"><img src="https://img.shields.io/badge/YouTube-Cyber%20Prince-FF0000?style=for-the-badge&logo=youtube" alt="YouTube"></a>
 </p>
@@ -80,13 +80,16 @@ CyberClaw hosts 17 terminal operational triggers. Here is the direct command gui
 
 ## 📦 Commercial Installation Blueprint
 
-### 1. Simple Marketplace Installation
+### 1. Simple Marketplace & GitHub Installation
 Users can install the package in one simple command:
 ```bash
-# Direct local link
+# Install directly from GitHub (Globally accessible one-line install!)
+pip install git+https://github.com/CyberPrince-Alien/CyberClaw.git
+
+# Or install from local cloned folder
 pip install -e .
 
-# Or install with Speech-to-Text capabilities
+# Or install with Speech-to-Text / Voice capabilities
 pip install -e .[voice]
 ```
 
