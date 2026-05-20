@@ -137,18 +137,55 @@ def onboard(
 ) -> None:
     """Create the local workspace files needed for first run."""
     workspace_path: Path = ctx.obj["workspace"]
+
+    console.print("\n[bold magenta]======================================================================[/bold magenta]")
+    console.print("[bold cyan]          === CYBERCLAW AUTOMATIC ONBOARDING & SETUP WIZARD ===          [/bold cyan]")
+    console.print("[bold magenta]======================================================================[/bold magenta]")
+    console.print("  [bold white]Brought to you with love by Cyber Prince (Sourov)[/bold white]")
+    console.print("  [dim]Initializing workspace files, database registries, and configurations...[/dim]\n")
+
+    # Step 1: Checking workspace
+    console.print("[yellow][?] Step 1: Checking local workspace path...[/yellow]")
     workspace_path.mkdir(parents=True, exist_ok=True)
+    console.print(f"      [green]OK[/green] Active path: [cyan]{workspace_path}[/cyan]\n")
 
+    # Step 2: Creating directories
+    console.print("[yellow][DIR] Step 2: Generating directory structures...[/yellow]")
+    dirs_created = []
     for directory in ("agents", "skills", "crons", "memories"):
-        (workspace_path / directory).mkdir(exist_ok=True)
+        dpath = workspace_path / directory
+        dpath.mkdir(exist_ok=True)
+        dirs_created.append(directory)
+    console.print(f"      [green]OK[/green] Folders initialized: [cyan]{', '.join(dirs_created)}[/cyan]\n")
 
+    # Step 3: Deploy configuration
+    console.print("[yellow][FILE] Step 3: Deploying user configuration files...[/yellow]")
     config_path = workspace_path / "config.user.yaml"
     example_path = workspace_path / "config.example.yaml"
     if not config_path.exists() and example_path.exists():
         config_path.write_text(example_path.read_text())
+        console.print(f"      [green]OK[/green] Deployed new [cyan]config.user.yaml[/cyan] template!")
+    elif config_path.exists():
+        console.print(f"      [green]OK[/green] Found existing [cyan]config.user.yaml[/cyan] config.")
+    else:
+        # Fallback empty config if example doesn't exist
+        config_path.write_text("llm:\n  providers: []\n")
+        console.print(f"      [green]OK[/green] Generated default config file.")
+    console.print(f"      [green]OK[/green] Config location: [cyan]{config_path}[/cyan]\n")
 
-    console.print(f"[green]CyberClaw workspace ready:[/green] {workspace_path}")
-    console.print(f"Config: {config_path}")
+    # Final Summary
+    console.print("[bold magenta]----------------------------------------------------------------------[/bold magenta]")
+    console.print("[bold green]*** CYBERCLAW WORKSPACE SUCCESSFULLY ONBOARDED! ***[/bold green]")
+    console.print("[bold magenta]----------------------------------------------------------------------[/bold magenta]")
+    console.print("Follow these next steps to complete your setup:")
+    console.print("  [bold white]1. Check Setup Diagnostics:[/bold white]")
+    console.print("     [cyan]cyberclaw doctor[/cyan]")
+    console.print("  [bold white]2. Encrypt your API Credentials:[/bold white]")
+    console.print("     [cyan]cyberclaw secrets set OPENAI_API_KEY \"your-key\"[/cyan]")
+    console.print("  [bold white]3. Launch Web Dashboard UI:[/bold white]")
+    console.print("     [cyan]cyberclaw gateway start[/cyan]")
+    console.print("[bold magenta]======================================================================[/bold magenta]\n")
+
     if install_daemon:
         console.print(
             "[yellow]Daemon install is not implemented yet; use `cyberclaw gateway start`.[/yellow]"
