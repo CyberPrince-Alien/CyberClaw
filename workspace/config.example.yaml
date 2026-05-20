@@ -1,28 +1,24 @@
-# LLM provider configuration, follow https://docs.litellm.ai/docs/providers for your own provider config
-llm:
-  # Default provider ID to use
-  default_provider: openai
+# CyberClaw Configuration File
+# Full docs: https://cyberprince-alien.github.io/CyberClaw/
+# Providers follow LiteLLM format: https://docs.litellm.ai/docs/providers
 
-  # Temperature and token limits (applied to all providers)
+llm:
+  default_provider: openai
   temperature: 0.7
   max_tokens: 2048
-
-  # Enable automatic failover to backup providers
   enable_failover: true
 
-  # Multiple LLM providers with priority-based failover
-  # Lower priority number = higher priority
   providers:
     - id: openai
       provider: openai
-      model: gpt-4
-      api_key: sk-your-openai-api-key-here  # WARNING: Replace with your actual key, never commit real keys!
+      model: gpt-4o-mini
+      api_key: sk-your-openai-api-key-here
       priority: 1
       enabled: true
 
     - id: anthropic
       provider: anthropic
-      model: claude-3-opus-20240229
+      model: claude-3-5-sonnet-20241022
       api_key: sk-ant-your-anthropic-api-key-here
       priority: 2
       enabled: false
@@ -34,49 +30,109 @@ llm:
       priority: 3
       enabled: false
 
+    - id: groq
+      provider: groq
+      model: llama-3.3-70b-versatile
+      api_key: gsk-your-groq-api-key-here
+      priority: 4
+      enabled: false
+
+    - id: deepseek
+      provider: deepseek
+      model: deepseek-chat
+      api_key: sk-your-deepseek-api-key-here
+      priority: 5
+      enabled: false
+
     - id: openrouter
       provider: openrouter
       model: openai/gpt-4o-mini
       api_key: sk-or-your-openrouter-api-key-here
       api_base: https://openrouter.ai/api/v1
-      priority: 4
-      enabled: false
-
-    - id: groq
-      provider: groq
-      model: llama-3.3-70b-versatile
-      api_key: gsk-your-groq-api-key-here
-      priority: 5
+      priority: 6
       enabled: false
 
     - id: nvidia
       provider: nvidia_nim
       model: meta/llama-3.1-8b-instruct
       api_key: nvapi-your-nvidia-api-key-here
-      priority: 6
+      priority: 7
+      enabled: false
+
+    - id: ollama
+      provider: ollama
+      model: llama3
+      api_key: ollama
+      api_base: http://localhost:11434
+      priority: 8
       enabled: false
 
 default_agent: cyberclaw
 
-# Get your API key at https://brave.com/search/api/
+api:
+  host: 127.0.0.1
+  port: 8000
+
+# Web Search - get free key at https://brave.com/search/api/
 # websearch:
 #   provider: brave
 #   api_key: your-brave-search-api-key
 
+# Web Page Reading (requires: pip install "cyberclaw[crawler]")
 # webread:
 #   provider: crawl4ai
 
-# api: {}
-
+# Messaging Channels
 # channels:
 #   enabled: true
+#
 #   telegram:
 #     enabled: true
-#     bot_token: your-bot-token
+#     bot_token: your-telegram-bot-token
 #     dm_policy: pairing   # pairing | allowlist | open
-#     allow_from: []       # source strings, user IDs, or "*" when dm_policy is open
+#     allow_from: []
+#
 #   discord:
 #     enabled: true
-#     bot_token: your-bot-token
+#     bot_token: your-discord-bot-token
 #     dm_policy: pairing
+#     allow_from: []
+#
+#   whatsapp:
+#     enabled: true
+#     phone_number_id: your-phone-number-id
+#     access_token: your-access-token
+#     verify_token: cyberclaw-verify
+#     dm_policy: pairing
+#     allow_from: []
+#
+#   slack:
+#     enabled: true
+#     bot_token: xoxb-your-bot-token
+#     app_token: xapp-your-app-token
+#     dm_policy: pairing
+#     allow_from: []
+#
+#   signal:
+#     enabled: true
+#     api_url: http://localhost:8080
+#     phone_number: "+8801234567890"
+#     dm_policy: pairing
+#     allow_from: []
+#
+#   matrix:
+#     enabled: true
+#     homeserver: https://matrix.org
+#     user_id: "@cyberclaw:matrix.org"
+#     access_token: your-matrix-access-token
+#     allowed_rooms: []
+#     allow_from: []
+#
+#   irc:
+#     enabled: true
+#     server: irc.libera.chat
+#     port: 6667
+#     nick: CyberClaw
+#     channels: ["#cyberclaw"]
+#     use_ssl: false
 #     allow_from: []

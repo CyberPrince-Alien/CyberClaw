@@ -202,139 +202,203 @@ def onboard(
     )
 
     if run_interactive:
-        console.print("\n[bold yellow]┌────────────────────────────────────────────────────────┐[/bold yellow]")
-        console.print("[bold yellow]│            AI LLM PROVIDER CONFIGURATION               │[/bold yellow]")
-        console.print("[bold yellow]└────────────────────────────────────────────────────────┘[/bold yellow]")
+        # ── STEP A: LLM Provider ────────────────────────────────────────────
+        console.print("\n[bold yellow]======================================================[/bold yellow]")
+        console.print("[bold yellow]   STEP 1/4 : AI LLM PROVIDER CONFIGURATION          [/bold yellow]")
+        console.print("[bold yellow]======================================================[/bold yellow]")
         console.print("Select your default AI LLM Provider:")
-        console.print("  1) OpenAI")
-        console.print("  2) Anthropic (Claude)")
-        console.print("  3) Gemini (Google)")
-        console.print("  4) Groq")
-        console.print("  5) OpenRouter")
-        console.print("  6) NVIDIA NIM")
+        console.print("  1) OpenAI         (gpt-4o-mini, gpt-4o)")
+        console.print("  2) Anthropic      (claude-3-5-sonnet)")
+        console.print("  3) Gemini         (gemini-2.5-flash, gemini-1.5-pro)")
+        console.print("  4) Groq           (llama-3.3-70b, mixtral-8x7b)")
+        console.print("  5) OpenRouter     (openai/gpt-4o-mini, etc)")
+        console.print("  6) NVIDIA NIM     (meta/llama-3.1-8b)")
+        console.print("  7) DeepSeek       (deepseek-chat)")
+        console.print("  8) Ollama (local) (llama3, mistral, phi3)")
 
-        choice = typer.prompt("\nEnter choice (1-6)", default="1")
+        choice = typer.prompt("\nEnter choice (1-8)", default="1")
 
         provider_map = {
-            "1": ("openai", "openai", "gpt-4o-mini"),
-            "2": ("anthropic", "anthropic", "claude-3-5-sonnet-20241022"),
-            "3": ("gemini", "gemini", "gemini-2.5-flash"),
-            "4": ("groq", "groq", "llama-3.3-70b-versatile"),
-            "5": ("openrouter", "openrouter", "openai/gpt-4o-mini"),
-            "6": ("nvidia", "nvidia_nim", "meta/llama-3.1-8b-instruct"),
+            "1": ("openai",     "openai",      "gpt-4o-mini"),
+            "2": ("anthropic",  "anthropic",   "claude-3-5-sonnet-20241022"),
+            "3": ("gemini",     "gemini",      "gemini-2.5-flash"),
+            "4": ("groq",       "groq",        "llama-3.3-70b-versatile"),
+            "5": ("openrouter", "openrouter",  "openai/gpt-4o-mini"),
+            "6": ("nvidia",     "nvidia_nim",  "meta/llama-3.1-8b-instruct"),
+            "7": ("deepseek",   "deepseek",    "deepseek-chat"),
+            "8": ("ollama",     "ollama",      "llama3"),
         }
 
         provider_id, provider_name, default_model = provider_map.get(
             choice, ("openai", "openai", "gpt-4o-mini")
         )
 
-        api_key = typer.prompt(
-            f"Enter API Key for {provider_id.upper()}", hide_input=True
-        )
-        model = typer.prompt(
-            f"Enter model name for {provider_id.upper()}", default=default_model
-        )
+        if provider_id == "ollama":
+            console.print("  [dim]Ollama runs locally - no API key needed.[/dim]")
+            api_key = typer.prompt("Ollama API base URL", default="http://localhost:11434")
+            model   = typer.prompt("Ollama model name", default=default_model)
+            prov_entry = {
+                "id": provider_id, "provider": provider_name,
+                "model": model, "api_key": "ollama",
+                "api_base": api_key, "priority": 1, "enabled": True,
+            }
+        else:
+            api_key = typer.prompt(
+                f"Enter API Key for {provider_id.upper()}", hide_input=True
+            )
+            model = typer.prompt(
+                f"Enter model name", default=default_model
+            )
+            prov_entry = {
+                "id": provider_id, "provider": provider_name,
+                "model": model, "api_key": api_key,
+                "priority": 1, "enabled": True,
+            }
 
-        # Set default provider
         if "llm" not in config_data:
             config_data["llm"] = {}
         config_data["llm"]["default_provider"] = provider_id
-
-        # Disable all providers, configure/enable the selected one
         providers_list = config_data["llm"].get("providers", [])
         provider_found = False
-
         for prov in providers_list:
             prov["enabled"] = False
             if prov.get("id") == provider_id:
-                prov["provider"] = provider_name
-                prov["model"] = model
-                prov["api_key"] = api_key
-                prov["enabled"] = True
+                prov.update(prov_entry)
                 provider_found = True
-
         if not provider_found:
-            providers_list.append(
-                {
-                    "id": provider_id,
-                    "provider": provider_name,
-                    "model": model,
-                    "api_key": api_key,
-                    "priority": 1,
-                    "enabled": True,
-                }
-            )
+            providers_list.append(prov_entry)
         config_data["llm"]["providers"] = providers_list
+        console.print(f"  [green]OK[/green] Provider set: [cyan]{provider_id}[/cyan] / model: [cyan]{model}[/cyan]")
 
-        # Configure API Gateway Port
-        console.print("\n[bold yellow]┌────────────────────────────────────────────────────────┐[/bold yellow]")
-        console.print("[bold yellow]│                GATEWAY SERVER SETUP                    │[/bold yellow]")
-        console.print("[bold yellow]└────────────────────────────────────────────────────────┘[/bold yellow]")
-        port = typer.prompt("Enter HTTP Server Gateway Port", default=8000, type=int)
+        # ── STEP B: Gateway ─────────────────────────────────────────────────
+        console.print("\n[bold yellow]======================================================[/bold yellow]")
+        console.print("[bold yellow]   STEP 2/4 : GATEWAY SERVER SETUP                   [/bold yellow]")
+        console.print("[bold yellow]======================================================[/bold yellow]")
+        port = typer.prompt("HTTP Gateway Port", default=8000, type=int)
         if "api" not in config_data:
             config_data["api"] = {}
         config_data["api"]["host"] = "127.0.0.1"
         config_data["api"]["port"] = port
+        console.print(f"  [green]OK[/green] Gateway will run on port [cyan]{port}[/cyan]")
 
-        # Configure Channels
-        configure_channels = typer.confirm(
-            "\nWould you like to configure Chat Channels (Telegram/Discord) now?",
-            default=False,
-        )
+        # ── STEP C: Channels ────────────────────────────────────────────────
+        console.print("\n[bold yellow]======================================================[/bold yellow]")
+        console.print("[bold yellow]   STEP 3/4 : MESSAGING CHANNELS SETUP               [/bold yellow]")
+        console.print("[bold yellow]======================================================[/bold yellow]")
+        console.print("  Available channels: Telegram, Discord, WhatsApp, Slack, Signal, Matrix, IRC")
+        configure_channels = typer.confirm("Configure messaging channels now?", default=False)
+
         if configure_channels:
             if "channels" not in config_data:
-                config_data["channels"] = {"enabled": True}
-            else:
-                config_data["channels"]["enabled"] = True
+                config_data["channels"] = {}
+            config_data["channels"]["enabled"] = True
 
-            enable_tg = typer.confirm("Enable Telegram channel?", default=False)
-            if enable_tg:
-                tg_token = typer.prompt("Enter Telegram Bot Token", hide_input=True)
+            # Telegram
+            if typer.confirm("  Enable Telegram?", default=False):
+                tg_token = typer.prompt("  Telegram Bot Token", hide_input=True)
                 config_data["channels"]["telegram"] = {
-                    "enabled": True,
-                    "bot_token": tg_token,
-                    "dm_policy": "pairing",
-                    "allow_from": [],
+                    "enabled": True, "bot_token": tg_token,
+                    "dm_policy": "pairing", "allow_from": [],
                 }
+                console.print("  [green]OK[/green] Telegram configured")
 
-            enable_dc = typer.confirm("Enable Discord channel?", default=False)
-            if enable_dc:
-                dc_token = typer.prompt("Enter Discord Bot Token", hide_input=True)
+            # Discord
+            if typer.confirm("  Enable Discord?", default=False):
+                dc_token = typer.prompt("  Discord Bot Token", hide_input=True)
                 config_data["channels"]["discord"] = {
-                    "enabled": True,
-                    "bot_token": dc_token,
-                    "dm_policy": "pairing",
+                    "enabled": True, "bot_token": dc_token,
+                    "dm_policy": "pairing", "allow_from": [],
+                }
+                console.print("  [green]OK[/green] Discord configured")
+
+            # WhatsApp
+            if typer.confirm("  Enable WhatsApp Business API?", default=False):
+                wa_phone = typer.prompt("  WhatsApp Phone Number ID")
+                wa_token = typer.prompt("  WhatsApp Access Token", hide_input=True)
+                wa_verify = typer.prompt("  WhatsApp Verify Token", default="cyberclaw-verify")
+                config_data["channels"]["whatsapp"] = {
+                    "enabled": True, "phone_number_id": wa_phone,
+                    "access_token": wa_token, "verify_token": wa_verify,
+                    "dm_policy": "pairing", "allow_from": [],
+                }
+                console.print("  [green]OK[/green] WhatsApp configured")
+
+            # Slack
+            if typer.confirm("  Enable Slack?", default=False):
+                sl_bot   = typer.prompt("  Slack Bot Token (xoxb-...)", hide_input=True)
+                sl_app   = typer.prompt("  Slack App-Level Token (xapp-...)", hide_input=True)
+                config_data["channels"]["slack"] = {
+                    "enabled": True, "bot_token": sl_bot, "app_token": sl_app,
+                    "dm_policy": "pairing", "allow_from": [],
+                }
+                console.print("  [green]OK[/green] Slack configured")
+
+            # Signal
+            if typer.confirm("  Enable Signal (via signal-cli-rest-api)?", default=False):
+                sig_url   = typer.prompt("  Signal API URL", default="http://localhost:8080")
+                sig_phone = typer.prompt("  Signal Phone Number (e.g. +8801...)")
+                config_data["channels"]["signal"] = {
+                    "enabled": True, "api_url": sig_url,
+                    "phone_number": sig_phone,
+                    "dm_policy": "pairing", "allow_from": [],
+                }
+                console.print("  [green]OK[/green] Signal configured")
+
+            # Matrix
+            if typer.confirm("  Enable Matrix?", default=False):
+                mat_hs    = typer.prompt("  Matrix Homeserver (e.g. https://matrix.org)")
+                mat_user  = typer.prompt("  Matrix User ID (e.g. @bot:matrix.org)")
+                mat_token = typer.prompt("  Matrix Access Token", hide_input=True)
+                config_data["channels"]["matrix"] = {
+                    "enabled": True, "homeserver": mat_hs,
+                    "user_id": mat_user, "access_token": mat_token,
+                    "allowed_rooms": [], "allow_from": [],
+                }
+                console.print("  [green]OK[/green] Matrix configured")
+
+            # IRC
+            if typer.confirm("  Enable IRC?", default=False):
+                irc_server = typer.prompt("  IRC Server (e.g. irc.libera.chat)")
+                irc_nick   = typer.prompt("  IRC Nick", default="CyberClaw")
+                irc_chan   = typer.prompt("  IRC Channels (comma-separated, e.g. #ai,#bots)", default="#cyberclaw")
+                config_data["channels"]["irc"] = {
+                    "enabled": True, "server": irc_server, "port": 6667,
+                    "nick": irc_nick, "use_ssl": False,
+                    "channels": [c.strip() for c in irc_chan.split(",")],
                     "allow_from": [],
                 }
+                console.print("  [green]OK[/green] IRC configured")
 
-        # Write the customized configuration
+        # ── STEP D: Web Search + Skills ─────────────────────────────────────
+        console.print("\n[bold yellow]======================================================[/bold yellow]")
+        console.print("[bold yellow]   STEP 4/4 : WEB SEARCH & SKILLS                    [/bold yellow]")
+        console.print("[bold yellow]======================================================[/bold yellow]")
+
+        if typer.confirm("Enable Brave Web Search? (get free key at brave.com/search/api)", default=False):
+            brave_key = typer.prompt("  Brave Search API Key", hide_input=True)
+            config_data["websearch"] = {"provider": "brave", "api_key": brave_key}
+            console.print("  [green]OK[/green] Brave web search configured")
+
+        if typer.confirm("Enable Web Page Reading (crawl4ai)?", default=False):
+            config_data["webread"] = {"provider": "crawl4ai"}
+            console.print("  [green]OK[/green] Web read configured (install: pip install 'cyberclaw[crawler]')")
+
+        # Write config
         with open(config_path, "w") as f:
-            yaml.safe_dump(
-                config_data, f, sort_keys=False, default_flow_style=False
-            )
-        console.print(
-            f"      [green]OK[/green] Successfully generated customized [cyan]config.user.yaml[/cyan]!"
-        )
+            yaml.safe_dump(config_data, f, sort_keys=False, default_flow_style=False)
+        console.print(f"\n  [green]OK[/green] Config saved: [cyan]{config_path}[/cyan]")
 
     else:
-        # Fallback: Copy raw example config to user config
+        # Non-interactive: deploy template
         if not config_path.exists() and example_path.exists():
             config_path.write_text(example_path.read_text())
-            console.print(
-                f"      [green]OK[/green] Deployed new [cyan]config.user.yaml[/cyan] template!"
-            )
+            console.print(f"      [green]OK[/green] Deployed [cyan]config.user.yaml[/cyan] template!")
         elif config_path.exists():
-            console.print(
-                f"      [green]OK[/green] Found existing [cyan]config.user.yaml[/cyan] config."
-            )
+            console.print(f"      [green]OK[/green] Found existing [cyan]config.user.yaml[/cyan]")
         else:
             with open(config_path, "w") as f:
-                yaml.safe_dump(
-                    config_data, f, sort_keys=False, default_flow_style=False
-                )
-            console.print(
-                f"      [green]OK[/green] Generated default config file."
-            )
+                yaml.safe_dump(config_data, f, sort_keys=False, default_flow_style=False)
+            console.print(f"      [green]OK[/green] Generated default config file.")
 
     console.print(f"      [green]OK[/green] Config location: [cyan]{config_path}[/cyan]\n")
 
@@ -342,13 +406,12 @@ def onboard(
     console.print("[bold magenta]----------------------------------------------------------------------[/bold magenta]")
     console.print("[bold green]*** CYBERCLAW WORKSPACE SUCCESSFULLY ONBOARDED! ***[/bold green]")
     console.print("[bold magenta]----------------------------------------------------------------------[/bold magenta]")
-    console.print("Follow these next steps to complete your setup:")
-    console.print("  [bold white]1. Check Setup Diagnostics:[/bold white]")
-    console.print("     [cyan]cyberclaw doctor[/cyan]")
-    console.print("  [bold white]2. Encrypt your API Credentials:[/bold white]")
-    console.print("     [cyan]cyberclaw secrets set OPENAI_API_KEY \"your-key\"[/cyan]")
-    console.print("  [bold white]3. Launch Web Dashboard UI:[/bold white]")
-    console.print("     [cyan]cyberclaw gateway start[/cyan]")
+    console.print("Next steps:")
+    console.print("  [bold white]1.[/bold white] Run diagnostics  -> [cyan]cyberclaw doctor[/cyan]")
+    console.print("  [bold white]2.[/bold white] List providers   -> [cyan]cyberclaw providers[/cyan]")
+    console.print("  [bold white]3.[/bold white] List channels    -> [cyan]cyberclaw channels[/cyan]")
+    console.print("  [bold white]4.[/bold white] Launch Web UI    -> [cyan]cyberclaw gateway start[/cyan]")
+    console.print("  [bold white]5.[/bold white] Chat in terminal -> [cyan]cyberclaw chat[/cyan]")
     console.print("[bold magenta]======================================================================[/bold magenta]\n")
 
     if install_daemon:
@@ -417,44 +480,103 @@ def config_set(
 
 
 @app.command("doctor")
-def doctor(ctx: typer.Context) -> None:
-    """Check common setup and security issues."""
+def doctor(ctx: typer.Context, repair: bool = typer.Option(False, "--repair", help="Auto-repair common issues")) -> None:
+    """Check and optionally repair common setup issues."""
     cfg: Config = ctx.obj["config"]
+    workspace_path: Path = ctx.obj["workspace"]
+    config_path = workspace_path / "config.user.yaml"
+
+    console.print("\n[bold cyan]======================================================[/bold cyan]")
+    console.print("[bold cyan]   CYBERCLAW SYSTEM DIAGNOSTICS                      [/bold cyan]")
+    console.print("[bold cyan]======================================================[/bold cyan]\n")
+
     issues: list[str] = []
+    repairs: list[str] = []
 
-    enabled_providers = [provider for provider in cfg.llm.providers if provider.enabled]
+    # 1. Check providers
+    enabled_providers = [p for p in cfg.llm.providers if p.enabled]
     if not enabled_providers:
-        issues.append("No enabled LLM providers.")
+        issues.append("No enabled LLM providers configured.")
+        if repair:
+            console.print("[yellow]  [REPAIR] No provider enabled. Run `cyberclaw onboard` to configure.[/yellow]")
+    else:
+        console.print(f"  [green]OK[/green] LLM Providers: {len(enabled_providers)} enabled")
+        for provider in enabled_providers:
+            placeholder_markers = ("your-", "sk-your", "api-key-here", "sk-ant-your")
+            if any(marker in provider.api_key for marker in placeholder_markers):
+                issues.append(f"Provider `{provider.id}` has a placeholder API key.")
+                if repair:
+                    console.print(f"  [yellow][REPAIR] Fixing placeholder key for '{provider.id}'...[/yellow]")
+                    new_key = typer.prompt(f"  Enter real API key for {provider.id.upper()}", hide_input=True)
+                    try:
+                        config_data = yaml.safe_load(config_path.read_text()) or {}
+                        for prov in config_data.get("llm", {}).get("providers", []):
+                            if prov.get("id") == provider.id:
+                                prov["api_key"] = new_key
+                        config_path.write_text(yaml.safe_dump(config_data, sort_keys=False))
+                        repairs.append(f"Fixed API key for {provider.id}")
+                        console.print(f"  [green]REPAIRED[/green] API key updated for '{provider.id}'")
+                    except Exception as e:
+                        console.print(f"  [red]REPAIR FAILED:[/red] {e}")
+            else:
+                console.print(f"  [green]OK[/green] Provider '{provider.id}' -> model: {provider.model}")
 
-    for provider in enabled_providers:
-        placeholder_markers = ("your-", "sk-your", "api-key-here")
-        if any(marker in provider.api_key for marker in placeholder_markers):
-            issues.append(f"Provider `{provider.id}` appears to use a placeholder API key.")
+    # 2. Check workspace dirs
+    for d in ("agents", "skills", "crons", "memories"):
+        dpath = workspace_path / d
+        if dpath.exists():
+            console.print(f"  [green]OK[/green] Directory '{d}' exists")
+        else:
+            issues.append(f"Missing workspace directory: {d}")
+            if repair:
+                dpath.mkdir(parents=True, exist_ok=True)
+                repairs.append(f"Created missing directory: {d}")
+                console.print(f"  [green]REPAIRED[/green] Created directory '{d}'")
 
+    # 3. Check config file
+    if config_path.exists():
+        console.print(f"  [green]OK[/green] Config file: {config_path}")
+    else:
+        issues.append("config.user.yaml is missing.")
+        if repair:
+            example = workspace_path / "config.example.yaml"
+            if example.exists():
+                config_path.write_text(example.read_text())
+                repairs.append("Restored config.user.yaml from template")
+                console.print(f"  [green]REPAIRED[/green] Restored config.user.yaml")
+
+    # 4. Check channels
     if cfg.channels.enabled:
-        channel_names = ["telegram", "discord", "slack", "whatsapp", "matrix", "irc"]
+        channel_names = ["telegram", "discord", "slack", "whatsapp", "matrix", "irc", "signal"]
         for name in channel_names:
             channel = getattr(cfg.channels, name, None)
             if channel and getattr(channel, "enabled", False):
                 policy = getattr(channel, "dm_policy", None)
-                allow = getattr(channel, "allow_from", [])
+                allow  = getattr(channel, "allow_from", [])
                 if policy == "open" and "*" in allow:
-                    issues.append(f"{name} accepts all senders; use pairing unless this is intentional.")
+                    issues.append(f"Channel '{name}': dm_policy=open with allow_from=* is insecure.")
+                    console.print(f"  [yellow]WARN[/yellow] Channel '{name}': open to all senders (security risk)")
+                else:
+                    console.print(f"  [green]OK[/green] Channel '{name}' enabled (dm_policy={policy})")
 
-    # Check for exposed API keys
-    for provider in enabled_providers:
-        key = provider.api_key
-        if len(key) > 8 and not any(m in key for m in ("your-", "api-key-here")):
-            # Real key present, warn about plain text
-            pass  # Will be fixed when encrypted secrets are enabled
-
-    if issues:
-        console.print("[yellow]CyberClaw doctor found issues:[/yellow]")
+    # 5. Summary
+    console.print()
+    if issues and not repairs:
+        console.print(f"[yellow]Found {len(issues)} issue(s):[/yellow]")
         for issue in issues:
             console.print(f"  [!] {issue}")
+        console.print(f"\n[dim]Run with --repair to auto-fix: [/dim][cyan]cyberclaw doctor --repair[/cyan]")
         raise typer.Exit(1)
-
-    console.print("[green]OK - CyberClaw doctor found no blocking issues.[/green]")
+    elif repairs:
+        console.print(f"[green]Repaired {len(repairs)} issue(s) automatically![/green]")
+        for r in repairs:
+            console.print(f"  [+] {r}")
+        remaining = len(issues) - len(repairs)
+        if remaining > 0:
+            console.print(f"[yellow]{remaining} issue(s) still need manual attention.[/yellow]")
+    else:
+        console.print("[bold green]All checks passed - CyberClaw is healthy![/bold green]")
+    console.print("[bold cyan]======================================================[/bold cyan]\n")
 
 
 @app.command("channels")
