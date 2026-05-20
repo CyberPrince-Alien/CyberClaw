@@ -162,12 +162,15 @@
             <p>Ready to deploy? Follow this step-by-step setup to execute the first-time onboarding system, check system health, and boot the web dashboard.</p>
           </div>
 
-          <h2>Step 1: One-Line Package Installation</h2>
-          <p>Install the repository dependencies using <code>pip</code> to register the global executable on the local system:</p>
-          <pre><code># Install directly in editable mode
+          <h2>Step 1: One-Line Package & GitHub Installation</h2>
+          <p>Install the entire platform directly from your live GitHub (or from your local cloned folder):</p>
+          <pre><code># Direct One-Line Installation from GitHub (No folder downloads needed!)
+pip install git+https://github.com/CyberPrince-Alien/CyberClaw.git
+
+# Or install from local cloned folder in editable mode
 pip install -e .
 
-# Or install optional speech-to-text / voice dependencies
+# Or install optional speech-to-text / voice capabilities
 pip install -e .[voice]</code></pre>
 
           <h2>Step 2: Execute First-Time Onboarding</h2>
