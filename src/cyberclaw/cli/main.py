@@ -158,19 +158,184 @@ def onboard(
         dirs_created.append(directory)
     console.print(f"      [green]OK[/green] Folders initialized: [cyan]{', '.join(dirs_created)}[/cyan]\n")
 
-    # Step 3: Deploy configuration
-    console.print("[yellow][FILE] Step 3: Deploying user configuration files...[/yellow]")
+    # Step 3: Deploy and Configure setting
+    console.print("[yellow][FILE] Step 3: Setting up user configuration files...[/yellow]")
     config_path = workspace_path / "config.user.yaml"
     example_path = workspace_path / "config.example.yaml"
-    if not config_path.exists() and example_path.exists():
-        config_path.write_text(example_path.read_text())
-        console.print(f"      [green]OK[/green] Deployed new [cyan]config.user.yaml[/cyan] template!")
-    elif config_path.exists():
-        console.print(f"      [green]OK[/green] Found existing [cyan]config.user.yaml[/cyan] config.")
+
+    # Load initial template settings
+    config_data = {}
+    if example_path.exists():
+        try:
+            with open(example_path) as f:
+                config_data = yaml.safe_load(f) or {}
+        except Exception:
+            pass
+
+    if not config_data:
+        # Core fallback template
+        config_data = {
+            "llm": {
+                "default_provider": "openai",
+                "temperature": 0.7,
+                "max_tokens": 2048,
+                "enable_failover": True,
+                "providers": [
+                    {
+                        "id": "openai",
+                        "provider": "openai",
+                        "model": "gpt-4",
+                        "api_key": "sk-your-openai-api-key-here",
+                        "priority": 1,
+                        "enabled": True,
+                    }
+                ],
+            },
+            "default_agent": "cyberclaw",
+            "api": {"host": "127.0.0.1", "port": 8000},
+        }
+
+    # Prompt user for interactive configuration
+    run_interactive = typer.confirm(
+        "\nWould you like to run the Interactive Configuration Wizard to configure your AI provider now?",
+        default=False,
+    )
+
+    if run_interactive:
+        console.print("\n[bold yellow]┌────────────────────────────────────────────────────────┐[/bold yellow]")
+        console.print("[bold yellow]│            AI LLM PROVIDER CONFIGURATION               │[/bold yellow]")
+        console.print("[bold yellow]└────────────────────────────────────────────────────────┘[/bold yellow]")
+        console.print("Select your default AI LLM Provider:")
+        console.print("  1) OpenAI")
+        console.print("  2) Anthropic (Claude)")
+        console.print("  3) Gemini (Google)")
+        console.print("  4) Groq")
+        console.print("  5) OpenRouter")
+        console.print("  6) NVIDIA NIM")
+
+        choice = typer.prompt("\nEnter choice (1-6)", default="1")
+
+        provider_map = {
+            "1": ("openai", "openai", "gpt-4o-mini"),
+            "2": ("anthropic", "anthropic", "claude-3-5-sonnet-20241022"),
+            "3": ("gemini", "gemini", "gemini-2.5-flash"),
+            "4": ("groq", "groq", "llama-3.3-70b-versatile"),
+            "5": ("openrouter", "openrouter", "openai/gpt-4o-mini"),
+            "6": ("nvidia", "nvidia_nim", "meta/llama-3.1-8b-instruct"),
+        }
+
+        provider_id, provider_name, default_model = provider_map.get(
+            choice, ("openai", "openai", "gpt-4o-mini")
+        )
+
+        api_key = typer.prompt(
+            f"Enter API Key for {provider_id.upper()}", hide_input=True
+        )
+        model = typer.prompt(
+            f"Enter model name for {provider_id.upper()}", default=default_model
+        )
+
+        # Set default provider
+        if "llm" not in config_data:
+            config_data["llm"] = {}
+        config_data["llm"]["default_provider"] = provider_id
+
+        # Disable all providers, configure/enable the selected one
+        providers_list = config_data["llm"].get("providers", [])
+        provider_found = False
+
+        for prov in providers_list:
+            prov["enabled"] = False
+            if prov.get("id") == provider_id:
+                prov["provider"] = provider_name
+                prov["model"] = model
+                prov["api_key"] = api_key
+                prov["enabled"] = True
+                provider_found = True
+
+        if not provider_found:
+            providers_list.append(
+                {
+                    "id": provider_id,
+                    "provider": provider_name,
+                    "model": model,
+                    "api_key": api_key,
+                    "priority": 1,
+                    "enabled": True,
+                }
+            )
+        config_data["llm"]["providers"] = providers_list
+
+        # Configure API Gateway Port
+        console.print("\n[bold yellow]┌────────────────────────────────────────────────────────┐[/bold yellow]")
+        console.print("[bold yellow]│                GATEWAY SERVER SETUP                    │[/bold yellow]")
+        console.print("[bold yellow]└────────────────────────────────────────────────────────┘[/bold yellow]")
+        port = typer.prompt("Enter HTTP Server Gateway Port", default=8000, type=int)
+        if "api" not in config_data:
+            config_data["api"] = {}
+        config_data["api"]["host"] = "127.0.0.1"
+        config_data["api"]["port"] = port
+
+        # Configure Channels
+        configure_channels = typer.confirm(
+            "\nWould you like to configure Chat Channels (Telegram/Discord) now?",
+            default=False,
+        )
+        if configure_channels:
+            if "channels" not in config_data:
+                config_data["channels"] = {"enabled": True}
+            else:
+                config_data["channels"]["enabled"] = True
+
+            enable_tg = typer.confirm("Enable Telegram channel?", default=False)
+            if enable_tg:
+                tg_token = typer.prompt("Enter Telegram Bot Token", hide_input=True)
+                config_data["channels"]["telegram"] = {
+                    "enabled": True,
+                    "bot_token": tg_token,
+                    "dm_policy": "pairing",
+                    "allow_from": [],
+                }
+
+            enable_dc = typer.confirm("Enable Discord channel?", default=False)
+            if enable_dc:
+                dc_token = typer.prompt("Enter Discord Bot Token", hide_input=True)
+                config_data["channels"]["discord"] = {
+                    "enabled": True,
+                    "bot_token": dc_token,
+                    "dm_policy": "pairing",
+                    "allow_from": [],
+                }
+
+        # Write the customized configuration
+        with open(config_path, "w") as f:
+            yaml.safe_dump(
+                config_data, f, sort_keys=False, default_flow_style=False
+            )
+        console.print(
+            f"      [green]OK[/green] Successfully generated customized [cyan]config.user.yaml[/cyan]!"
+        )
+
     else:
-        # Fallback empty config if example doesn't exist
-        config_path.write_text("llm:\n  providers: []\n")
-        console.print(f"      [green]OK[/green] Generated default config file.")
+        # Fallback: Copy raw example config to user config
+        if not config_path.exists() and example_path.exists():
+            config_path.write_text(example_path.read_text())
+            console.print(
+                f"      [green]OK[/green] Deployed new [cyan]config.user.yaml[/cyan] template!"
+            )
+        elif config_path.exists():
+            console.print(
+                f"      [green]OK[/green] Found existing [cyan]config.user.yaml[/cyan] config."
+            )
+        else:
+            with open(config_path, "w") as f:
+                yaml.safe_dump(
+                    config_data, f, sort_keys=False, default_flow_style=False
+                )
+            console.print(
+                f"      [green]OK[/green] Generated default config file."
+            )
+
     console.print(f"      [green]OK[/green] Config location: [cyan]{config_path}[/cyan]\n")
 
     # Final Summary
