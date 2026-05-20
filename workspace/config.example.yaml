@@ -1,0 +1,82 @@
+# LLM provider configuration, follow https://docs.litellm.ai/docs/providers for your own provider config
+llm:
+  # Default provider ID to use
+  default_provider: openai
+
+  # Temperature and token limits (applied to all providers)
+  temperature: 0.7
+  max_tokens: 2048
+
+  # Enable automatic failover to backup providers
+  enable_failover: true
+
+  # Multiple LLM providers with priority-based failover
+  # Lower priority number = higher priority
+  providers:
+    - id: openai
+      provider: openai
+      model: gpt-4
+      api_key: sk-your-openai-api-key-here  # WARNING: Replace with your actual key, never commit real keys!
+      priority: 1
+      enabled: true
+
+    - id: anthropic
+      provider: anthropic
+      model: claude-3-opus-20240229
+      api_key: sk-ant-your-anthropic-api-key-here
+      priority: 2
+      enabled: false
+
+    - id: gemini
+      provider: gemini
+      model: gemini-2.5-flash
+      api_key: your-gemini-api-key-here
+      priority: 3
+      enabled: false
+
+    - id: openrouter
+      provider: openrouter
+      model: openai/gpt-4o-mini
+      api_key: sk-or-your-openrouter-api-key-here
+      api_base: https://openrouter.ai/api/v1
+      priority: 4
+      enabled: false
+
+    - id: groq
+      provider: groq
+      model: llama-3.3-70b-versatile
+      api_key: gsk-your-groq-api-key-here
+      priority: 5
+      enabled: false
+
+    - id: nvidia
+      provider: nvidia_nim
+      model: meta/llama-3.1-8b-instruct
+      api_key: nvapi-your-nvidia-api-key-here
+      priority: 6
+      enabled: false
+
+default_agent: cyberclaw
+
+# Get your API key at https://brave.com/search/api/
+# websearch:
+#   provider: brave
+#   api_key: your-brave-search-api-key
+
+# webread:
+#   provider: crawl4ai
+
+# api: {}
+
+# channels:
+#   enabled: true
+#   telegram:
+#     enabled: true
+#     bot_token: your-bot-token
+#     dm_policy: pairing   # pairing | allowlist | open
+#     allow_from: []       # source strings, user IDs, or "*" when dm_policy is open
+#   discord:
+#     enabled: true
+#     bot_token: your-bot-token
+#     dm_policy: pairing
+#     allow_from: []

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberClaw Masterclass — The Complete Professional Blueprint</title>
+  <meta name="description" content="CyberClaw AI Assistant System Comprehensive Documentation, Developer Architecture, and 17-Command Course Guide">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="docs-wrapper">
+    <!-- Sidebar Navigation -->
+    <aside class="docs-sidebar">
+      <div class="sidebar-brand" style="flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 20px 10px; border-bottom: 1px solid var(--border-glass);">
+        <img src="./cyberclaw_logo.png" alt="CyberClaw Logo" style="width: 70px; height: 70px; border-radius: 12px; box-shadow: 0 0 20px rgba(114, 9, 183, 0.4); object-fit: cover;">
+        <h1 style="font-size: 1.15rem; margin-top: 4px; background: linear-gradient(90deg, #fff, #b5b3cd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;">CyberClaw</h1>
+        <span style="font-size: 0.75rem; color: #4cc9f0; text-shadow: 0 0 10px rgba(76, 201, 240, 0.3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Made by Cyber Prince</span>
+      </div>
+      
+      <div class="search-box">
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="docsSearch" placeholder="Search master topics...">
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-section">
+          <div class="menu-section-title">Getting Started</div>
+          <a class="menu-item active" data-view="intro">
+            <span class="menu-item-icon">🚀</span>
+            <span class="menu-item-text">Introduction & Booting</span>
+          </a>
+          <a class="menu-item" data-view="quickstart">
+            <span class="menu-item-icon">⚡</span>
+            <span class="menu-item-text">Quick Launch Guide</span>
+          </a>
+        </div>
+
+        <div class="menu-section">
+          <div class="menu-section-title">CLI Masterclass</div>
+          <a class="menu-item" data-view="cli-reference">
+            <span class="menu-item-icon">💻</span>
+            <span class="menu-item-text">17-Command Reference</span>
+          </a>
+        </div>
+
+        <div class="menu-section">
+          <div class="menu-section-title">Core Systems</div>
+          <a class="menu-item" data-view="model-catalog">
+            <span class="menu-item-icon">🤖</span>
+            <span class="menu-item-text">Model Catalog Details</span>
+          </a>
+          <a class="menu-item" data-view="task-system">
+            <span class="menu-item-icon">⚙️</span>
+            <span class="menu-item-text">Task System & SQLite</span>
+          </a>
+          <a class="menu-item" data-view="context-engine">
+            <span class="menu-item-icon">🧠</span>
+            <span class="menu-item-text">Context & Prompts</span>
+          </a>
+        </div>
+
+        <div class="menu-section">
+          <div class="menu-section-title">Channels & Tools</div>
+          <a class="menu-item" data-view="auto-reply">
+            <span class="menu-item-icon">📡</span>
+            <span class="menu-item-text">Auto-Reply & Channels</span>
+          </a>
+          <a class="menu-item" data-view="tools">
+            <span class="menu-item-icon">🛠️</span>
+            <span class="menu-item-text">AI Tools Suite</span>
+          </a>
+          <a class="menu-item" data-view="voice">
+            <span class="menu-item-icon">🎙️</span>
+            <span class="menu-item-text">Voice & STT</span>
+          </a>
+        </div>
+
+        <div class="menu-section">
+          <div class="menu-section-title">Security & Deployment</div>
+          <a class="menu-item" data-view="security">
+            <span class="menu-item-icon">🔒</span>
+            <span class="menu-item-text">Security & Vault</span>
+          </a>
+          <a class="menu-item" data-view="deployment">
+            <span class="menu-item-icon">🏭</span>
+            <span class="menu-item-text">Services & Metrics</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <main class="docs-main">
+      <header class="docs-header">
+        <div class="header-meta">
+          <h2 id="viewTitle">Introduction & Booting</h2>
+        </div>
+        <div class="header-links">
+          <a href="#" class="btn-github">
+            <span>📦</span> CyberClaw v0.2.0-Parity
+          </a>
+        </div>
+      </header>
+
+      <div class="docs-content">
+
+        <!-- ── SECTION: INTRO ────────────────────────────────────────── -->
+        <section id="section-intro" class="doc-section active">
+          <div class="doc-hero">
+            <h1>Introduction & Booting</h1>
+            <p>Welcome, bhai, to the masterclass documentation of CyberClaw. CyberClaw is a highly-scalable, production-ready AI orchestration platform matching the robust standards of the reference architecture. Learn how it works from day one.</p>
+          </div>
+
+          <h2>What is CyberClaw?</h2>
+          <p>CyberClaw is a personal, multi-channel AI platform. Unlike generic, basic AI scripts, CyberClaw is designed around a unified asynchronous event architecture, hosting 17 console CLI operational triggers, high-security AES symmetric credential vaulting, Prometheus health meters, background detached agent executors, and nine communications pipelines.</p>
+
+          <div class="features-grid">
+            <div class="feature-card">
+              <div class="feature-card-header">
+                <div class="feature-card-icon">⚡</div>
+                <h3>CLI-First Engine</h3>
+              </div>
+              <p>17 robust commands providing full diagnostic operations, configuration setups, live vaulting, and terminal-friendly chat loops.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-card-header">
+                <div class="feature-card-icon">🧠</div>
+                <h3>12 Gap Integrations</h3>
+              </div>
+              <p>Includes complete parity items like Model Pricing Catalogs, sqlite task registers, and dynamic token context engines.</p>
+            </div>
+          </div>
+
+          <h2>Visual Course Syllabus</h2>
+          <p>Follow our structured course timeline designed to turn any user into a professional CyberClaw master:</p>
+          <div class="course-timeline">
+            <div class="timeline-step">
+              <h3>Chapter 1: Quick Launch & Onboarding</h3>
+              <p>Install dependencies, run the onboarding setup, verify diagnostic states, and test chat hooks.</p>
+            </div>
+            <div class="timeline-step">
+              <h3>Chapter 2: Master the Model Catalog</h3>
+              <p>Manage pricing calculations, configure multiple LLM backends, and run live API discovery.</p>
+            </div>
+            <div class="timeline-step">
+              <h3>Chapter 3: Spawn Background Tasks</h3>
+              <p>Trigger background detached workers and build customized sqlite tasks.</p>
+            </div>
+            <div class="timeline-step">
+              <h3>Chapter 4: Deploy Securely</h3>
+              <p>Configure AES symmetric secrets, pairing systems, and Windows NT background services.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── SECTION: QUICKSTART ────────────────────────────────────── -->
+        <section id="section-quickstart" class="doc-section">
+          <div class="doc-hero">
+            <h1>Quick Launch & Onboarding Guide</h1>
+            <p>Ready to deploy? Follow this step-by-step setup to execute the first-time onboarding system, check system health, and boot the web dashboard.</p>
+          </div>
+
+          <h2>Step 1: One-Line Package Installation</h2>
+          <p>Install the repository dependencies using <code>pip</code> to register the global executable on the local system:</p>
+          <pre><code># Install directly in editable mode
+pip install -e .
+
+# Or install optional speech-to-text / voice dependencies
+pip install -e .[voice]</code></pre>
+
+          <h2>Step 2: Execute First-Time Onboarding</h2>
+          <p>Just like the reference setup scripts, run the onboarding tool to automatically generate the local workspace folder structure, system settings, and SQLite tables:</p>
+          <pre><code>cyberclaw onboard</code></pre>
+          <div class="info-note">
+            <h4>📁 WHAT ONBOARDING CREATES:</h4>
+            <ul>
+              <li><strong>`config.user.yaml`</strong> ➔ Default YAML config containing templates for channels, voice, and system credentials.</li>
+              <li><strong>`.secrets/`</strong> ➔ The folder structure for secure local vaults.</li>
+              <li><strong>`history.db` & `tasks.db`</strong> ➔ The core SQL databases for storing your chat history and running background jobs.</li>
+            </ul>
+          </div>
+
+          <h2>Step 3: Run System Diagnostics (The Doctor Check)</h2>
+          <p>Run the diagnosis command to verify permissions, config schemas, active databases, and key encryption flags:</p>
+          <pre><code>cyberclaw doctor</code></pre>
+          <p>This command runs 10+ validation checks and prints a beautiful terminal checklist. If there is a configuration error, it tells you exactly how to fix it!</p>
+
+          <h2>Step 4: Secure Your Vault</h2>
+          <p>CyberClaw uses cryptography to store your LLM API keys. Encrypt your API key with the secrets store:</p>
+          <pre><code>cyberclaw secrets set OPENAI_API_KEY "your-openai-api-key-here"
+cyberclaw secrets set DEEPGRAM_API_KEY "your-deepgram-api-key-here"</code></pre>
+
+          <h2>Step 5: Launch Interactive Web Control Center</h2>
+          <p>Launch the background gateway server to host the Web UI Control Panel:</p>
+          <pre><code>cyberclaw gateway start</code></pre>
+          <div class="info-note">
+            <h4>💡 TIP</h4>
+            <p>Open your browser and navigate to <strong>http://localhost:8000/ui</strong>. You will be greeted by the premium Dark Space Web UI Control Dashboard where you can monitor active channels, search live models, check running tasks, and chat directly!</p>
+          </div>
+        </section>
+
+        <!-- ── SECTION: CLI REFERENCE ────────────────────────────────── -->
+        <section id="section-cli-reference" class="doc-section">
+          <div class="doc-hero">
+            <h1>The 17-Command Reference Masterclass</h1>
+            <p>CyberClaw features a powerful console command center. Here is the exhaustive reference tutorial for all 17 commands available in the CLI.</p>
+          </div>
+
+          <h2>1. `onboard`</h2>
+          <p>Initializes a fresh workspace directory structure, configuring local templates, assets, and files necessary for first-run execution.</p>
+          <pre><code>cyberclaw onboard</code></pre>
+
+          <h2>2. `doctor`</h2>
+          <p>Runs self-diagnostic protocols, checking configurations, local sqlite access, environment API variables, and AES credentials.</p>
+          <pre><code>cyberclaw doctor</code></pre>
+
+          <h2>3. `chat`</h2>
+          <p>Starts an interactive CLI session where you can chat directly with your AI in real-time, test system tools, and view response times.</p>
+          <pre><code>cyberclaw chat</code></pre>
+
+          <h2>4. `agent`</h2>
+          <p>Runs a single, non-interactive, turn-based query for command-line batch piping or developer automated tasks.</p>
+          <pre><code>cyberclaw agent --message "Scrape the README file and print the results"</code></pre>
+
+          <h2>5. `server`</h2>
+          <p>Starts the core 24/7 background process execution layer, loading hot-load schedules, cron managers, and message busses.</p>
+          <pre><code>cyberclaw server</code></pre>
+
+          <h2>6. `gateway`</h2>
+          <p>Manages API gateways, starts background web servers, and hosts the beautiful Web UI Control panel.</p>
+          <pre><code># Start the local gateway and host the Web UI
+cyberclaw gateway start --port 8000
+
+# Stop the gateway server
+cyberclaw gateway stop</code></pre>
+
+          <h2>7. `config`</h2>
+          <p>Inspects or updates the current settings dynamically. Prints out the configuration values cleanly.</p>
+          <pre><code># Show active configuration settings
+cyberclaw config show
+
+# Set workspace values programmatically
+cyberclaw config set workspace.path "./my_workspace"</code></pre>
+
+          <h2>8. `secrets`</h2>
+          <p>Interactive manager for adding, removing, and listing encrypted credentials. All values are securely locked.</p>
+          <pre><code># Securely encrypt an API key
+cyberclaw secrets set DEEPGRAM_API_KEY "token"
+
+# List vaulted keys
+cyberclaw secrets list</code></pre>
+
+          <h2>9. `sessions`</h2>
+          <p>Inspects active conversational logs, titles, session tokens, and database indices directly from the console.</p>
+          <pre><code>cyberclaw sessions list</code></pre>
+
+          <h2>10. `pairing`</h2>
+          <p>Manages messaging pairing locks for Telegram, Discord, and WhatsApp, keeping external access secure.</p>
+          <pre><code># Approve an inbound pairing code
+cyberclaw pairing approve --code "123456"</code></pre>
+
+          <h2>11. `channels`</h2>
+          <p>Lists all configured communications pipelines, showing connection indicators, REST endpoints, and statuses.</p>
+          <pre><code>cyberclaw channels list</code></pre>
+
+          <h2>12. `providers`</h2>
+          <p>Lists available API backends (OpenAI, Gemini, Groq, Anthropic) without revealing any secret keys.</p>
+          <pre><code>cyberclaw providers list</code></pre>
+
+          <h2>13. `talk`</h2>
+          <p>Launches active streaming voice mode, listening for wake-word keywords or spacebar fallback commands.</p>
+          <pre><code>cyberclaw talk</code></pre>
+
+          <h2>14. `migrate-history`</h2>
+          <p>Converts legacy JSONL local files into robust SQLite database tables, preserving conversation records with ACID protection.</p>
+          <pre><code>cyberclaw migrate-history</code></pre>
+
+          <h2>15. `service`</h2>
+          <p>Registers and controls CyberClaw as a persistent background service on Windows operating systems.</p>
+          <pre><code># Install background service
+cyberclaw service install
+
+# Start background service execution
+cyberclaw service start</code></pre>
+
+          <h2>16. `update`</h2>
+          <p>Queries online updates and upgrades your local environment automatically using the uv package runner.</p>
+          <pre><code>cyberclaw update</code></pre>
+
+          <h2>17. `version`</h2>
+          <p>Displays the current version, build signature, and workspace configurations.</p>
+          <pre><code>cyberclaw version</code></pre>
+        </section>
+
+        <!-- ── SECTION: MODEL CATALOG DETAILS ────────────────────────── -->
+        <section id="section-model-catalog" class="doc-section">
+          <div class="doc-hero">
+            <h1>Model Catalog System</h1>
+            <p>Learn how to manage the global LLM model library, calculate accurate pricing costs, and query the cheapest or most capable engines.</p>
+          </div>
+
+          <h2>Overview</h2>
+          <p>CyberClaw holds a local model catalog tracking pricing values per million tokens (input/output), context windows, capabilities (reasoning, vision, tool use), status (available/preview/deprecated), and auto-replacements.</p>
+
+          <h2>Common Catalog Code Operations</h2>
+          <p>Query or find appropriate models in Python using these simple operations:</p>
+          <pre><code>from cyberclaw.core.model_catalog import get_catalog
+
+# Initialize central registry
+catalog = get_catalog()
+
+# Estimate token usage cost in USD
+cost = catalog.estimate_cost("openai", "gpt-4o-mini", input_tokens=1500, output_tokens=800)
+print(f"Call Cost: ${cost:.6f} USD")
+
+# Query the cheapest model that supports vision
+cheapest_vision_model = catalog.find_cheapest(needs_vision=True)
+print(f"Selected Model: {cheapest_vision_model.ref}")</code></pre>
+
+          <h2>Live Model API Discovery</h2>
+          <p>You can discover models on-the-fly directly from any standard OpenAI-compatible API endpoint:</p>
+          <pre><code># Query models from Groq or OpenRouter live API using your credential
+await catalog.discover_live(provider="groq", api_key="your-api-key")</code></pre>
+        </section>
+
+        <!-- ── SECTION: TASK SYSTEM & SQLITE ─────────────────────────── -->
+        <section id="section-task-system" class="doc-section">
+          <div class="doc-hero">
+            <h1>Task System & Database Schema</h1>
+            <p>Master background task workers and explore the ACID-protected SQLite schema holding tasks and conversation histories.</p>
+          </div>
+
+          <h2>Database Locations</h2>
+          <p>CyberClaw holds two dedicated database directories under your workspace folder:</p>
+          <ul>
+            <li><strong>History Store:</strong> <code>workspace/history.db</code></li>
+            <li><strong>Task Registry:</strong> <code>workspace/.tasks/tasks.db</code></li>
+          </ul>
+
+          <h2>The SQLite Task Schema</h2>
+          <p>Below is the exact database schema configuration defining background tasks:</p>
+          <pre><code>CREATE TABLE tasks (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    agent_id TEXT NOT NULL,
+    instruction TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    priority TEXT NOT NULL DEFAULT 'normal',
+    result TEXT DEFAULT '',
+    error TEXT DEFAULT '',
+    created_at REAL NOT NULL,
+    started_at REAL DEFAULT 0,
+    completed_at REAL DEFAULT 0,
+    timeout_seconds INTEGER DEFAULT 300,
+    retry_count INTEGER DEFAULT 0,
+    max_retries INTEGER DEFAULT 1,
+    metadata TEXT DEFAULT '{}'
+);</code></pre>
+
+          <h2>Running a Task Programmatically</h2>
+          <pre><code>from cyberclaw.core.tasks import TaskStore, TaskExecutor
+from pathlib import Path
+
+# Connect to database and submit tasks
+store = TaskStore(Path("./workspace/.tasks/tasks.db"))
+executor = TaskExecutor(store, max_concurrent=3)
+
+task = await executor.submit(
+    name="Log analyzer",
+    agent_id="cyberclaw",
+    instruction="Analyze production error records from database"
+)
+print(f"Task submitted: {task.id}")</code></pre>
+        </section>
+
+        <!-- ── SECTION: CONTEXT ENGINE ───────────────────────────────── -->
+        <section id="section-context-engine" class="doc-section">
+          <div class="doc-hero">
+            <h1>Context Engine</h1>
+            <p>Discover how CyberClaw dynamically builds token-budgeted prompt payloads using plugin-contributed data feeds.</p>
+          </div>
+
+          <h2>Dynamic Context Injection</h2>
+          <p>The <code>ContextEngine</code> automatically collects context updates from multiple sources, sorts them by priority, and ensures the payload fits perfectly inside the context window constraint before querying the LLM provider.</p>
+
+          <h2>Registering a Custom Context Feed</h2>
+          <p>Add a new system context provider in your backend plugins:</p>
+          <pre><code>from cyberclaw.core.context_engine import ContextEngine, ContextRequest, ContextContribution
+
+engine = ContextEngine()
+
+# Register a prioritized feed that injects the current timestamp
+def system_time_provider(request: ContextRequest):
+    import time
+    return ContextContribution(
+        source="time_agent",
+        priority=100, # High priority, injected first
+        content=f"Current System Time: {time.strftime('%Y-%m-%d %H:%M:%S')}"
+    )
+
+engine.register_provider("time", system_time_provider)</code></pre>
+        </section>
+
+        <!-- ── SECTION: AUTO-REPLY ───────────────────────────────────── -->
+        <section id="section-auto-reply" class="doc-section">
+          <div class="doc-hero">
+            <h1>Auto-Reply & External Channels</h1>
+            <p>A step-by-step tutorial on connecting CyberClaw to Telegram, Signal, WhatsApp, or Discord and managing rules.</p>
+          </div>
+
+          <h2>1. Signal Rest Bridge Integration</h2>
+          <p>The Signal channel integrates securely via `signal-cli-rest-api`. Configure the endpoints in your active configurations:</p>
+          <pre><code># config.user.yaml
+channels:
+  signal:
+    enabled: true
+    rest_url: "http://localhost:8080"
+    phone_number: "+1234567890"</code></pre>
+
+          <h2>2. Telegram Bot Integration</h2>
+          <p>Create a bot via BotFather, get the bot token, and update the secrets store:</p>
+          <pre><code>cyberclaw secrets set TELEGRAM_BOT_TOKEN "your-bot-token"</code></pre>
+
+          <h2>3. Discord Bot Integration</h2>
+          <p>Create an application on Discord Developer Portal, configure bot intents (Message Content intent is required), and add the bot token:</p>
+          <pre><code>cyberclaw secrets set DISCORD_BOT_TOKEN "your-bot-token"</code></pre>
+        </section>
+
+        <!-- ── SECTION: TOOLS ────────────────────────────────────────── -->
+        <section id="section-tools" class="doc-section">
+          <div class="doc-hero">
+            <h1>Integrated AI Tools Suite</h1>
+            <p>Discover how CyberClaw empowers your assistant with browsing capabilities, web search, vision analysis, and media generators.</p>
+          </div>
+
+          <h2>Using Playwright Browser Tool</h2>
+          <p>Ensure Playwright is installed on your local computer to run active web operations:</p>
+          <pre><code>playwright install chromium</code></pre>
+
+          <h2>Configuring Web Search Providers</h2>
+          <p>Search automatically routes queries across Brave Search, Tavily AI, or DuckDuckGo (keyless) backends based on available vault keys:</p>
+          <pre><code># Set a Search API credential to elevate results
+cyberclaw secrets set BRAVE_API_KEY "brave-token"</code></pre>
+
+          <h2>Image & Video Generation</h2>
+          <p>Trigger creative tools natively. Supported integrations include Runway Gen-3 and Suno AI models.</p>
+        </section>
+
+        <!-- ── SECTION: VOICE ────────────────────────────────────────── -->
+        <section id="section-voice" class="doc-section">
+          <div class="doc-hero">
+            <h1>Voice & Streaming STT</h1>
+            <p>Master real-time conversational capabilities with premium voice transcription and audio synthesis.</p>
+          </div>
+
+          <h2>WebSocket Transcription (Deepgram)</h2>
+          <p>CyberClaw supports real-time streaming speech-to-text. Audio bytes are sent live over WebSockets for rapid transcriptions:</p>
+          <pre><code>from cyberclaw.voice.realtime_stt import RealtimeTranscriptionManager
+
+mgr = RealtimeTranscriptionManager()
+session = mgr.create_session("my-session", provider="deepgram", api_key="your-deepgram-key")
+
+# Start receiving transcribed segments
+await session.start(on_transcript=lambda segment: print("Transcribed:", segment.text))</code></pre>
+
+          <h2>Wake Word & Push-to-Talk</h2>
+          <p>Toggle wake word detection ("Hey CyberClaw") or use the keyboard spacebar fallback trigger to begin conversing instantly:</p>
+          <pre><code>cyberclaw talk</code></pre>
+        </section>
+
+        <!-- ── SECTION: SECURITY ─────────────────────────────────────── -->
+        <section id="section-security" class="doc-section">
+          <div class="doc-hero">
+            <h1>Security & Cryptography</h1>
+            <p>Learn how CyberClaw protects sensitive corporate records, API keys, and messaging pipelines.</p>
+          </div>
+
+          <h2>AES Symmetric Secrets</h2>
+          <p>API keys are securely vaulted in <code>vault.json</code> using Fernet symmetric encryption. The key is dynamically derived from your local machine's unique hardware signature.</p>
+
+          <h2>Configuring the Vault</h2>
+          <pre><code># Add a secret safely
+cyberclaw secrets set OPENAI_API_KEY "sk-..."
+
+# Remove a secret safely
+cyberclaw secrets delete OPENAI_API_KEY
+
+# List all securely vaulted variables (redacts sensitive characters)
+cyberclaw secrets list</code></pre>
+        </section>
+
+        <!-- ── SECTION: DEPLOYMENT ───────────────────────────────────── -->
+        <section id="section-deployment" class="doc-section">
+          <div class="doc-hero">
+            <h1>Services & Scaling</h1>
+            <p>Learn how to scale CyberClaw for production, monitor health metrics with Prometheus, and update files.</p>
+          </div>
+
+          <h2>Running as a Windows background Service</h2>
+          <p>You can run CyberClaw as a 24/7 background Windows Service using standard NSSM controls:</p>
+          <pre><code># Install the CyberClaw background service
+cyberclaw service install
+
+# Start the background service
+cyberclaw service start
+
+# Check the status of the service
+cyberclaw service status</code></pre>
+
+          <h2>Observability with Prometheus Metrics</h2>
+          <p>CyberClaw tracks real-time usage metrics (inference latency, token throughput, uptime, and health stats). Retrieve them as Prometheus metrics or JSON telemetry data:</p>
+          <pre><code># Query Prometheus metrics
+curl http://localhost:8000/metrics
+
+# Query structured JSON metrics
+curl http://localhost:8000/metrics/json</code></pre>
+          <p>These values can be integrated directly with standard Grafana dashboards for production monitoring.</p>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

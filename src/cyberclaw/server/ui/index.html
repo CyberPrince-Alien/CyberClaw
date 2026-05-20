@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberClaw - AI Control Center</title>
+  <meta name="description" content="CyberClaw personal AI assistant web control center">
+  <link rel="stylesheet" href="/ui/styles.css">
+  <style>
+    .loading-screen { position:fixed; inset:0; background:var(--bg-primary); display:flex;
+      align-items:center; justify-content:center; z-index:9999; transition:opacity 0.5s; }
+    .loading-screen.hidden { opacity:0; pointer-events:none; }
+    .loader { width:40px; height:40px; border:3px solid var(--border); border-top-color:var(--accent);
+      border-radius:50%; animation:spin 0.8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="loading-screen" id="loadingScreen"><div class="loader"></div></div>
+  <div id="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header" style="flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 20px 10px;">
+        <img src="/ui/cyberclaw_logo.png" alt="CyberClaw Logo" style="width: 70px; height: 70px; border-radius: 12px; box-shadow: 0 0 20px rgba(114, 9, 183, 0.4); object-fit: cover;">
+        <h1 style="font-size: 1.15rem; margin-top: 4px; background: linear-gradient(90deg, #fff, #b5b3cd); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CyberClaw</h1>
+        <span class="version" style="font-size: 0.75rem; color: #4cc9f0; text-shadow: 0 0 10px rgba(76, 201, 240, 0.3);">Made by Cyber Prince</span>
+      </div>
+      <nav class="nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Main</div>
+          <a class="nav-item active" data-view="chat" onclick="switchView('chat')">
+            <span class="icon">💬</span>Chat
+          </a>
+          <a class="nav-item" data-view="dashboard" onclick="switchView('dashboard')">
+            <span class="icon">📊</span>Dashboard
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">System</div>
+          <a class="nav-item" data-view="models" onclick="switchView('models')">
+            <span class="icon">🤖</span>Models<span class="badge" id="modelCount">--</span>
+          </a>
+          <a class="nav-item" data-view="sessions" onclick="switchView('sessions')">
+            <span class="icon">📝</span>Sessions
+          </a>
+          <a class="nav-item" data-view="tasks" onclick="switchView('tasks')">
+            <span class="icon">⚡</span>Tasks
+          </a>
+          <a class="nav-item" data-view="providers" onclick="switchView('providers')">
+            <span class="icon">🔌</span>Providers
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Monitor</div>
+          <a class="nav-item" data-view="metrics" onclick="switchView('metrics')">
+            <span class="icon">📈</span>Metrics
+          </a>
+          <a class="nav-item" data-view="channels" onclick="switchView('channels')">
+            <span class="icon">📡</span>Channels
+          </a>
+        </div>
+      </nav>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <h2 id="viewTitle">Chat</h2>
+        <div class="status-dot" id="statusDot" title="Connected"></div>
+      </header>
+      <div class="content" id="contentArea">
+        <!-- Chat View (default) -->
+        <div id="view-chat" class="chat-container">
+          <div class="messages" id="messages">
+            <div class="empty-state">
+              <div class="icon">🤖</div>
+              <p>Start a conversation with CyberClaw. Type a message below.</p>
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <div class="chat-input-wrapper">
+              <textarea id="chatInput" placeholder="Type your message..." rows="1"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+              <button class="send-btn" onclick="sendMessage()" id="sendBtn">→</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/ui/app.js"></script>
+</body>
+</html>

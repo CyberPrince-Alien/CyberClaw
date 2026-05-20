@@ -1,0 +1,98 @@
+2026-05-19 20:17:00,108 - cyberclaw.core.eventbus - DEBUG - Subscribed handler to InboundEvent events
+2026-05-19 20:17:00,108 - cyberclaw.core.eventbus - DEBUG - Subscribed handler to DispatchEvent events
+2026-05-19 20:17:00,108 - cyberclaw.server.AgentWorker - INFO - AgentWorker subscribed to InboundEvent and DispatchEvent events
+2026-05-19 20:17:00,109 - cyberclaw.core.eventbus - DEBUG - Subscribed handler to OutboundEvent events
+2026-05-19 20:17:00,139 - cyberclaw.core.eventbus - INFO - EventBus started
+2026-05-19 20:17:07,492 - cyberclaw.core.eventbus - DEBUG - Queued InboundEvent event from platform-cli:cli-user
+2026-05-19 20:17:07,496 - cyberclaw.server.agent_worker - DEBUG - Created semaphore for cyberclaw with value 1
+2026-05-19 20:17:07,942 - cyberclaw.core.eventbus - DEBUG - Dispatched InboundEvent event from platform-cli:cli-user
+2026-05-19 20:17:11,203 - cyberclaw.server.agent_worker - ERROR - Session failed: litellm.AuthenticationError: AuthenticationError: OpenAIException - Incorrect API key provided: sk-your-***************here. You can find your API key at https://platform.openai.com/account/api-keys.
+2026-05-19 20:17:11,203 - cyberclaw.core.eventbus - DEBUG - Queued InboundEvent event from platform-cli:cli-user
+2026-05-19 20:17:11,231 - cyberclaw.server.agent_worker - DEBUG - Created semaphore for cyberclaw with value 1
+2026-05-19 20:17:11,250 - cyberclaw.core.eventbus - DEBUG - Dispatched InboundEvent event from platform-cli:cli-user
+2026-05-19 20:17:11,593 - cyberclaw.server.agent_worker - ERROR - Session failed: litellm.AuthenticationError: AuthenticationError: OpenAIException - Incorrect API key provided: sk-your-***************here. You can find your API key at https://platform.openai.com/account/api-keys.
+2026-05-19 20:17:11,593 - cyberclaw.core.eventbus - DEBUG - Queued InboundEvent event from platform-cli:cli-user
+2026-05-19 20:17:11,597 - cyberclaw.server.agent_worker - DEBUG - Created semaphore for cyberclaw with value 1
+2026-05-19 20:17:11,612 - cyberclaw.core.eventbus - DEBUG - Dispatched InboundEvent event from platform-cli:cli-user
+2026-05-19 20:17:11,935 - cyberclaw.server.agent_worker - ERROR - Session failed: litellm.AuthenticationError: AuthenticationError: OpenAIException - Incorrect API key provided: sk-your-***************here. You can find your API key at https://platform.openai.com/account/api-keys.
+2026-05-19 20:17:11,936 - cyberclaw.core.eventbus - DEBUG - Queued InboundEvent event from platform-cli:cli-user
+2026-05-19 20:17:11,940 - cyberclaw.server.agent_worker - DEBUG - Created semaphore for cyberclaw with value 1
+2026-05-19 20:17:11,956 - cyberclaw.core.eventbus - DEBUG - Dispatched InboundEvent event from platform-cli:cli-user
+2026-05-19 20:17:12,290 - cyberclaw.server.agent_worker - ERROR - Session failed: litellm.AuthenticationError: AuthenticationError: OpenAIException - Incorrect API key provided: sk-your-***************here. You can find your API key at https://platform.openai.com/account/api-keys.
+2026-05-19 20:17:12,291 - cyberclaw.core.eventbus - DEBUG - Queued OutboundEvent event from agent:cyberclaw
+2026-05-19 20:17:12,298 - cyberclaw.core.eventbus - DEBUG - Persisted event to workspace\.event\pending\1779221832.2911851_3da1799f-9bcc-44fb-ab1c-37efa3fbd38b.json
+2026-05-19 20:17:12,299 - cyberclaw.core.eventbus - DEBUG - Acked and deleted 1779221832.2911851_3da1799f-9bcc-44fb-ab1c-37efa3fbd38b.json
+2026-05-19 20:17:12,300 - cyberclaw.core.eventbus - DEBUG - Dispatched OutboundEvent event from agent:cyberclaw
+2026-05-20 10:02:59,168 - cyberclaw.core.eventbus - DEBUG - Subscribed handler to InboundEvent events
+2026-05-20 10:02:59,168 - cyberclaw.core.eventbus - DEBUG - Subscribed handler to DispatchEvent events
+2026-05-20 10:02:59,168 - cyberclaw.server.AgentWorker - INFO - AgentWorker subscribed to InboundEvent and DispatchEvent events
+2026-05-20 10:02:59,168 - cyberclaw.core.eventbus - DEBUG - Subscribed handler to OutboundEvent events
+2026-05-20 10:02:59,184 - cyberclaw.core.eventbus - INFO - EventBus started
+2026-05-20 10:02:59,184 - cyberclaw.core.eventbus - INFO - EventBus stopping...
+2026-05-20 10:32:16,807 - cyberclaw.core.eventbus - DEBUG - Subscribed handler to InboundEvent events
+2026-05-20 10:32:16,808 - cyberclaw.core.eventbus - DEBUG - Subscribed handler to DispatchEvent events
+2026-05-20 10:32:16,808 - cyberclaw.server.AgentWorker - INFO - AgentWorker subscribed to InboundEvent and DispatchEvent events
+2026-05-20 10:32:16,808 - cyberclaw.core.eventbus - DEBUG - Subscribed handler to OutboundEvent events
+2026-05-20 10:32:16,829 - cyberclaw.core.eventbus - INFO - EventBus started
+2026-05-20 10:32:16,830 - cyberclaw.core.eventbus - INFO - EventBus stopping...
+2026-05-20 11:48:14,098 - cyberclaw.core.eventbus - DEBUG - Subscribed handler to InboundEvent events
+2026-05-20 11:48:14,100 - cyberclaw.core.eventbus - DEBUG - Subscribed handler to DispatchEvent events
+2026-05-20 11:48:14,101 - cyberclaw.server.AgentWorker - INFO - AgentWorker subscribed to InboundEvent and DispatchEvent events
+2026-05-20 11:48:14,101 - cyberclaw.core.eventbus - DEBUG - Subscribed handler to OutboundEvent events
+2026-05-20 11:48:14,136 - cyberclaw.core.eventbus - INFO - EventBus started
+2026-05-20 11:48:14,138 - cyberclaw.core.eventbus - INFO - EventBus stopping...
+2026-05-20 17:43:14,549 - cyberclaw.provider.llm.manager - INFO - Attempting provider: gemini/gemini/gemini-2.5-flash (priority: 1)
+2026-05-20 17:43:16,689 - cyberclaw.provider.llm.manager - WARNING - Provider gemini/gemini-2.5-flash failed: litellm.APIConnectionError: GeminiException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001F17C3E2450> [The remote computer refused the network connection]
+2026-05-20 17:43:16,689 - cyberclaw.provider.llm.manager - INFO - Attempting provider: openrouter/openrouter/openai/gpt-4o-mini (priority: 2)
+2026-05-20 17:43:18,767 - cyberclaw.provider.llm.manager - WARNING - Provider openrouter/openai/gpt-4o-mini failed: litellm.APIError: APIError: OpenrouterException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001F17C3E2450> [The remote computer refused the network connection]
+2026-05-20 17:43:18,767 - cyberclaw.provider.llm.manager - INFO - Attempting provider: groq/groq/llama-3.3-70b-versatile (priority: 3)
+2026-05-20 17:43:20,830 - cyberclaw.provider.llm.manager - WARNING - Provider groq/llama-3.3-70b-versatile failed: litellm.InternalServerError: InternalServerError: GroqException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001F17C3E2450> [The remote computer refused the network connection]
+2026-05-20 17:43:20,830 - cyberclaw.provider.llm.manager - INFO - Attempting provider: nvidia/nvidia_nim/meta/llama-3.1-8b-instruct (priority: 4)
+2026-05-20 17:43:29,080 - cyberclaw.provider.llm.manager - WARNING - Provider nvidia_nim/meta/llama-3.1-8b-instruct failed: litellm.InternalServerError: InternalServerError: Nvidia_nimException - Connection error.
+2026-05-20 17:43:29,080 - cyberclaw.provider.llm.manager - ERROR - All LLM providers failed: litellm.InternalServerError: InternalServerError: Nvidia_nimException - Connection error.
+2026-05-20 17:44:07,432 - cyberclaw.provider.llm.manager - INFO - Attempting provider: gemini/gemini/gemini-2.5-flash (priority: 1)
+2026-05-20 17:44:09,557 - cyberclaw.provider.llm.manager - WARNING - Provider gemini/gemini-2.5-flash failed: litellm.APIConnectionError: GeminiException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001AABEDE24E0> [The remote computer refused the network connection]
+2026-05-20 17:44:09,557 - cyberclaw.provider.llm.manager - INFO - Attempting provider: openrouter/openrouter/openai/gpt-4o-mini (priority: 2)
+2026-05-20 17:44:11,651 - cyberclaw.provider.llm.manager - WARNING - Provider openrouter/openai/gpt-4o-mini failed: litellm.APIError: APIError: OpenrouterException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001AABEDE24E0> [The remote computer refused the network connection]
+2026-05-20 17:44:11,651 - cyberclaw.provider.llm.manager - INFO - Attempting provider: groq/groq/llama-3.3-70b-versatile (priority: 3)
+2026-05-20 17:44:13,713 - cyberclaw.provider.llm.manager - WARNING - Provider groq/llama-3.3-70b-versatile failed: litellm.InternalServerError: InternalServerError: GroqException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001AABEDE24E0> [The remote computer refused the network connection]
+2026-05-20 17:44:13,713 - cyberclaw.provider.llm.manager - INFO - Attempting provider: nvidia/nvidia_nim/meta/llama-3.1-8b-instruct (priority: 4)
+2026-05-20 17:44:21,764 - cyberclaw.provider.llm.manager - WARNING - Provider nvidia_nim/meta/llama-3.1-8b-instruct failed: litellm.InternalServerError: InternalServerError: Nvidia_nimException - Connection error.
+2026-05-20 17:44:21,764 - cyberclaw.provider.llm.manager - ERROR - All LLM providers failed: litellm.InternalServerError: InternalServerError: Nvidia_nimException - Connection error.
+2026-05-20 17:44:21,764 - cyberclaw.provider.llm.manager - INFO - Attempting provider: gemini/gemini/gemini-2.5-flash (priority: 1)
+2026-05-20 17:44:23,842 - cyberclaw.provider.llm.manager - WARNING - Provider gemini/gemini-2.5-flash failed: litellm.APIConnectionError: GeminiException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001AABEDE24E0> [The remote computer refused the network connection]
+2026-05-20 17:44:23,842 - cyberclaw.provider.llm.manager - INFO - Attempting provider: openrouter/openrouter/openai/gpt-4o-mini (priority: 2)
+2026-05-20 17:44:25,920 - cyberclaw.provider.llm.manager - WARNING - Provider openrouter/openai/gpt-4o-mini failed: litellm.APIError: APIError: OpenrouterException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001AABEDE24E0> [The remote computer refused the network connection]
+2026-05-20 17:44:25,920 - cyberclaw.provider.llm.manager - INFO - Attempting provider: groq/groq/llama-3.3-70b-versatile (priority: 3)
+2026-05-20 17:44:27,977 - cyberclaw.provider.llm.manager - WARNING - Provider groq/llama-3.3-70b-versatile failed: litellm.InternalServerError: InternalServerError: GroqException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001AABEDE24E0> [The remote computer refused the network connection]
+2026-05-20 17:44:27,977 - cyberclaw.provider.llm.manager - INFO - Attempting provider: nvidia/nvidia_nim/meta/llama-3.1-8b-instruct (priority: 4)
+2026-05-20 17:44:35,559 - cyberclaw.provider.llm.manager - WARNING - Provider nvidia_nim/meta/llama-3.1-8b-instruct failed: litellm.InternalServerError: InternalServerError: Nvidia_nimException - Connection error.
+2026-05-20 17:44:35,559 - cyberclaw.provider.llm.manager - ERROR - All LLM providers failed: litellm.InternalServerError: InternalServerError: Nvidia_nimException - Connection error.
+2026-05-20 18:25:45,282 - cyberclaw.provider.llm.manager - INFO - Attempting provider: gemini/gemini/gemini-2.5-flash (priority: 1)
+2026-05-20 18:25:47,406 - cyberclaw.provider.llm.manager - WARNING - Provider gemini/gemini-2.5-flash failed: litellm.APIConnectionError: GeminiException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x0000016B859A24E0> [The remote computer refused the network connection]
+2026-05-20 18:25:47,406 - cyberclaw.provider.llm.manager - INFO - Attempting provider: openrouter/openrouter/openai/gpt-4o-mini (priority: 2)
+2026-05-20 18:25:49,495 - cyberclaw.provider.llm.manager - WARNING - Provider openrouter/openai/gpt-4o-mini failed: litellm.APIError: APIError: OpenrouterException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x0000016B859A24E0> [The remote computer refused the network connection]
+2026-05-20 18:25:49,495 - cyberclaw.provider.llm.manager - INFO - Attempting provider: groq/groq/llama-3.3-70b-versatile (priority: 3)
+2026-05-20 18:25:51,557 - cyberclaw.provider.llm.manager - WARNING - Provider groq/llama-3.3-70b-versatile failed: litellm.InternalServerError: InternalServerError: GroqException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x0000016B859A24E0> [The remote computer refused the network connection]
+2026-05-20 18:25:51,557 - cyberclaw.provider.llm.manager - INFO - Attempting provider: nvidia/nvidia_nim/meta/llama-3.1-8b-instruct (priority: 4)
+2026-05-20 18:25:59,551 - cyberclaw.provider.llm.manager - WARNING - Provider nvidia_nim/meta/llama-3.1-8b-instruct failed: litellm.InternalServerError: InternalServerError: Nvidia_nimException - Connection error.
+2026-05-20 18:25:59,551 - cyberclaw.provider.llm.manager - ERROR - All LLM providers failed: litellm.InternalServerError: InternalServerError: Nvidia_nimException - Connection error.
+2026-05-20 18:25:59,551 - cyberclaw.provider.llm.manager - INFO - Attempting provider: gemini/gemini/gemini-2.5-flash (priority: 1)
+2026-05-20 18:26:01,613 - cyberclaw.provider.llm.manager - WARNING - Provider gemini/gemini-2.5-flash failed: litellm.APIConnectionError: GeminiException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x0000016B859A24E0> [The remote computer refused the network connection]
+2026-05-20 18:26:01,613 - cyberclaw.provider.llm.manager - INFO - Attempting provider: openrouter/openrouter/openai/gpt-4o-mini (priority: 2)
+2026-05-20 18:26:03,691 - cyberclaw.provider.llm.manager - WARNING - Provider openrouter/openai/gpt-4o-mini failed: litellm.APIError: APIError: OpenrouterException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x0000016B859A24E0> [The remote computer refused the network connection]
+2026-05-20 18:26:03,691 - cyberclaw.provider.llm.manager - INFO - Attempting provider: groq/groq/llama-3.3-70b-versatile (priority: 3)
+2026-05-20 18:26:05,754 - cyberclaw.provider.llm.manager - WARNING - Provider groq/llama-3.3-70b-versatile failed: litellm.InternalServerError: InternalServerError: GroqException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x0000016B859A24E0> [The remote computer refused the network connection]
+2026-05-20 18:26:05,754 - cyberclaw.provider.llm.manager - INFO - Attempting provider: nvidia/nvidia_nim/meta/llama-3.1-8b-instruct (priority: 4)
+2026-05-20 18:26:13,144 - cyberclaw.provider.llm.manager - WARNING - Provider nvidia_nim/meta/llama-3.1-8b-instruct failed: litellm.InternalServerError: InternalServerError: Nvidia_nimException - Connection error.
+2026-05-20 18:26:13,144 - cyberclaw.provider.llm.manager - ERROR - All LLM providers failed: litellm.InternalServerError: InternalServerError: Nvidia_nimException - Connection error.
+2026-05-20 18:26:51,495 - cyberclaw.provider.llm.manager - INFO - Attempting provider: gemini/gemini/gemini-2.5-flash (priority: 1)
+2026-05-20 18:26:53,604 - cyberclaw.provider.llm.manager - WARNING - Provider gemini/gemini-2.5-flash failed: litellm.APIConnectionError: GeminiException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001BCC84224E0> [The remote computer refused the network connection]
+2026-05-20 18:26:53,604 - cyberclaw.provider.llm.manager - INFO - Attempting provider: groq/groq/llama-3.3-70b-versatile (priority: 3)
+2026-05-20 18:26:55,651 - cyberclaw.provider.llm.manager - WARNING - Provider groq/llama-3.3-70b-versatile failed: litellm.InternalServerError: InternalServerError: GroqException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001BCC84224E0> [The remote computer refused the network connection]
+2026-05-20 18:26:55,666 - cyberclaw.provider.llm.manager - ERROR - All LLM providers failed: litellm.InternalServerError: InternalServerError: GroqException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001BCC84224E0> [The remote computer refused the network connection]
+2026-05-20 18:26:55,666 - cyberclaw.provider.llm.manager - INFO - Attempting provider: gemini/gemini/gemini-2.5-flash (priority: 1)
+2026-05-20 18:26:57,729 - cyberclaw.provider.llm.manager - WARNING - Provider gemini/gemini-2.5-flash failed: litellm.APIConnectionError: GeminiException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001BCC84224E0> [The remote computer refused the network connection]
+2026-05-20 18:26:57,729 - cyberclaw.provider.llm.manager - INFO - Attempting provider: groq/groq/llama-3.3-70b-versatile (priority: 3)
+2026-05-20 18:26:59,791 - cyberclaw.provider.llm.manager - WARNING - Provider groq/llama-3.3-70b-versatile failed: litellm.InternalServerError: InternalServerError: GroqException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001BCC84224E0> [The remote computer refused the network connection]
+2026-05-20 18:26:59,791 - cyberclaw.provider.llm.manager - ERROR - All LLM providers failed: litellm.InternalServerError: InternalServerError: GroqException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001BCC84224E0> [The remote computer refused the network connection]
