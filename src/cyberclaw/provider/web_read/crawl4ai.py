@@ -1,7 +1,3 @@
-"""Crawl4AI provider for web page reading."""
-
-from crawl4ai import AsyncWebCrawler
-
 from .base import WebReadProvider, ReadResult
 
 
@@ -14,6 +10,16 @@ class Crawl4AIProvider(WebReadProvider):
 
     async def read(self, url: str) -> ReadResult:
         """Read a web page using Crawl4AI."""
+        try:
+            from crawl4ai import AsyncWebCrawler
+        except ImportError:
+            return ReadResult(
+                url=url,
+                title="",
+                content="",
+                error="Web reading requires the 'crawl4ai' package. Please install it using: pip install \"cyberclaw[crawler]\"",
+            )
+
         try:
             async with AsyncWebCrawler(verbose=False) as crawler:
                 result = await crawler.arun(url=url)

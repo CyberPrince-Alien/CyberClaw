@@ -705,7 +705,6 @@ name = "cyberclaw"
 version = "0.2.0"
 source = { editable = "." }
 dependencies = [
-    { name = "crawl4ai" },
     { name = "croniter" },
     { name = "discord-py" },
     { name = "fastapi" },
@@ -723,6 +722,7 @@ dependencies = [
 
 [package.optional-dependencies]
 all = [
+    { name = "crawl4ai" },
     { name = "edge-tts" },
     { name = "matrix-nio" },
     { name = "playwright" },
@@ -730,6 +730,9 @@ all = [
 ]
 browser = [
     { name = "playwright" },
+]
+crawler = [
+    { name = "crawl4ai" },
 ]
 matrix = [
     { name = "matrix-nio" },
@@ -746,7 +749,8 @@ voice-elevenlabs = [
 
 [package.metadata]
 requires-dist = [
-    { name = "crawl4ai", specifier = ">=0.3.0" },
+    { name = "crawl4ai", marker = "extra == 'all'", specifier = ">=0.3.0" },
+    { name = "crawl4ai", marker = "extra == 'crawler'", specifier = ">=0.3.0" },
     { name = "croniter", specifier = ">=2.0.0" },
     { name = "discord-py", specifier = ">=2.0" },
     { name = "edge-tts", marker = "extra == 'all'", specifier = ">=6.1.0" },
@@ -770,7 +774,7 @@ requires-dist = [
     { name = "watchdog", specifier = ">=3.0.0" },
     { name = "websockets", specifier = ">=12.0" },
 ]
-provides-extras = ["slack", "whatsapp", "matrix", "voice", "voice-elevenlabs", "voice-deepgram", "browser", "all"]
+provides-extras = ["slack", "whatsapp", "matrix", "voice", "voice-elevenlabs", "voice-deepgram", "browser", "crawler", "all"]
 
 [[package]]
 name = "discord-py"
