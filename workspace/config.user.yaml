@@ -80,10 +80,9 @@ default_agent: cyberclaw
 #
 #   whatsapp:
 #     enabled: true
-#     phone_number_id: "your-phone-number-id"
-#     access_token: your-whatsapp-access-token
-#     verify_token: cyberclaw-verify
-#     allow_from: []
+#     mode: local                  # local (linked QR code scan) or cloud (Meta Cloud API)
+#     allow_from: ["*"]            # list of allowed phone numbers or "*" for everyone
+#     dm_policy: pairing           # pairing, allowlist, or open
 #
 #   matrix:
 #     enabled: true

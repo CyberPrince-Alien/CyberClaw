@@ -87,11 +87,12 @@ class SlackConfig(BaseModel):
 
 
 class WhatsAppConfig(BaseModel):
-    """WhatsApp Business API configuration."""
+    """WhatsApp Business API and linked device configuration."""
 
     enabled: bool = True
-    phone_number_id: str
-    access_token: str
+    mode: Literal["cloud", "local"] = "local"
+    phone_number_id: str | None = None
+    access_token: str | None = None
     verify_token: str = "cyberclaw-verify"
     allow_from: list[str] = Field(default_factory=list)
     dm_policy: Literal["pairing", "allowlist", "open"] = "pairing"

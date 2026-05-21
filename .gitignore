@@ -40,3 +40,6 @@ nssm.exe
 dist/
 build/
 *.egg-info/
+
+# Node.js dependencies
+node_modules/

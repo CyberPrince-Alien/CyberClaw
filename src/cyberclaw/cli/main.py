@@ -48,6 +48,7 @@ gateway_app = typer.Typer(help="Manage the CyberClaw gateway/server")
 config_app = typer.Typer(help="Show or update CyberClaw configuration")
 sessions_app = typer.Typer(help="Inspect CyberClaw conversation sessions")
 pairing_app = typer.Typer(help="Manage DM pairing for channels")
+channels_app = typer.Typer(help="Manage messaging channels and login")
 
 console = Console()
 
@@ -666,8 +667,8 @@ def doctor(ctx: typer.Context, repair: bool = typer.Option(False, "--repair", he
     console.print("[bold cyan]======================================================[/bold cyan]\n")
 
 
-@app.command("channels")
-def channels(ctx: typer.Context) -> None:
+@channels_app.command("list")
+def channels_list(ctx: typer.Context) -> None:
     """List configured messaging channels."""
     cfg: Config = ctx.obj["config"]
     channel_names = [
@@ -690,6 +691,109 @@ def channels(ctx: typer.Context) -> None:
 
     console.print("[bold]Configured channels:[/bold]")
     console.print("\n".join(rows))
+
+
+@channels_app.command("login")
+def channels_login(
+    ctx: typer.Context,
+    channel: str = typer.Option("whatsapp", "--channel", "-c", help="Channel to log in (e.g. whatsapp)"),
+) -> None:
+    """Pair and link a messaging channel (interactive QR scan for WhatsApp)."""
+    if channel.lower() != "whatsapp":
+        console.print(f"[red]Interactive login is only supported for channel: whatsapp[/red]")
+        raise typer.Exit(1)
+
+    # Load config to ensure WhatsApp is configured
+    cfg: Config = ctx.obj["config"]
+    whatsapp_cfg = cfg.channels.whatsapp
+    if not whatsapp_cfg or not whatsapp_cfg.enabled:
+        console.print("[yellow]WhatsApp channel is not enabled in config.user.yaml. Enabling temporarily for login...[/yellow]")
+    
+    import sys
+    import json
+    import subprocess
+    from pathlib import Path
+
+    # Determine paths
+    bridge_dir = Path(__file__).parent.parent / "channel" / "whatsapp_bridge"
+    node_modules = bridge_dir / "node_modules"
+    
+    if not node_modules.exists():
+        console.print("[cyan]WhatsApp bridge dependencies not found. Installing dependencies via npm...[/cyan]")
+        try:
+            subprocess.run(
+                ["npm", "install", "--no-audit", "--no-fund"],
+                cwd=str(bridge_dir),
+                shell=True,
+                check=True
+            )
+            console.print("[green]Bridge dependencies installed successfully![/green]\n")
+        except Exception as e:
+            console.print(f"[red]Failed to install bridge dependencies: {e}[/red]")
+            console.print("Make sure Node.js is installed on your system.")
+            raise typer.Exit(1)
+
+    auth_dir = Path.home() / ".cyberclaw" / "whatsapp_auth"
+    auth_dir.mkdir(parents=True, exist_ok=True)
+    
+    bridge_script = bridge_dir / "bridge.js"
+    
+    console.print("[bold cyan]Starting WhatsApp Link Device pairing flow...[/bold cyan]")
+    console.print("[dim]A terminal QR code will be generated. Scan it using your WhatsApp Linked Devices menu.[/dim]\n")
+    
+    try:
+        # Run the Node bridge subprocess and pipe stdout/stderr
+        process = subprocess.Popen(
+            ["node", str(bridge_script), str(auth_dir)],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1
+        )
+        
+        # Loop reading output lines in real time
+        while True:
+            line = process.stdout.readline()
+            if not line:
+                break
+            
+            line_stripped = line.strip()
+            if not line_stripped:
+                continue
+                
+            try:
+                data = json.loads(line_stripped)
+                msg_type = data.get("type")
+                
+                if msg_type == "connection":
+                    status = data.get("status")
+                    if status == "open":
+                        console.print(f"\n[bold green]✔ WhatsApp successfully linked to {data.get('phone')} ({data.get('name')})![/bold green]")
+                        console.print("[green]You can now start your CyberClaw server using:[/green] [bold]cyberclaw server[/bold]")
+                        process.terminate()
+                        process.wait()
+                        break
+                    elif status == "close":
+                        if not data.get("reconnect"):
+                            console.print("[yellow]Session disconnected or logged out.[/yellow]")
+                            break
+                elif msg_type == "logout_success":
+                    console.print("[yellow]Logged out successfully.[/yellow]")
+                    break
+            except json.JSONDecodeError:
+                # Not a JSON line, print it directly to the user's terminal (like the QR code)
+                sys.stdout.write(line)
+                sys.stdout.flush()
+                
+        process.wait()
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Pairing flow cancelled by user.[/yellow]")
+        if 'process' in locals():
+            process.terminate()
+    except Exception as e:
+        console.print(f"[red]Error during pairing flow: {e}[/red]")
+        raise typer.Exit(1)
 
 
 @app.command("providers")
@@ -851,6 +955,7 @@ app.add_typer(gateway_app, name="gateway")
 app.add_typer(config_app, name="config")
 app.add_typer(sessions_app, name="sessions")
 app.add_typer(pairing_app, name="pairing")
+app.add_typer(channels_app, name="channels")
 
 
 # ── Pairing commands ───────────────────────────────────────────
