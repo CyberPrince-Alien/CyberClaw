@@ -96,3 +96,8 @@
 2026-05-20 18:26:57,729 - cyberclaw.provider.llm.manager - INFO - Attempting provider: groq/groq/llama-3.3-70b-versatile (priority: 3)
 2026-05-20 18:26:59,791 - cyberclaw.provider.llm.manager - WARNING - Provider groq/llama-3.3-70b-versatile failed: litellm.InternalServerError: InternalServerError: GroqException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001BCC84224E0> [The remote computer refused the network connection]
 2026-05-20 18:26:59,791 - cyberclaw.provider.llm.manager - ERROR - All LLM providers failed: litellm.InternalServerError: InternalServerError: GroqException - Cannot connect to host 127.0.0.1:9 ssl:<ssl.SSLContext object at 0x000001BCC84224E0> [The remote computer refused the network connection]
+2026-05-21 01:43:25,154 - cyberclaw.core.eventbus - DEBUG - Subscribed handler to InboundEvent events
+2026-05-21 01:43:25,155 - cyberclaw.core.eventbus - DEBUG - Subscribed handler to DispatchEvent events
+2026-05-21 01:43:25,156 - cyberclaw.server.AgentWorker - INFO - AgentWorker subscribed to InboundEvent and DispatchEvent events
+2026-05-21 01:43:25,156 - cyberclaw.core.eventbus - DEBUG - Subscribed handler to OutboundEvent events
+2026-05-21 01:43:25,184 - cyberclaw.core.eventbus - INFO - EventBus started

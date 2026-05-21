@@ -12,6 +12,7 @@ from rich.table import Table
 
 from cyberclaw.cli.chat import chat_command
 from cyberclaw.cli.server import server_command
+from cyberclaw.cli.model_selector import run_model_selection_wizard
 from cyberclaw.core.agent import Agent
 from cyberclaw.core.context import SharedContext
 from cyberclaw.core.events import CliEventSource
@@ -215,7 +216,7 @@ def onboard(
 
     # Prompt user for interactive configuration
     run_interactive = typer.confirm(
-        "\nWould you like to run the Interactive Configuration Wizard to configure your AI provider now?",
+        "\nWould you like to run the Premium Model Selection Wizard (V9 Style) now?",
         default=False,
     )
 
@@ -232,77 +233,34 @@ def onboard(
         config_data["language"] = lang_map.get(lang_choice, "en")
         console.print(f"  [green]OK[/green] Language set to: {config_data['language'].upper()}\n")
 
-        # ── STEP A: LLM Provider ────────────────────────────────────────────
-        console.print("\n[bold yellow]======================================================[/bold yellow]")
-        console.print("[bold yellow]   STEP 1/4 : AI LLM PROVIDER CONFIGURATION          [/bold yellow]")
-        console.print("[bold yellow]======================================================[/bold yellow]")
-        console.print("Select your default AI LLM Provider:")
-        console.print("  1) OpenAI         (gpt-4o-mini, gpt-4o)")
-        console.print("  2) Anthropic      (claude-3-5-sonnet)")
-        console.print("  3) Gemini         (gemini-2.5-flash, gemini-1.5-pro)")
-        console.print("  4) Groq           (llama-3.3-70b, mixtral-8x7b)")
-        console.print("  5) OpenRouter     (openai/gpt-4o-mini, etc)")
-        console.print("  6) NVIDIA NIM     (meta/llama-3.1-8b)")
-        console.print("  7) DeepSeek       (deepseek-chat)")
-        console.print("  8) Ollama (local) (llama3, mistral, phi3)")
+        # Deploy base config first so model selector has a file to merge into
+        if not config_path.exists():
+            with open(config_path, "w") as f:
+                yaml.safe_dump(config_data, f, sort_keys=False, default_flow_style=False)
 
-        choice = typer.prompt("\nEnter choice (1-8)", default="1")
+        # ── STEP A: Launch Premium V9-Style Model Selector ──────────────────
+        def _launch_chat_from_onboard(ws_path: Path) -> None:
+            """Chat launcher callback for model selector."""
+            try:
+                cfg = Config.load(ws_path)
+                chat_command_ctx = typer.Context(app, obj={"config": cfg, "workspace": ws_path})
+                chat_command(chat_command_ctx, agent_id=None)
+            except Exception as e:
+                console.print(f"[red]Chat launch failed: {e}[/red]")
+                console.print("[dim]You can start chatting manually: cyberclaw chat[/dim]")
 
-        provider_map = {
-            "1": ("openai",     "openai",      "gpt-4o-mini"),
-            "2": ("anthropic",  "anthropic",   "claude-3-5-sonnet-20241022"),
-            "3": ("gemini",     "gemini",      "gemini-2.5-flash"),
-            "4": ("groq",       "groq",        "llama-3.3-70b-versatile"),
-            "5": ("openrouter", "openrouter",  "openai/gpt-4o-mini"),
-            "6": ("nvidia",     "nvidia_nim",  "meta/llama-3.1-8b-instruct"),
-            "7": ("deepseek",   "deepseek",    "deepseek-chat"),
-            "8": ("ollama",     "ollama",      "llama3"),
-        }
+        run_model_selection_wizard(workspace_path, launch_chat_callback=_launch_chat_from_onboard)
 
-        provider_id, provider_name, default_model = provider_map.get(
-            choice, ("openai", "openai", "gpt-4o-mini")
-        )
-
-        if provider_id == "ollama":
-            console.print("  [dim]Ollama runs locally - no API key needed.[/dim]")
-            api_key = typer.prompt("Ollama API base URL", default="http://localhost:11434")
-            model   = typer.prompt("Ollama model name", default=default_model)
-            prov_entry = {
-                "id": provider_id, "provider": provider_name,
-                "model": model, "api_key": "ollama",
-                "api_base": api_key, "priority": 1, "enabled": True,
-            }
-        else:
-            api_key = typer.prompt(
-                f"Enter API Key for {provider_id.upper()}", hide_input=True
-            )
-            model = typer.prompt(
-                f"Enter model name", default=default_model
-            )
-            prov_entry = {
-                "id": provider_id, "provider": provider_name,
-                "model": model, "api_key": api_key,
-                "priority": 1, "enabled": True,
-            }
-
-        if "llm" not in config_data:
-            config_data["llm"] = {}
-        config_data["llm"]["default_provider"] = provider_id
-        providers_list = config_data["llm"].get("providers", [])
-        provider_found = False
-        for prov in providers_list:
-            prov["enabled"] = False
-            if prov.get("id") == provider_id:
-                prov.update(prov_entry)
-                provider_found = True
-        if not provider_found:
-            providers_list.append(prov_entry)
-        config_data["llm"]["providers"] = providers_list
-        console.print(f"  [green]OK[/green] Provider set: [cyan]{provider_id}[/cyan] / model: [cyan]{model}[/cyan]")
+        # Reload config after model selector may have updated it
+        try:
+            with open(config_path) as f:
+                config_data = yaml.safe_load(f) or config_data
+        except Exception:
+            pass
 
         # ── STEP B: Gateway ─────────────────────────────────────────────────
         console.print("\n[bold yellow]======================================================[/bold yellow]")
-        console.print("[bold yellow]   STEP 2/4 : GATEWAY SERVER SETUP                   [/bold yellow]")
+        console.print("[bold yellow]   GATEWAY SERVER SETUP                              [/bold yellow]")
         console.print("[bold yellow]======================================================[/bold yellow]")
         port = typer.prompt("HTTP Gateway Port", default=8000, type=int)
         if "api" not in config_data:
@@ -313,7 +271,7 @@ def onboard(
 
         # ── STEP C: Channels ────────────────────────────────────────────────
         console.print("\n[bold yellow]======================================================[/bold yellow]")
-        console.print("[bold yellow]   STEP 3/4 : MESSAGING CHANNELS SETUP               [/bold yellow]")
+        console.print("[bold yellow]   MESSAGING CHANNELS SETUP                          [/bold yellow]")
         console.print("[bold yellow]======================================================[/bold yellow]")
         console.print("  Available channels: Telegram, Discord, WhatsApp, Slack, Signal, Matrix, IRC")
         configure_channels = typer.confirm("Configure messaging channels now?", default=False)
@@ -401,7 +359,7 @@ def onboard(
 
         # ── STEP D: Web Search + Skills ─────────────────────────────────────
         console.print("\n[bold yellow]======================================================[/bold yellow]")
-        console.print("[bold yellow]   STEP 4/4 : WEB SEARCH & SKILLS                    [/bold yellow]")
+        console.print("[bold yellow]   WEB SEARCH & SKILLS                               [/bold yellow]")
         console.print("[bold yellow]======================================================[/bold yellow]")
 
         if typer.confirm("Enable Brave Web Search? (get free key at brave.com/search/api)", default=False):
@@ -413,7 +371,7 @@ def onboard(
             config_data["webread"] = {"provider": "crawl4ai"}
             console.print("  [green]OK[/green] Web read configured (install: pip install 'cyberclaw[crawler]')")
 
-        # Write config
+        # Write final config
         with open(config_path, "w") as f:
             yaml.safe_dump(config_data, f, sort_keys=False, default_flow_style=False)
         console.print(f"\n  [green]OK[/green] Config saved: [cyan]{config_path}[/cyan]")
@@ -438,16 +396,37 @@ def onboard(
     console.print("[bold magenta]----------------------------------------------------------------------[/bold magenta]")
     console.print("Next steps:")
     console.print("  [bold white]1.[/bold white] Run diagnostics  -> [cyan]cyberclaw doctor[/cyan]")
-    console.print("  [bold white]2.[/bold white] List providers   -> [cyan]cyberclaw providers[/cyan]")
-    console.print("  [bold white]3.[/bold white] List channels    -> [cyan]cyberclaw channels[/cyan]")
-    console.print("  [bold white]4.[/bold white] Launch Web UI    -> [cyan]cyberclaw gateway start[/cyan]")
-    console.print("  [bold white]5.[/bold white] Chat in terminal -> [cyan]cyberclaw chat[/cyan]")
+    console.print("  [bold white]2.[/bold white] Switch model     -> [cyan]cyberclaw select-model[/cyan]")
+    console.print("  [bold white]3.[/bold white] List providers   -> [cyan]cyberclaw providers[/cyan]")
+    console.print("  [bold white]4.[/bold white] List channels    -> [cyan]cyberclaw channels[/cyan]")
+    console.print("  [bold white]5.[/bold white] Launch Web UI    -> [cyan]cyberclaw gateway start[/cyan]")
+    console.print("  [bold white]6.[/bold white] Chat in terminal -> [cyan]cyberclaw chat[/cyan]")
     console.print("[bold magenta]======================================================================[/bold magenta]\n")
 
     if install_daemon:
         console.print(
             "[yellow]Daemon install is not implemented yet; use `cyberclaw gateway start`.[/yellow]"
         )
+
+
+@app.command("select-model")
+def select_model_cmd(
+    ctx: typer.Context,
+) -> None:
+    """Interactively swap active models and providers (Premium V9 Style)."""
+    workspace_path: Path = ctx.obj["workspace"]
+
+    def _launch_chat(ws_path: Path) -> None:
+        """Chat launcher callback for select-model command."""
+        try:
+            cfg = Config.load(ws_path)
+            chat_ctx = typer.Context(app, obj={"config": cfg, "workspace": ws_path})
+            chat_command(chat_ctx, agent_id=None)
+        except Exception as e:
+            console.print(f"[red]Chat launch failed: {e}[/red]")
+            console.print("[dim]You can start chatting manually: cyberclaw chat[/dim]")
+
+    run_model_selection_wizard(workspace_path, launch_chat_callback=_launch_chat)
 
 
 def _load_user_config(ctx: typer.Context) -> tuple[Path, dict]:
