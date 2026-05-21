@@ -77,7 +77,9 @@ class PromptBuilder:
 
     def _build_runtime_context(self, agent_id: str, timestamp: datetime) -> str:
         """Build runtime info section."""
-        return f"## Runtime\n\nAgent: {agent_id}\nTime: {timestamp.isoformat()}"
+        import platform
+        os_info = f"{platform.system()} {platform.release()}"
+        return f"## Runtime\n\nAgent: {agent_id}\nTime: {timestamp.isoformat()}\nOS: {os_info}"
 
     def _build_channel_hint(self, source: "EventSource") -> str:
         """Build platform hint."""

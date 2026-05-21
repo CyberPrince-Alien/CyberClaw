@@ -63,13 +63,28 @@ class ChatLoop:
 
     async def run(self) -> None:
         """Run the interactive chat loop."""
-        self.console.print(
-            Panel(
-                Text("Welcome to CyberClaw!", style="bold cyan"),
-                title="Chat",
-                border_style="cyan",
-            )
-        )
+        model_name = "Unknown Model"
+        if self.agent_def.llm.model:
+            model_name = self.agent_def.llm.model
+        elif self.agent_def.llm.providers:
+            enabled_providers = [p for p in self.agent_def.llm.providers if p.enabled]
+            if enabled_providers:
+                model_name = enabled_providers[0].model
+
+        logo = """[bold cyan]  ═══════════════════════════════════════════════════════════════════════════════[/bold cyan]
+
+[bold magenta]   ██████╗██╗   ██╗██████╗ ███████╗██████╗  ██████╗██╗      █████╗ ██╗    ██╗[/bold magenta]
+[bold magenta]  ██╔════╝╚██╗ ██╔╝██╔══██╗██╔════╝██╔══██╗██╔════╝██║     ██╔══██╗██║    ██║[/bold magenta]
+[bold magenta]  ██║      ╚████╔╝ ██████╔╝█████╗  ██████╔╝██║     ██║     ███████║██║ █╗ ██║[/bold magenta]
+[bold magenta]  ██║       ╚██╔╝  ██╔══██╗██╔══╝  ██╔══██╗██║     ██║     ██╔══██║██║███╗██║[/bold magenta]
+[bold magenta]  ╚██████╗   ██║   ██████╔╝███████╗██║  ██║╚██████╗███████╗██║  ██║╚███╔███╔╝[/bold magenta]
+[bold magenta]   ╚═════╝   ╚═╝   ╚═════╝ ╚══════╝╚═╝  ╚═╝ ╚═════╝╚══════╝╚═╝  ╚═╝ ╚══╝╚══╝[/bold magenta]
+
+[bold cyan]  ═══════════════════════════════════════════════════════════════════════════════[/bold cyan]
+
+                           [bold green]█ READY — CyberClaw AI Online With {model_name}[/bold green]
+"""
+        self.console.print(logo.format(model_name=model_name))
         self.console.print("Type '/help' for commands, 'quit' or 'exit' to end.\n")
 
         self.config_reloader.start()

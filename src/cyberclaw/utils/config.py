@@ -272,11 +272,11 @@ class Config(BaseModel):
         runtime_config = workspace_dir / "config.runtime.yaml"
 
         if user_config.exists():
-            with open(user_config) as f:
+            with open(user_config, encoding="utf-8") as f:
                 config_data = cls._deep_merge(config_data, yaml.safe_load(f) or {})
 
         if runtime_config.exists():
-            with open(runtime_config) as f:
+            with open(runtime_config, encoding="utf-8") as f:
                 config_data = cls._deep_merge(config_data, yaml.safe_load(f) or {})
 
         return config_data
@@ -311,7 +311,7 @@ class Config(BaseModel):
         """Update a config value in a YAML file."""
         # Load existing or start fresh
         if config_path.exists():
-            with open(config_path) as f:
+            with open(config_path, encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
         else:
             data = {}
@@ -323,7 +323,7 @@ class Config(BaseModel):
         self._set_nested(data, key, value)
 
         # Write back
-        with open(config_path, "w") as f:
+        with open(config_path, "w", encoding="utf-8") as f:
             yaml.dump(data, f)
 
     def set_user(self, key: str, value: Any) -> None:

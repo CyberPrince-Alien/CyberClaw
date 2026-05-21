@@ -117,6 +117,25 @@ async def edit_file(
 )
 async def bash(command: str, session: "AgentSession") -> str:
     """Execute a bash command and return the output."""
+    import sys
+    import re
+    
+    if sys.platform.startswith("win"):
+        # Translate unix style /dev/null redirection to Windows nul redirection
+        command = command.replace(">/dev/null", ">nul")
+        command = command.replace("2>/dev/null", "2>nul")
+        
+        # Map Unix open/xdg-open to Windows start
+        command = re.sub(r"(^|[\s;&|])open\b", r"\1start", command)
+        command = re.sub(r"(^|[\s;&|])xdg-open\b", r"\1start", command)
+        
+        # Map google-chrome to start chrome
+        command = re.sub(r"(^|[\s;&|])google-chrome\b", r"\1start chrome", command)
+        
+        # Avoid cmd.exe start window title quirk:
+        # If start is followed by a quoted argument, insert "" as the first parameter.
+        command = re.sub(r"\bstart\s+(\"[^\"]+\")", r'start "" \1', command)
+
     try:
         process = await asyncio.create_subprocess_shell(
             command,
