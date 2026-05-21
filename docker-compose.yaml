@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  cyberclaw:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cyberclaw_server
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./workspace:/app/workspace
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped

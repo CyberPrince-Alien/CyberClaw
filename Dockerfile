@@ -1,27 +1,42 @@
-FROM python:3.12-slim
+# Multi-stage build for lightweight final image
+FROM ghcr.io/astral-sh/uv:python3.11-alpine AS builder
 
 WORKDIR /app
 
-# Install system dependencies for playwright and edge-tts
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+# Enable bytecode compilation
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
 
-# Copy project files
-COPY pyproject.toml uv.lock* ./
-COPY src/ src/
-COPY workspace/ workspace/
-COPY scripts/ scripts/
+# Install dependencies first (caching layer)
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --frozen --no-install-project --no-dev
 
-# Install uv and project
-RUN pip install uv && uv sync --no-dev
+# Copy source code and sync project
+ADD . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
 
-# Default port
+# Final runtime image
+FROM python:3.11-alpine
+
+WORKDIR /app
+
+# Copy python virtual environment and files
+COPY --from=builder /app/.venv /app/.venv
+COPY --from=builder /app/src /app/src
+COPY --from=builder /app/workspace /app/workspace
+COPY --from=builder /app/pyproject.toml /app/pyproject.toml
+
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONUNBUFFERED=1
+
+# Expose API gateway port
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-    CMD python -c "import httpx; r = httpx.get('http://localhost:8000/health'); r.raise_for_status()"
+# Mount local workspace directory at runtime
+VOLUME ["/app/workspace"]
 
-# Run the gateway
-CMD ["uv", "run", "cyberclaw", "server"]
+# Default entrypoint starts the background orchestrator server
+CMD ["cyberclaw", "server"]

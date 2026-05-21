@@ -235,6 +235,7 @@ class Config(BaseModel):
     security: SecurityConfig = Field(default_factory=SecurityConfig)
     mcp_servers: list[MCPServerConfig] = Field(default_factory=list)
     plugins_path: Path = Field(default=Path("plugins"))
+    language: str = "en"
 
     @model_validator(mode="after")
     def resolve_paths(self) -> "Config":

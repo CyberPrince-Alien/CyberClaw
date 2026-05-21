@@ -152,7 +152,7 @@ def onboard(
     # Step 2: Creating directories
     console.print("[yellow][DIR] Step 2: Generating directory structures...[/yellow]")
     dirs_created = []
-    for directory in ("agents", "skills", "crons", "memories"):
+    for directory in ("agents", "skills", "crons", "memories", "plugins"):
         dpath = workspace_path / directory
         dpath.mkdir(exist_ok=True)
         dirs_created.append(directory)
@@ -202,6 +202,18 @@ def onboard(
     )
 
     if run_interactive:
+        # Language Selection
+        console.print("\nSelect your preferred language / ভাষা নির্বাচন করুন:")
+        console.print("  1) English (en)")
+        console.print("  2) Bengali (bn)")
+        console.print("  3) Spanish (es)")
+        console.print("  4) French (fr)")
+        console.print("  5) German (de)")
+        lang_choice = typer.prompt("Enter choice (1-5)", default="1")
+        lang_map = {"1": "en", "2": "bn", "3": "es", "4": "fr", "5": "de"}
+        config_data["language"] = lang_map.get(lang_choice, "en")
+        console.print(f"  [green]OK[/green] Language set to: {config_data['language'].upper()}\n")
+
         # ── STEP A: LLM Provider ────────────────────────────────────────────
         console.print("\n[bold yellow]======================================================[/bold yellow]")
         console.print("[bold yellow]   STEP 1/4 : AI LLM PROVIDER CONFIGURATION          [/bold yellow]")
@@ -730,6 +742,36 @@ def gateway_uninstall_startup() -> None:
     )
 
 
+@gateway_app.command("tunnel")
+def gateway_tunnel(
+    ctx: typer.Context,
+    provider: Annotated[
+        str, typer.Option(help="Tunnel provider: cloudflared or localtunnel")
+    ] = "localtunnel",
+) -> None:
+    """Expose the local running gateway API to the public web."""
+    cfg: Config = ctx.obj["config"]
+    port = cfg.api.port
+
+    console.print(f"[bold cyan]Exposing gateway API (port {port}) to the web...[/bold cyan]")
+
+    if provider == "cloudflared":
+        console.print("Running Cloudflare Tunnel...")
+        console.print("[dim]Note: Requires cloudflared installed on system.[/dim]")
+        try:
+            subprocess.run(["cloudflared", "tunnel", "--url", f"http://127.0.0.1:{port}"])
+        except FileNotFoundError:
+            console.print("[red]cloudflared is not installed or not in PATH.[/red]")
+            console.print("Download from: https://github.com/cloudflare/cloudflared/releases")
+    else:
+        console.print("Running localtunnel via npx...")
+        try:
+            subprocess.run(["npx", "-y", "localtunnel", "--port", str(port)])
+        except FileNotFoundError:
+            console.print("[red]npx is not installed or not in PATH.[/red]")
+            console.print("Ensure Node.js is installed.")
+
+
 app.add_typer(gateway_app, name="gateway")
 app.add_typer(config_app, name="config")
 app.add_typer(sessions_app, name="sessions")
@@ -793,6 +835,27 @@ def pairing_revoke(
     else:
         console.print(f"[red]Not found:[/red] {channel}:{sender_id}")
         raise typer.Exit(1)
+
+
+@app.command("tui")
+def tui_cmd(ctx: typer.Context) -> None:
+    """Start interactive TUI console dashboard."""
+    cfg: Config = ctx.obj["config"]
+    from cyberclaw.cli.tui import CyberClawTUI
+    dashboard = CyberClawTUI(cfg)
+    dashboard.start()
+
+
+@app.command("migrate-openclaw")
+def migrate_openclaw_cmd(
+    ctx: typer.Context,
+    source: Annotated[str, typer.Argument(help="Path to OpenClaw YAML config or SQLite database file")],
+) -> None:
+    """Migrate settings or chat history from OpenClaw."""
+    cfg: Config = ctx.obj["config"]
+    from cyberclaw.utils.migrator import OpenClawMigrator
+    migrator = OpenClawMigrator(cfg)
+    migrator.migrate(Path(source))
 
 
 # ── Talk command (voice mode) ──────────────────────────────────
