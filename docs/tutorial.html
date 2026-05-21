@@ -554,7 +554,83 @@ cyberclaw secrets delete OPENAI_API_KEY
 cyberclaw secrets list</code></pre>
         </section>
 
-        <!-- ── SECTION: 18-COMMAND ───────────────────────────────────── -->
+        <!-- ── SECTION: V9 MODEL SELECTOR WIZARD ────────────────────── -->
+        <section id="section-model-selector" class="doc-section">
+          <div class="doc-hero">
+            <h1>Premium V9 Model Selection Wizard</h1>
+            <p>CyberClaw ships with an industry-leading terminal-based model selection experience inspired by Cyber Prince CLI V9. This wizard auto-detects your hardware and walks you through choosing the perfect AI provider.</p>
+          </div>
+
+          <h2>How It Works</h2>
+          <p>The wizard runs in 5 stages:</p>
+          <div class="course-timeline">
+            <div class="timeline-step">
+              <h3>Stage 1: Jungle Gradient Banner</h3>
+              <p>A stunning 6-line ASCII CYBERCLAW banner rendered with dark-forest to emerald to lime color gradient.</p>
+            </div>
+            <div class="timeline-step">
+              <h3>Stage 2: Hardware Auto-Detection</h3>
+              <p>Detects your RAM (total/free), CPU model and cores, GPU name and VRAM. Classifies your system into one of four tiers: ULTRA (32GB+), HIGH (16GB+), MEDIUM (8GB+), or LIGHT (&lt;8GB), with smart model recommendations for each.</p>
+            </div>
+            <div class="timeline-step">
+              <h3>Stage 3: Provider Selection</h3>
+              <p>Shows 8 provider options: Ollama (local/free), Google Gemini, OpenAI/Codex, Anthropic Claude, Groq, OpenRouter, NVIDIA NIM, and DeepSeek. Each has curated model lists optimized for your system tier.</p>
+            </div>
+            <div class="timeline-step">
+              <h3>Stage 4: API Key Validation</h3>
+              <p>After entering your API key, the wizard instantly tests it against the provider's real endpoint. Invalid keys are rejected with clear error messages before any config is saved.</p>
+            </div>
+            <div class="timeline-step">
+              <h3>Stage 5: Config Save + Auto-Launch Chat</h3>
+              <p>The chosen provider is saved to your <code>config.user.yaml</code> using a safe merge that preserves all existing settings (channels, gateway, temperature, etc). Then it offers to start a chat session immediately.</p>
+            </div>
+          </div>
+
+          <h2>Launch the Wizard</h2>
+          <pre><code># Run during first-time setup
+cyberclaw onboard
+
+# Or run standalone anytime to switch models
+cyberclaw select-model</code></pre>
+
+          <h2>Ollama Local Models</h2>
+          <p>If you choose Ollama, the wizard shows three catalogs based on your tier:</p>
+          <div class="features-grid">
+            <div class="feature-card">
+              <div class="feature-card-header">
+                <div class="feature-card-icon">☁️</div>
+                <h3>Cloud Models</h3>
+              </div>
+              <p>llama3.1, gemma2, qwen2.5, phi4, mistral, deepseek-r1, command-r, codellama, mixtral, yi</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-card-header">
+                <div class="feature-card-icon">💻</div>
+                <h3>Local Tiny Models</h3>
+              </div>
+              <p>tinyllama, phi3:mini, qwen2.5:0.5b, gemma2:2b, stablelm2, codegemma:2b, all-minilm</p>
+            </div>
+          </div>
+
+          <h2>Cloud Provider Quick Reference</h2>
+          <table>
+            <tr><th>Provider</th><th>Key Models</th><th>Free Tier?</th></tr>
+            <tr><td>Google Gemini</td><td>gemini-2.5-flash, gemini-2.5-pro, gemma-3</td><td>Yes (generous)</td></tr>
+            <tr><td>OpenAI</td><td>gpt-4.1, o3, o4-mini, gpt-4o</td><td>No</td></tr>
+            <tr><td>Anthropic</td><td>claude-4-sonnet, claude-3.5-sonnet</td><td>No</td></tr>
+            <tr><td>Groq</td><td>llama-3.3-70b, gemma2-9b-it</td><td>Yes (free tier)</td></tr>
+            <tr><td>OpenRouter</td><td>100+ models, auto-routing</td><td>Free credits</td></tr>
+            <tr><td>NVIDIA NIM</td><td>llama-3.1-8b, deepseek-r1, qwen2.5</td><td>Free tier</td></tr>
+            <tr><td>DeepSeek</td><td>deepseek-chat, deepseek-reasoner</td><td>Cheap</td></tr>
+          </table>
+
+          <div class="info-note">
+            <h4>💡 PRO TIP</h4>
+            <p>The wizard remembers your existing config. If you already have channels, gateway settings, or other providers configured, they are preserved when you switch models. The safe merge only updates the active LLM provider.</p>
+          </div>
+        </section>
+
+        <!-- ── SECTION: DEPLOYMENT ───────────────────────────────────── -->
         <section id="section-deployment" class="doc-section">
           <div class="doc-hero">
             <h1>Services & Scaling</h1>
