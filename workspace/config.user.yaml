@@ -126,9 +126,9 @@ default_agent: cyberclaw
 #   pairing_enabled: true
 
 # ── MCP Servers ────────────────────────────────────────────────
-# mcp_servers:
-#   - name: filesystem
-#     command: ["npx", "-y", "@modelcontextprotocol/server-filesystem", "."]
+mcp_servers:
+  - name: page-agent
+    command: ["node", "D:\\00-System\\Tools\\Custom\\Cyber Prince CLI V9\\external\\page-agent-main\\page-agent-main\\packages\\mcp\\src\\index.js"]
 
 # ── API Server ─────────────────────────────────────────────────
 # api:

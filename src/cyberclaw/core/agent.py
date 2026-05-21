@@ -183,8 +183,61 @@ class AgentSession:
         """Delegate to state."""
         return self.state.shared_context
 
+    async def _ensure_mcp_initialized(self) -> None:
+        """Ensure that MCP servers are initialized and their tools are registered."""
+        if not getattr(self, "_mcp_initialized", False):
+            await self._init_mcp_servers()
+            self._mcp_initialized = True
+
+    async def _init_mcp_servers(self) -> None:
+        """Initialize and connect to all configured MCP servers."""
+        mcp_servers = self.agent.context.config.mcp_servers
+        if not mcp_servers:
+            return
+
+        from cyberclaw.mcp import MCPClient, MCPToolWrapper
+        
+        # Store clients on shared context so they persist across sessions
+        if not hasattr(self.agent.context, "_mcp_clients"):
+            self.agent.context._mcp_clients = {}
+
+        for server_config in mcp_servers:
+            name = server_config.name
+            cmd = server_config.command
+            
+            if name in self.agent.context._mcp_clients:
+                client = self.agent.context._mcp_clients[name]
+            else:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.info(f"Connecting to MCP server '{name}' using command: {cmd}")
+                try:
+                    client = MCPClient(cmd)
+                    await client.connect()
+                    self.agent.context._mcp_clients[name] = client
+                except Exception as e:
+                    logger.error(f"Failed to connect to MCP server '{name}': {e}")
+                    continue
+
+            for mcp_tool in client.tools:
+                tool_name = mcp_tool.get("name")
+                tool_desc = mcp_tool.get("description", "")
+                tool_schema = mcp_tool.get("inputSchema", {"type": "object", "properties": {}})
+                
+                if not self.tools.get(tool_name):
+                    wrapper = MCPToolWrapper(
+                        name=tool_name,
+                        description=tool_desc,
+                        parameters=tool_schema,
+                        client=client
+                    )
+                    self.tools.register(wrapper)
+                    import logging
+                    logging.getLogger(__name__).info(f"Registered MCP tool: {tool_name} from '{name}'")
+
     async def chat(self, message: str) -> str:
         """Send a message to the LLM and get a response."""
+        await self._ensure_mcp_initialized()
         user_msg: Message = {"role": "user", "content": message}
         self.state.add_message(user_msg)
 
@@ -199,6 +252,18 @@ class AgentSession:
                 if not tool_schemas:
                     raise
                 content, tool_calls = await self.agent.llm.chat(messages, None)
+
+            # Fallback parsing for text JSON tool calls
+            if not tool_calls:
+                tool_calls = self._parse_fallback_tool_calls(content)
+
+            # Clean fallback JSON blocks from content if tool calls are present
+            if tool_calls and content:
+                import re
+                cleaned = re.sub(r"```json\s*.*?\s*```", "", content, flags=re.DOTALL)
+                if cleaned == content:
+                    cleaned = re.sub(r"(\{.*?\})", "", content, flags=re.DOTALL)
+                content = cleaned.strip()
 
             tool_call_dicts: list[ChatCompletionMessageToolCallParam] = [
                 {
@@ -216,6 +281,7 @@ class AgentSession:
                 assistant_msg["tool_calls"] = tool_call_dicts
 
             self.state.add_message(assistant_msg)
+            self._print_token_usage(messages, assistant_msg)
 
             if not tool_calls:
                 break
@@ -228,6 +294,7 @@ class AgentSession:
 
     async def chat_stream(self, message: str) -> AsyncIterator[StreamChunk]:
         """Send a message and stream the response tokens."""
+        await self._ensure_mcp_initialized()
         user_msg: Message = {"role": "user", "content": message}
         self.state.add_message(user_msg)
 
@@ -258,6 +325,17 @@ class AgentSession:
                 pass  # Handle below
 
         # Record assistant message
+        if not collected_tool_calls:
+            collected_tool_calls = self._parse_fallback_tool_calls(collected_content)
+
+        # Clean fallback JSON blocks from content if tool calls are present
+        if collected_tool_calls and collected_content:
+            import re
+            cleaned = re.sub(r"```json\s*.*?\s*```", "", collected_content, flags=re.DOTALL)
+            if cleaned == collected_content:
+                cleaned = re.sub(r"(\{.*?\})", "", collected_content, flags=re.DOTALL)
+            collected_content = cleaned.strip()
+
         tool_call_dicts: list[ChatCompletionMessageToolCallParam] = [
             {
                 "id": tc.id,
@@ -270,6 +348,7 @@ class AgentSession:
         if tool_call_dicts:
             assistant_msg["tool_calls"] = tool_call_dicts
         self.state.add_message(assistant_msg)
+        self._print_token_usage(messages, assistant_msg)
 
         # If there were tool calls, execute them and do another round (non-streaming)
         if collected_tool_calls:
@@ -303,13 +382,99 @@ class AgentSession:
     ) -> str:
         """Execute a single tool call."""
         try:
-            args = json.loads(tool_call.arguments)
+            args = json.loads(tool_call.arguments, strict=False)
         except json.JSONDecodeError:
             args = {}
+
+        is_cli = hasattr(self.source, "platform_name") and self.source.platform_name == "cli"
+        if is_cli:
+            try:
+                from rich.console import Console
+                console = Console()
+                console.print(f"\n[bold magenta]🔧 [SYSTEM] Calling Tool:[/bold magenta] [cyan]{tool_call.name}[/cyan]")
+                console.print(f"   [dim]Arguments:[/dim] [yellow]{json.dumps(args, indent=2)}[/yellow]")
+            except Exception:
+                pass
 
         try:
             result = await self.tools.execute_tool(tool_call.name, session=self, **args)
         except Exception as e:
             result = f"Error executing tool: {e}"
 
+        if is_cli:
+            try:
+                from rich.console import Console
+                console = Console()
+                preview = str(result)
+                if len(preview) > 200:
+                    preview = preview[:200] + "... (truncated)"
+                console.print(f"[bold green]✅ [SYSTEM] Tool Completed:[/bold green] [cyan]{tool_call.name}[/cyan]")
+                console.print(f"   [dim]Result Preview:[/dim] [white]{preview}[/white]")
+            except Exception:
+                pass
+
         return result
+
+    def _print_token_usage(self, messages: list[Message], assistant_msg: Message) -> None:
+        """Print token usage to CLI if appropriate."""
+        if hasattr(self.source, "platform_name") and self.source.platform_name == "cli":
+            try:
+                from rich.console import Console
+                console = Console()
+                prompt_tokens = self.agent.llm.count_tokens(messages)
+                completion_tokens = self.agent.llm.count_tokens([assistant_msg])
+                total_tokens = prompt_tokens + completion_tokens
+                console.print(
+                    f"\n[bold blue]📊 [SYSTEM] LLM Usage:[/bold blue] Prompt: [cyan]{prompt_tokens}[/cyan] | "
+                    f"Completion: [cyan]{completion_tokens}[/cyan] | Total: [cyan]{total_tokens}[/cyan]"
+                )
+            except Exception:
+                pass
+
+    def _parse_fallback_tool_calls(self, content: str) -> list["LLMToolCall"]:
+        """Parse JSON code blocks or raw JSON in content as fallback tool calls."""
+        import re
+        from cyberclaw.provider.llm.base import LLMToolCall
+        tool_calls = []
+        
+        # Try to find all ```json ... ``` blocks
+        json_blocks = re.findall(r"```json\s*(.*?)\s*```", content, re.DOTALL)
+        
+        # If no code blocks, try to find raw JSON strings { ... }
+        if not json_blocks:
+            matches = re.findall(r"(\{.*?\})", content, re.DOTALL)
+            if matches:
+                json_blocks = matches
+
+        for block in json_blocks:
+            try:
+                data = json.loads(block.strip(), strict=False)
+                if isinstance(data, dict):
+                    if "name" in data and "arguments" in data:
+                        args = data["arguments"]
+                        if not isinstance(args, str):
+                            args = json.dumps(args)
+                        tool_calls.append(
+                            LLMToolCall(
+                                id=f"fallback-{uuid.uuid4().hex[:8]}",
+                                name=data["name"],
+                                arguments=args,
+                            )
+                        )
+                elif isinstance(data, list):
+                    for item in data:
+                        if isinstance(item, dict) and "name" in item and "arguments" in item:
+                            args = item["arguments"]
+                            if not isinstance(args, str):
+                                args = json.dumps(args)
+                            tool_calls.append(
+                                LLMToolCall(
+                                    id=f"fallback-{uuid.uuid4().hex[:8]}",
+                                    name=item["name"],
+                                    arguments=args,
+                                )
+                            )
+            except Exception:
+                pass
+                
+        return tool_calls

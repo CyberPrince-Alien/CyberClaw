@@ -138,8 +138,26 @@ class MCPClient:
         self._process.stdin.write(line.encode())
         await self._process.stdin.drain()
 
-        response_line = await self._process.stdout.readline()
-        return json.loads(response_line.decode())
+        # Read lines and filter to find the matching JSON-RPC response
+        while True:
+            response_line = await self._process.stdout.readline()
+            if not response_line:
+                raise RuntimeError("MCP server disconnected unexpectedly")
+            
+            try:
+                decoded = response_line.decode("utf-8").strip()
+                if not decoded:
+                    continue
+                # Only attempt to parse if it looks like a JSON object
+                if decoded.startswith("{") and decoded.endswith("}"):
+                    data = json.loads(decoded)
+                    if isinstance(data, dict) and data.get("id") == req_id:
+                        return data
+                else:
+                    logger.debug("Non-JSON line from MCP server stdout: %s", decoded)
+            except Exception as e:
+                logger.debug("Failed to decode or parse line from MCP server stdout: %s", e)
+                continue
 
     async def disconnect(self) -> None:
         if self._process:
@@ -149,3 +167,18 @@ class MCPClient:
     @property
     def tools(self) -> list[dict[str, Any]]:
         return self._tools
+
+
+from cyberclaw.tools.base import BaseTool
+
+class MCPToolWrapper(BaseTool):
+    """Wraps an MCP tool as a CyberClaw BaseTool."""
+
+    def __init__(self, name: str, description: str, parameters: dict[str, Any], client: MCPClient):
+        self.name = name
+        self.description = description
+        self.parameters = parameters
+        self._client = client
+
+    async def execute(self, session: Any, **kwargs: Any) -> str:
+        return await self._client.call_tool(self.name, kwargs)
