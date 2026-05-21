@@ -1,0 +1,84 @@
+name: Build and Publish Package
+
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  build:
+    name: Build distribution packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install hatch build
+
+      - name: Build wheels and source tarball
+        run: |
+          hatch build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: distribution-packages
+          path: dist/
+
+  publish-github-release:
+    name: Upload assets to GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download distribution packages
+        uses: actions/download-artifact@v4
+        with:
+          name: distribution-packages
+          path: dist/
+
+      - name: Upload assets to GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'release'
+        with:
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-pypi:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    # Only run on real release tags (e.g. v0.2.0)
+    if: startsWith(github.ref, 'refs/tags/v')
+    environment:
+      name: pypi
+      url: https://pypi.org/p/cyberclaw
+    permissions:
+      id-token: write  # Required for Trusted Publishing (OIDC)
+    steps:
+      - name: Download distribution packages
+        uses: actions/download-artifact@v4
+        with:
+          name: distribution-packages
+          path: dist/
+
+      - name: Publish to PyPI via Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@release/v1
+        continue-on-error: true # Graceful if PyPI Trusted Publisher is not yet set up
+        with:
+          packages-dir: dist/
