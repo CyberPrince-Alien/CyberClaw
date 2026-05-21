@@ -1,5 +1,12 @@
 """CLI interface for cyberclaw using Typer."""
 
+# Suppress LiteLLM warnings BEFORE it's imported (import-time noise about botocore)
+import os as _os
+import logging as _logging
+_os.environ["LITELLM_LOG"] = "ERROR"
+_logging.getLogger("LiteLLM").setLevel(_logging.ERROR)
+_logging.getLogger("litellm").setLevel(_logging.ERROR)
+
 from pathlib import Path
 import asyncio
 import subprocess
@@ -21,7 +28,6 @@ from cyberclaw.utils.config import Config
 from cyberclaw.utils.logging import setup_logging
 
 # Fix Windows console encoding for emoji/unicode output
-import os as _os
 if _os.name == 'nt':
     import sys as _sys
     _os.environ.setdefault('PYTHONIOENCODING', 'utf-8')
