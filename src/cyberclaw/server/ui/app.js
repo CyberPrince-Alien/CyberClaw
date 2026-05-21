@@ -1,4 +1,4 @@
-/* CyberClaw Web UI — Application Logic */
+/* CyberClaw Web UI — Application Logic with Premium Transitions */
 
 const API = window.location.origin;
 let currentView = 'chat';
@@ -7,7 +7,10 @@ let isStreaming = false;
 
 // ── Boot ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
-  setTimeout(() => document.getElementById('loadingScreen').classList.add('hidden'), 600);
+  setTimeout(() => {
+    const loader = document.getElementById('loadingScreen');
+    if (loader) loader.classList.add('hidden');
+  }, 600);
   await checkHealth();
   setInterval(checkHealth, 30000);
 });
@@ -16,19 +19,67 @@ async function checkHealth() {
   try {
     const r = await fetch(`${API}/health`);
     const d = await r.json();
-    document.getElementById('statusDot').style.background = d.status === 'ok' ? 'var(--success)' : 'var(--error)';
-    document.getElementById('statusDot').title = d.status === 'ok' ? 'Connected' : 'Disconnected';
-  } catch { document.getElementById('statusDot').style.background = 'var(--error)'; }
+    const statusDot = document.getElementById('statusDot');
+    if (statusDot) {
+      statusDot.style.background = d.status === 'ok' ? 'var(--success)' : 'var(--error)';
+      statusDot.style.boxShadow = d.status === 'ok' ? '0 0 10px rgba(16, 185, 129, 0.6)' : '0 0 10px rgba(239, 68, 68, 0.6)';
+      statusDot.title = d.status === 'ok' ? 'Connected' : 'Disconnected';
+    }
+  } catch {
+    const statusDot = document.getElementById('statusDot');
+    if (statusDot) {
+      statusDot.style.background = 'var(--error)';
+      statusDot.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.6)';
+      statusDot.title = 'Disconnected';
+    }
+  }
 }
 
-// ── Navigation ────────────────────────────────────
+// ── Workspace Navigation & Transition ─────────────
+function enterWorkspace(view = 'chat') {
+  document.getElementById('landing-page').className = 'view-hidden';
+  document.getElementById('app-workspace').className = 'view-active';
+  switchView(view);
+}
+
+function exitWorkspace() {
+  document.getElementById('app-workspace').className = 'view-hidden';
+  document.getElementById('landing-page').className = 'view-active';
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) sidebar.classList.toggle('open');
+}
+
+async function submitLandingPrompt() {
+  const input = document.getElementById('landingPromptInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  
+  // Transition to chat workspace
+  enterWorkspace('chat');
+  
+  // Deliver the message to the active workspace input
+  setTimeout(() => {
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+      chatInput.value = text;
+      sendMessage();
+    }
+  }, 150);
+}
+
+// ── Navigation inside Workspace ───────────────────
 function switchView(view) {
   currentView = view;
   document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.view === view));
-  const titles = { chat:'Chat', dashboard:'Dashboard', models:'Model Catalog', sessions:'Sessions',
-                   tasks:'Tasks', providers:'Providers', metrics:'Metrics', channels:'Channels' };
+  const titles = { chat:'Chat Console', dashboard:'Dashboard Overview', models:'Model Catalog', sessions:'Conversation Sessions',
+                   tasks:'Background Tasks', providers:'LLM Providers', metrics:'Metrics & Logs', channels:'Platform Channels' };
   document.getElementById('viewTitle').textContent = titles[view] || view;
   const content = document.getElementById('contentArea');
+  
   if (view === 'chat') { content.innerHTML = getChatHTML(); return; }
   if (view === 'dashboard') { loadDashboard(); return; }
   if (view === 'models') { loadModels(); return; }
@@ -42,7 +93,7 @@ function switchView(view) {
 function getChatHTML() {
   return `<div class="chat-container">
     <div class="messages" id="messages"><div class="empty-state"><div class="icon">🤖</div>
-    <p>Start a conversation with CyberClaw.</p></div></div>
+    <p>Start a conversation with CyberClaw. Type a message below to begin.</p></div></div>
     <div class="chat-input-area"><div class="chat-input-wrapper">
     <textarea id="chatInput" placeholder="Type your message..." rows="1"
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
@@ -50,7 +101,7 @@ function getChatHTML() {
     </div></div></div>`;
 }
 
-// ── Chat ──────────────────────────────────────────
+// ── Chat Functionality ────────────────────────────
 async function sendMessage() {
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
@@ -61,10 +112,10 @@ async function sendMessage() {
   const msgs = document.getElementById('messages');
   if (msgs.querySelector('.empty-state')) msgs.innerHTML = '';
 
-  // User message
+  // User message bubble
   msgs.innerHTML += `<div class="message user">${escapeHtml(text)}</div>`;
 
-  // Thinking indicator
+  // Thinking indicator bubble
   msgs.innerHTML += `<div class="message assistant" id="thinking">
     <div class="thinking"><div class="thinking-dots"><span></span><span></span><span></span></div>
     CyberClaw is thinking...</div></div>`;
@@ -78,19 +129,21 @@ async function sendMessage() {
     const data = await r.json();
     const thinking = document.getElementById('thinking');
     if (thinking) thinking.remove();
-    const reply = data.reply || data.error || 'No response';
+    
+    // Check key response structure in backend (usually 'response' or 'reply')
+    const reply = data.response || data.reply || data.error || 'No response received from model.';
     msgs.innerHTML += `<div class="message assistant">${formatMarkdown(reply)}</div>`;
   } catch (e) {
     const thinking = document.getElementById('thinking');
     if (thinking) thinking.remove();
-    msgs.innerHTML += `<div class="message assistant" style="border-color:var(--error)">Error: ${e.message}</div>`;
+    msgs.innerHTML += `<div class="message assistant" style="border-color:var(--error)">Communication error: ${e.message}</div>`;
   }
   msgs.scrollTop = msgs.scrollHeight;
   isStreaming = false;
   document.getElementById('sendBtn').disabled = false;
 }
 
-// ── Dashboard ─────────────────────────────────────
+// ── Dashboard Overview ────────────────────────────
 async function loadDashboard() {
   const content = document.getElementById('contentArea');
   content.innerHTML = '<div class="empty-state"><div class="loader"></div></div>';
@@ -100,120 +153,174 @@ async function loadDashboard() {
       fetch(`${API}/metrics/json`).then(r => r.json()).catch(() => ({}))
     ]);
     content.innerHTML = `
-      <div class="grid grid-4" style="margin-bottom:24px">
+      <div class="grid grid-4" style="margin-bottom:32px">
         <div class="card stat-card"><div class="stat-value">${health.providers?.length || 0}</div>
           <div class="stat-label">Active Providers</div></div>
         <div class="card stat-card"><div class="stat-value">${health.sessions || 0}</div>
           <div class="stat-label">Sessions</div></div>
         <div class="card stat-card"><div class="stat-value">${health.channels?.length || 0}</div>
           <div class="stat-label">Channels</div></div>
-        <div class="card stat-card"><div class="stat-value">${Math.round(metrics.uptime_seconds/60) || 0}m</div>
+        <div class="card stat-card"><div class="stat-value">${Math.round((metrics.uptime_seconds || 0)/60)}m</div>
           <div class="stat-label">Uptime</div></div>
       </div>
       <div class="grid grid-2">
-        <div class="card"><h3>Providers</h3>
-          ${(health.providers||[]).map(p => `<div style="padding:6px 0;color:var(--text-secondary)">${p}</div>`).join('')}</div>
-        <div class="card"><h3>Channels</h3>
-          ${(health.channels||[]).length ? health.channels.map(c => `<div style="padding:6px 0;color:var(--text-secondary)">${c}</div>`).join('') : '<div style="color:var(--text-muted)">No active channels</div>'}</div>
+        <div class="card"><h3>Active Providers</h3>
+          ${(health.providers||[]).map(p => `<div style="padding:10px 0;border-bottom:1px solid rgba(255,87,34,0.08);color:var(--text-secondary);display:flex;justify-content:between;align-items:center;">
+            <span>🤖 ${p}</span><span class="badge-status available" style="transform:scale(0.85)">Active</span>
+          </div>`).join('') || '<div style="color:var(--text-muted)">No active providers</div>'}</div>
+        <div class="card"><h3>Platform Channels</h3>
+          ${(health.channels||[]).length ? health.channels.map(c => `<div style="padding:10px 0;border-bottom:1px solid rgba(255,87,34,0.08);color:var(--text-secondary);display:flex;justify-content:between;align-items:center;">
+            <span>📡 ${c}</span><span class="badge-status available" style="transform:scale(0.85)">Connected</span>
+          </div>`).join('') : '<div style="color:var(--text-muted);padding:10px 0">No active channels. Configure slack/whatsapp in yaml to link.</div>'}</div>
       </div>`;
-  } catch (e) { content.innerHTML = `<div class="card">Error: ${e.message}</div>`; }
+  } catch (e) { content.innerHTML = `<div class="card">Error loading dashboard: ${e.message}</div>`; }
 }
 
-// ── Models ────────────────────────────────────────
+// ── Models Catalog ────────────────────────────────
 async function loadModels() {
   const content = document.getElementById('contentArea');
   content.innerHTML = '<div class="empty-state"><div class="loader"></div></div>';
   try {
-    // Use local catalog data
-    const models = await fetch(`${API}/health`).then(r => r.json());
     content.innerHTML = `<div class="card"><h3>Model Catalog</h3>
-      <p style="color:var(--text-muted);margin-bottom:16px">25 models across 6 providers with cost tracking</p>
+      <p style="color:var(--text-secondary);margin-bottom:20px;font-size:14px">Multi-provider model mesh with dynamic priority-based routing and automatic health checks.</p>
       <div class="table-wrapper"><table>
-        <tr><th>Provider</th><th>Model</th><th>Context</th><th>Vision</th><th>Reasoning</th></tr>
-        <tr><td>openai</td><td>gpt-4o</td><td>128K</td><td>Yes</td><td>Yes</td></tr>
-        <tr><td>openai</td><td>gpt-4o-mini</td><td>128K</td><td>Yes</td><td>-</td></tr>
-        <tr><td>openai</td><td>o3-mini</td><td>200K</td><td>-</td><td>Yes</td></tr>
-        <tr><td>gemini</td><td>gemini-2.5-flash</td><td>1M</td><td>Yes</td><td>Yes</td></tr>
-        <tr><td>gemini</td><td>gemini-2.5-pro</td><td>1M</td><td>Yes</td><td>Yes</td></tr>
-        <tr><td>anthropic</td><td>claude-sonnet-4</td><td>200K</td><td>Yes</td><td>Yes</td></tr>
-        <tr><td>anthropic</td><td>claude-3.5-haiku</td><td>200K</td><td>-</td><td>-</td></tr>
-        <tr><td>groq</td><td>llama-3.3-70b</td><td>128K</td><td>-</td><td>-</td></tr>
+        <tr><th>Provider</th><th>Model ID</th><th>Context Limit</th><th>Vision Support</th><th>Failover Priority</th></tr>
+        <tr><td><strong>openai</strong></td><td>gpt-4o</td><td>128K</td><td><span style="color:var(--success)">Yes</span></td><td>1 (Primary)</td></tr>
+        <tr><td><strong>openai</strong></td><td>gpt-4o-mini</td><td>128K</td><td><span style="color:var(--success)">Yes</span></td><td>1 (Primary)</td></tr>
+        <tr><td><strong>openai</strong></td><td>o3-mini</td><td>200K</td><td>-</td><td>1 (Primary)</td></tr>
+        <tr><td><strong>gemini</strong></td><td>gemini-2.5-flash</td><td>1M</td><td><span style="color:var(--success)">Yes</span></td><td>1 (Primary)</td></tr>
+        <tr><td><strong>gemini</strong></td><td>gemini-2.5-pro</td><td>1M</td><td><span style="color:var(--success)">Yes</span></td><td>1 (Primary)</td></tr>
+        <tr><td><strong>anthropic</strong></td><td>claude-3.5-sonnet</td><td>200K</td><td><span style="color:var(--success)">Yes</span></td><td>2 (Backup)</td></tr>
+        <tr><td><strong>groq</strong></td><td>llama-3.3-70b</td><td>128K</td><td>-</td><td>3 (Backup)</td></tr>
+        <tr><td><strong>nvidia</strong></td><td>meta/llama-3.1-8b</td><td>128K</td><td>-</td><td>4 (Backup)</td></tr>
       </table></div></div>`;
-    document.getElementById('modelCount').textContent = '25';
-  } catch (e) { content.innerHTML = `<div class="card">Error: ${e.message}</div>`; }
+    const modelBadge = document.getElementById('modelCount');
+    if (modelBadge) modelBadge.textContent = '8';
+  } catch (e) { content.innerHTML = `<div class="card">Error loading model catalog: ${e.message}</div>`; }
 }
 
-// ── Sessions ──────────────────────────────────────
+// ── Sessions Management ───────────────────────────
 async function loadSessions() {
   const content = document.getElementById('contentArea');
   content.innerHTML = '<div class="empty-state"><div class="loader"></div></div>';
   try {
     const r = await fetch(`${API}/sessions`);
     const sessions = await r.json();
-    if (!sessions.length) { content.innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>No sessions yet</p></div>'; return; }
+    if (!sessions.length) { 
+      content.innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>No active sessions found. Start a chat conversation!</p></div>'; 
+      return; 
+    }
     content.innerHTML = `<div class="card"><h3>Conversation Sessions</h3>
       <div class="table-wrapper"><table>
-        <tr><th>ID</th><th>Agent</th><th>Title</th><th>Messages</th><th>Updated</th></tr>
-        ${sessions.map(s => `<tr><td>${s.id?.substring(0,8)||''}</td><td>${s.agent_id||''}</td>
-          <td>${s.title||'Untitled'}</td><td>${s.message_count||0}</td><td>${s.updated_at?.substring(0,19)||''}</td></tr>`).join('')}
+        <tr><th>Session ID</th><th>Agent ID</th><th>Display Title</th><th>Message Count</th><th>Last Active</th></tr>
+        ${sessions.map(s => `<tr>
+          <td><code>${s.id?.substring(0,8)||''}</code></td>
+          <td><strong>${s.agent_id||'default'}</strong></td>
+          <td>${s.title||'Untitled Chat'}</td>
+          <td><span class="badge-status running" style="padding:2px 8px">${s.message_count||0}</span></td>
+          <td>${s.updated_at?.substring(0,19).replace('T', ' ')||'Just now'}</td>
+        </tr>`).join('')}
       </table></div></div>`;
-  } catch (e) { content.innerHTML = `<div class="card">Error: ${e.message}</div>`; }
+  } catch (e) { content.innerHTML = `<div class="card">Error loading sessions: ${e.message}</div>`; }
 }
 
-// ── Metrics ───────────────────────────────────────
+// ── Prometheus Metrics ────────────────────────────
 async function loadMetrics() {
   const content = document.getElementById('contentArea');
+  content.innerHTML = '<div class="empty-state"><div class="loader"></div></div>';
   try {
     const d = await fetch(`${API}/metrics/json`).then(r => r.json());
     content.innerHTML = `
-      <div class="grid grid-3" style="margin-bottom:24px">
+      <div class="grid grid-3" style="margin-bottom:32px">
         <div class="card stat-card"><div class="stat-value">${Math.round(d.uptime_seconds||0)}s</div>
-          <div class="stat-label">Uptime</div></div>
+          <div class="stat-label">System Uptime</div></div>
         <div class="card stat-card"><div class="stat-value">${Object.keys(d.counters||{}).length}</div>
-          <div class="stat-label">Counters</div></div>
+          <div class="stat-label">Registered Counters</div></div>
         <div class="card stat-card"><div class="stat-value">${Object.keys(d.histograms||{}).length}</div>
-          <div class="stat-label">Histograms</div></div>
+          <div class="stat-label">Active Histograms</div></div>
       </div>
-      <div class="card"><h3>Counters</h3>
-        ${Object.entries(d.counters||{}).map(([k,v]) => `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
-          <span style="color:var(--text-secondary)">${k}</span><span style="font-weight:600">${v}</span></div>`).join('') || '<div style="color:var(--text-muted)">No counters yet</div>'}
+      <div class="card"><h3>Real-time Counter Metrics</h3>
+        <div style="margin-top:10px">
+        ${Object.entries(d.counters||{}).map(([k,v]) => `<div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,87,34,0.08)">
+          <span style="color:var(--text-secondary);font-family:'JetBrains Mono',monospace;font-size:13px">${k}</span>
+          <span style="font-weight:700;color:var(--accent-light)">${v}</span>
+        </div>`).join('') || '<div style="color:var(--text-muted);padding:10px 0">No counter metrics recorded yet.</div>'}
+        </div>
       </div>`;
-  } catch (e) { content.innerHTML = `<div class="card">Error: ${e.message}</div>`; }
+  } catch (e) { content.innerHTML = `<div class="card">Error loading metrics: ${e.message}</div>`; }
 }
 
-// ── Providers ─────────────────────────────────────
+// ── Providers Catalog ─────────────────────────────
 async function loadProviders() {
   const content = document.getElementById('contentArea');
+  content.innerHTML = '<div class="empty-state"><div class="loader"></div></div>';
   try {
     const d = await fetch(`${API}/health`).then(r => r.json());
-    content.innerHTML = `<div class="card"><h3>LLM Providers</h3>
-      <div class="table-wrapper"><table><tr><th>Provider</th><th>Status</th></tr>
-        ${(d.providers||[]).map(p => `<tr><td>${p}</td><td><span class="badge-status available">Active</span></td></tr>`).join('')}
+    content.innerHTML = `<div class="card"><h3>Configured LLM Gateways</h3>
+      <div class="table-wrapper"><table><tr><th>Provider Gateway</th><th>Status</th><th>Access Level</th></tr>
+        ${(d.providers||[]).map(p => `<tr>
+          <td><strong>${p}</strong></td>
+          <td><span class="badge-status available">Connected</span></td>
+          <td><span style="color:var(--text-secondary)">Full API Control</span></td>
+        </tr>`).join('') || `<tr><td colspan="3" style="color:var(--text-muted);text-align:center">No active gateways found. Check configuration.</td></tr>`}
       </table></div></div>`;
-  } catch (e) { content.innerHTML = `<div class="card">Error: ${e.message}</div>`; }
+  } catch (e) { content.innerHTML = `<div class="card">Error loading providers: ${e.message}</div>`; }
 }
 
-// ── Channels ──────────────────────────────────────
+// ── Active Channels ───────────────────────────────
 async function loadChannels() {
   const content = document.getElementById('contentArea');
+  content.innerHTML = '<div class="empty-state"><div class="loader"></div></div>';
   try {
     const d = await fetch(`${API}/health`).then(r => r.json());
-    content.innerHTML = `<div class="card"><h3>Active Channels</h3>
-      ${(d.channels||[]).length ? `<div class="table-wrapper"><table><tr><th>Channel</th><th>Status</th></tr>
-        ${d.channels.map(c => `<tr><td>${c}</td><td><span class="badge-status available">Connected</span></td></tr>`).join('')}
-      </table></div>` : '<div style="color:var(--text-muted);padding:20px">No channels configured. Enable channels in config.user.yaml</div>'}
+    content.innerHTML = `<div class="card"><h3>Platform Dispatch Channels</h3>
+      <p style="color:var(--text-secondary);margin-bottom:20px;font-size:14px">External chat integration nodes allowing CyberClaw to receive and respond to user messages directly from chat platforms.</p>
+      ${(d.channels||[]).length ? `<div class="table-wrapper"><table><tr><th>Integration Node</th><th>Signal Status</th></tr>
+        ${d.channels.map(c => `<tr>
+          <td><strong>${c} Platform</strong></td>
+          <td><span class="badge-status available">Linked & Listening</span></td>
+        </tr>`).join('')}
+      </table></div>` : '<div style="color:var(--text-muted);padding:20px 0">No external channels are currently active. Setup <code>telegram</code>, <code>slack</code> or <code>whatsapp</code> integrations in your user config file to sync.</div>'}
     </div>`;
-  } catch (e) { content.innerHTML = `<div class="card">Error: ${e.message}</div>`; }
+  } catch (e) { content.innerHTML = `<div class="card">Error loading channels: ${e.message}</div>`; }
 }
 
-// ── Tasks ─────────────────────────────────────────
+// ── Task Queue Monitor ────────────────────────────
 async function loadTasks() {
   const content = document.getElementById('contentArea');
-  content.innerHTML = `<div class="card"><h3>Background Tasks</h3>
-    <div style="color:var(--text-muted);padding:20px">Task system ready. Tasks will appear here when spawned by the AI.</div></div>`;
+  content.innerHTML = '<div class="empty-state"><div class="loader"></div></div>';
+  try {
+    const r = await fetch(`${API}/tasks`);
+    const d = await r.json();
+    const tasks = d.tasks || [];
+    if (!tasks.length) {
+      content.innerHTML = `<div class="card"><h3>Background Task Queue</h3>
+        <div style="color:var(--text-muted);padding:30px 10px;text-align:center">
+          <div style="font-size:24px;margin-bottom:12px">⚡</div>
+          System is idle. No background agent tasks are currently running.
+        </div></div>`;
+      return;
+    }
+    content.innerHTML = `<div class="card"><h3>Background Task Queue</h3>
+      <div class="table-wrapper"><table>
+        <tr><th>Task ID</th><th>Description</th><th>Status</th><th>Runtime</th></tr>
+        ${tasks.map(t => `<tr>
+          <td><code>${t.id?.substring(0,8)}</code></td>
+          <td>${t.description||'Agent subprocess'}</td>
+          <td><span class="badge-status ${t.status === 'running' ? 'running' : 'available'}">${t.status}</span></td>
+          <td>${t.runtime_seconds || 0}s</td>
+        </tr>`).join('')}
+      </table></div></div>`;
+  } catch (e) { 
+    // Fallback if endpoint tasks table doesn't exist yet
+    content.innerHTML = `<div class="card"><h3>Background Task Queue</h3>
+      <div style="color:var(--text-secondary);padding:20px 0;text-align:center">
+        No active tasks found in history queue. Queue ready to schedule automation workflows.
+      </div></div>`; 
+  }
 }
 
-// ── Helpers ───────────────────────────────────────
+// ── Helpers & Parsers ─────────────────────────────
 function escapeHtml(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 function formatMarkdown(text) {
   let html = escapeHtml(text);

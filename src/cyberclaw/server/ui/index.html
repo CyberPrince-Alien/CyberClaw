@@ -3,88 +3,334 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CyberClaw - AI Control Center</title>
-  <meta name="description" content="CyberClaw personal AI assistant web control center">
+  <title>CyberClaw - Experience the Next Era of AI Productivity</title>
+  <meta name="description" content="CyberClaw personal AI assistant web control center - Empowering developers with multi-provider failover routing and local ONNX TTS">
   <link rel="stylesheet" href="/ui/styles.css">
   <style>
-    .loading-screen { position:fixed; inset:0; background:var(--bg-primary); display:flex;
-      align-items:center; justify-content:center; z-index:9999; transition:opacity 0.5s; }
+    .loading-screen { position:fixed; inset:0; background:#070708; display:flex;
+      align-items:center; justify-content:center; z-index:9999; transition:opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
     .loading-screen.hidden { opacity:0; pointer-events:none; }
-    .loader { width:40px; height:40px; border:3px solid var(--border); border-top-color:var(--accent);
-      border-radius:50%; animation:spin 0.8s linear infinite; }
+    .loader { width:50px; height:50px; border:3px solid rgba(255, 87, 34, 0.1); border-top-color:#ff5722;
+      border-radius:50%; animation:spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite; box-shadow: 0 0 20px rgba(255, 87, 34, 0.2); }
     @keyframes spin { to { transform:rotate(360deg); } }
   </style>
 </head>
 <body>
+  <!-- Loading Screen -->
   <div class="loading-screen" id="loadingScreen"><div class="loader"></div></div>
-  <div id="app">
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header" style="flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 20px 10px;">
-        <img src="/ui/cyberclaw_logo.png" alt="CyberClaw Logo" style="width: 70px; height: 70px; border-radius: 12px; box-shadow: 0 0 20px rgba(114, 9, 183, 0.4); object-fit: cover;">
-        <h1 style="font-size: 1.15rem; margin-top: 4px; background: linear-gradient(90deg, #fff, #b5b3cd); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CyberClaw</h1>
-        <span class="version" style="font-size: 0.75rem; color: #4cc9f0; text-shadow: 0 0 10px rgba(76, 201, 240, 0.3);">Made by Cyber Prince</span>
-      </div>
-      <nav class="nav">
-        <div class="nav-section">
-          <div class="nav-section-title">Main</div>
-          <a class="nav-item active" data-view="chat" onclick="switchView('chat')">
-            <span class="icon">💬</span>Chat
-          </a>
-          <a class="nav-item" data-view="dashboard" onclick="switchView('dashboard')">
-            <span class="icon">📊</span>Dashboard
-          </a>
+
+  <!-- Unified Application -->
+  <div id="unified-container">
+    
+    <!-- ── LANDING PAGE VIEW ── -->
+    <div id="landing-page" class="view-active">
+      <!-- Glow Orbs -->
+      <div class="glow-orb orb-1"></div>
+      <div class="glow-orb orb-2"></div>
+      <div class="glow-orb orb-3"></div>
+
+      <!-- Navigation Header -->
+      <header class="landing-header">
+        <div class="header-inner">
+          <div class="brand">
+            <span class="brand-logo">🔥</span>
+            <span class="brand-name">CyberClaw</span>
+          </div>
+          <nav class="header-nav">
+            <a href="#hero" class="nav-link">Home</a>
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#pricing" class="nav-link">Pricing</a>
+            <a href="#testimonials" class="nav-link">Testimonials</a>
+          </nav>
+          <div class="header-actions">
+            <button class="btn btn-secondary" onclick="enterWorkspace('chat')">Sign In</button>
+            <button class="btn btn-primary" onclick="enterWorkspace('chat')">Get Started</button>
+          </div>
         </div>
-        <div class="nav-section">
-          <div class="nav-section-title">System</div>
-          <a class="nav-item" data-view="models" onclick="switchView('models')">
-            <span class="icon">🤖</span>Models<span class="badge" id="modelCount">--</span>
-          </a>
-          <a class="nav-item" data-view="sessions" onclick="switchView('sessions')">
-            <span class="icon">📝</span>Sessions
-          </a>
-          <a class="nav-item" data-view="tasks" onclick="switchView('tasks')">
-            <span class="icon">⚡</span>Tasks
-          </a>
-          <a class="nav-item" data-view="providers" onclick="switchView('providers')">
-            <span class="icon">🔌</span>Providers
-          </a>
-        </div>
-        <div class="nav-section">
-          <div class="nav-section-title">Monitor</div>
-          <a class="nav-item" data-view="metrics" onclick="switchView('metrics')">
-            <span class="icon">📈</span>Metrics
-          </a>
-          <a class="nav-item" data-view="channels" onclick="switchView('channels')">
-            <span class="icon">📡</span>Channels
-          </a>
-        </div>
-      </nav>
-    </aside>
-    <main class="main">
-      <header class="topbar">
-        <h2 id="viewTitle">Chat</h2>
-        <div class="status-dot" id="statusDot" title="Connected"></div>
       </header>
-      <div class="content" id="contentArea">
-        <!-- Chat View (default) -->
-        <div id="view-chat" class="chat-container">
-          <div class="messages" id="messages">
-            <div class="empty-state">
-              <div class="icon">🤖</div>
-              <p>Start a conversation with CyberClaw. Type a message below.</p>
-            </div>
-          </div>
-          <div class="chat-input-area">
-            <div class="chat-input-wrapper">
-              <textarea id="chatInput" placeholder="Type your message..." rows="1"
-                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
-              <button class="send-btn" onclick="sendMessage()" id="sendBtn">→</button>
+
+      <!-- Hero Section -->
+      <section id="hero" class="hero-section">
+        <div class="hero-content">
+          <div class="badge-pill">Made by Cyber Prince</div>
+          <h1 class="hero-title">Experience the Next Era <br>of AI Productivity.</h1>
+          <p class="hero-subtitle">Build smart workflows effortlessly. Connect AI, automate tasks, and boost productivity all in CyberClaw Workspace.</p>
+          
+          <!-- Central Glowing Prompt Bar -->
+          <div class="hero-prompt-container">
+            <div class="hero-prompt-inner">
+              <span class="prompt-icon-search">🔍</span>
+              <textarea id="landingPromptInput" placeholder="Ask me anything, press '/' for prompt..." rows="1" 
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitLandingPrompt()}"></textarea>
+              <div class="prompt-actions-left">
+                <button class="action-icon-btn" title="Variables">%</button>
+                <button class="action-icon-btn" title="Mention">@</button>
+                <button class="action-icon-btn" title="Voice Search">🎙️</button>
+              </div>
+              <div class="model-badge-toggle">
+                <span>Gemini-Pro</span>
+                <div class="badge-switch"></div>
+              </div>
+              <button class="prompt-submit-btn" id="landingSubmitBtn" onclick="submitLandingPrompt()">→</button>
             </div>
           </div>
         </div>
+      </section>
+
+      <!-- Secondary Info Section -->
+      <section id="features" class="info-section">
+        <div class="section-header">
+          <span class="section-tag">About</span>
+          <h2 class="section-title">Empowering students and professionals to use AI for smarter work and focus on what matters most.</h2>
+        </div>
+        
+        <!-- Feature Workspace Mockup -->
+        <div class="mock-workspace-card">
+          <div class="mock-header">
+            <div class="mock-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <div class="mock-title">workspace / cyberclaw_control_center</div>
+          </div>
+          <div class="mock-body">
+            <div class="mock-sidebar">
+              <div class="sidebar-logo">🔥 CyberClaw</div>
+              <div class="mock-nav-item active">💬 Chat</div>
+              <div class="mock-nav-item">📊 Dashboard</div>
+              <div class="mock-nav-item">🤖 Models</div>
+              <div class="mock-nav-item">📝 Sessions</div>
+              <div class="mock-nav-item">⚡ Tasks</div>
+            </div>
+            <div class="mock-main">
+              <div class="mock-chat-bubble user">Hey CyberClaw, help me organize my codebase!</div>
+              <div class="mock-chat-bubble bot">
+                I've initiated the <strong>Smart Gateway Router</strong> to orchestrate your tasks. 
+                All local ONNX voice nodes are fully operational.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <h3>Smart Gateway Failover</h3>
+            <p>Automatic model fallback and circuit breaking ensure your workflows never halt due to API limits.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎙️</div>
+            <h3>Offline ONNX TTS</h3>
+            <p>Stunning, high-quality, local speech synthesis running privately on Supertonic voice engine.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📁</div>
+            <h3>Local Encrypted Memory</h3>
+            <p>Private memories and system configs saved locally in secure vault vaults.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pricing Section -->
+      <section id="pricing" class="pricing-section">
+        <div class="section-header">
+          <span class="section-tag">Pricing</span>
+          <h2 class="section-title">Simple, Transparent Pricing</h2>
+          <p class="section-subtitle">Start free, scale as you grow. No hidden fees.</p>
+        </div>
+        <div class="pricing-grid">
+          <!-- Starter -->
+          <div class="price-card">
+            <div class="price-tier">Starter</div>
+            <div class="price-value">$0<span>/month</span></div>
+            <p class="price-desc">Perfect for trying out CyberClaw</p>
+            <ul class="price-features">
+              <li>✓ 5 workflows</li>
+              <li>✓ 1,500 AI requests/month</li>
+              <li>✓ Community support</li>
+              <li>✓ Email notifications</li>
+            </ul>
+            <button class="btn btn-secondary w-full" onclick="enterWorkspace('chat')">Start Free</button>
+          </div>
+          <!-- Pro (Glowing Accent) -->
+          <div class="price-card featured">
+            <div class="popular-tag">Popular</div>
+            <div class="price-tier">Pro</div>
+            <div class="price-value">$49<span>/month</span></div>
+            <p class="price-desc">For professionals and teams</p>
+            <ul class="price-features">
+              <li>✓ Unlimited workflows</li>
+              <li>✓ 50,000 AI requests/month</li>
+              <li>✓ Advanced analytics</li>
+              <li>✓ Priority support</li>
+              <li>✓ Team collaboration</li>
+              <li>✓ Custom integrations</li>
+              <li>✓ Version control</li>
+            </ul>
+            <button class="btn btn-primary w-full" onclick="enterWorkspace('chat')">Start Pro Trial</button>
+          </div>
+          <!-- Enterprise -->
+          <div class="price-card">
+            <div class="price-tier">Enterprise</div>
+            <div class="price-value">Custom</div>
+            <p class="price-desc">For large organizations</p>
+            <ul class="price-features">
+              <li>✓ Everything in Pro</li>
+              <li>✓ Unlimited AI requests</li>
+              <li>✓ Dedicated support</li>
+              <li>✓ SSO & SAML</li>
+              <li>✓ Custom SLA</li>
+              <li>✓ On-premise deployment</li>
+              <li>✓ Advanced security</li>
+            </ul>
+            <button class="btn btn-secondary w-full" onclick="enterWorkspace('chat')">Contact Sales</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonials Section -->
+      <section id="testimonials" class="testimonials-section">
+        <div class="section-header">
+          <span class="section-tag">Testimonials</span>
+          <h2 class="section-title">Loved by people who get things done.</h2>
+        </div>
+        <div class="testimonials-grid">
+          <div class="testimonial-card">
+            <div class="t-rating">⭐⭐⭐⭐⭐</div>
+            <p class="t-content">"It's like having a dedicated personal assistant who intuitively understands my every need, anticipates what I want before I even ask, and ensures everything runs smoothly."</p>
+            <div class="t-author">
+              <span class="t-avatar">👤</span>
+              <div>
+                <h4>Rachel W.</h4>
+                <span>VP of Product, Apex Corp</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA Footer Section -->
+      <footer class="landing-footer">
+        <div class="cta-banner">
+          <h2>Redefine Development with the <br>Power of Artificial Intelligence</h2>
+          <button class="btn btn-primary btn-lg" onclick="enterWorkspace('chat')">Get Started Now</button>
+        </div>
+        <div class="footer-links-grid">
+          <div class="footer-col">
+            <h4>Product</h4>
+            <a href="#">Solutions</a>
+            <a href="#">Integrations</a>
+            <a href="#">Pricing</a>
+          </div>
+          <div class="footer-col">
+            <h4>Resource</h4>
+            <a href="#">Docs</a>
+            <a href="#">API Reference</a>
+            <a href="#">Tutorials</a>
+          </div>
+          <div class="footer-col">
+            <h4>Company</h4>
+            <a href="#">About Us</a>
+            <a href="#">Careers</a>
+            <a href="#">Blog</a>
+          </div>
+          <div class="footer-col">
+            <h4>Legal</h4>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Cookie Policy</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>&copy; 2026 CyberClaw Inc. All rights reserved. Created with 🔥 by Cyber Prince.</span>
+        </div>
+      </footer>
+    </div>
+
+    <!-- ── APP WORKSPACE CONSOLE VIEW ── -->
+    <div id="app-workspace" class="view-hidden">
+      <div id="app">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+          <div class="sidebar-header">
+            <span class="logo">🔥</span>
+            <div>
+              <h1>CyberClaw</h1>
+              <span class="version">Made by Cyber Prince</span>
+            </div>
+            <button class="exit-workspace-btn" onclick="exitWorkspace()" title="Back to Landing Page">🏠</button>
+          </div>
+          <nav class="nav">
+            <div class="nav-section">
+              <div class="nav-section-title">Main</div>
+              <a class="nav-item active" data-view="chat" onclick="switchView('chat')">
+                <span class="icon">💬</span>Chat
+              </a>
+              <a class="nav-item" data-view="dashboard" onclick="switchView('dashboard')">
+                <span class="icon">📊</span>Dashboard
+              </a>
+            </div>
+            <div class="nav-section">
+              <div class="nav-section-title">System</div>
+              <a class="nav-item" data-view="models" onclick="switchView('models')">
+                <span class="icon">🤖</span>Models<span class="badge" id="modelCount">--</span>
+              </a>
+              <a class="nav-item" data-view="sessions" onclick="switchView('sessions')">
+                <span class="icon">📝</span>Sessions
+              </a>
+              <a class="nav-item" data-view="tasks" onclick="switchView('tasks')">
+                <span class="icon">⚡</span>Tasks
+              </a>
+              <a class="nav-item" data-view="providers" onclick="switchView('providers')">
+                <span class="icon">🔌</span>Providers
+              </a>
+            </div>
+            <div class="nav-section">
+              <div class="nav-section-title">Monitor</div>
+              <a class="nav-item" data-view="metrics" onclick="switchView('metrics')">
+                <span class="icon">📈</span>Metrics
+              </a>
+              <a class="nav-item" data-view="channels" onclick="switchView('channels')">
+                <span class="icon">📡</span>Channels
+              </a>
+            </div>
+          </nav>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main">
+          <header class="topbar">
+            <button class="menu-toggle-btn" onclick="toggleSidebar()">☰</button>
+            <h2 id="viewTitle">Chat</h2>
+            <div class="status-indicator">
+              <span class="status-text">Server Status</span>
+              <div class="status-dot" id="statusDot" title="Connected"></div>
+            </div>
+          </header>
+          <div class="content" id="contentArea">
+            <!-- Chat View (default inside content area) -->
+            <div id="view-chat" class="chat-container">
+              <div class="messages" id="messages">
+                <div class="empty-state">
+                  <div class="icon">🤖</div>
+                  <p>Start a conversation with CyberClaw. Type a message below.</p>
+                </div>
+              </div>
+              <div class="chat-input-area">
+                <div class="chat-input-wrapper">
+                  <textarea id="chatInput" placeholder="Type your message..." rows="1"
+                    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+                  <button class="send-btn" onclick="sendMessage()" id="sendBtn">→</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
-    </main>
+    </div>
+
   </div>
+
   <script src="/ui/app.js"></script>
 </body>
 </html>
