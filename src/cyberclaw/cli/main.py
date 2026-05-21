@@ -149,14 +149,32 @@ def onboard(
     workspace_path.mkdir(parents=True, exist_ok=True)
     console.print(f"      [green]OK[/green] Active path: [cyan]{workspace_path}[/cyan]\n")
 
-    # Step 2: Creating directories
-    console.print("[yellow][DIR] Step 2: Generating directory structures...[/yellow]")
-    dirs_created = []
-    for directory in ("agents", "skills", "crons", "memories", "plugins"):
-        dpath = workspace_path / directory
-        dpath.mkdir(exist_ok=True)
-        dirs_created.append(directory)
-    console.print(f"      [green]OK[/green] Folders initialized: [cyan]{', '.join(dirs_created)}[/cyan]\n")
+    # Step 2: Creating directories and copying templates
+    console.print("[yellow][DIR] Step 2: Generating directory structures and copying default templates...[/yellow]")
+    import shutil
+    template_dir = Path(__file__).resolve().parent.parent / "workspace_template"
+    if template_dir.exists():
+        def copy_template_dir(src: Path, dest: Path) -> None:
+            for item in src.iterdir():
+                if item.name in (".event", ".history", ".logs", ".pairing", "config.user.yaml", "__pycache__"):
+                    continue
+                d_item = dest / item.name
+                if item.is_dir():
+                    d_item.mkdir(exist_ok=True)
+                    copy_template_dir(item, d_item)
+                else:
+                    if not d_item.exists():
+                        shutil.copy2(item, d_item)
+        copy_template_dir(template_dir, workspace_path)
+        console.print(f"      [green]OK[/green] Workspace initialized with default agents, skills, and templates.\n")
+    else:
+        # Fallback in case of dev environment or missing template
+        dirs_created = []
+        for directory in ("agents", "skills", "crons", "memories", "plugins"):
+            dpath = workspace_path / directory
+            dpath.mkdir(exist_ok=True)
+            dirs_created.append(directory)
+        console.print(f"      [green]OK[/green] Folders initialized: [cyan]{', '.join(dirs_created)}[/cyan] (Template directory not found)\n")
 
     # Step 3: Deploy and Configure setting
     console.print("[yellow][FILE] Step 3: Setting up user configuration files...[/yellow]")
