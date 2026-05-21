@@ -53,6 +53,17 @@ class ConfigSetRequest(BaseModel):
     value: str
 
 
+class ProviderUpdateRequest(BaseModel):
+    """Request body to update a specific provider."""
+    provider_id: str
+    api_key: str | None = None
+    model: str | None = None
+    enabled: bool | None = None
+    priority: int | None = None
+    is_default: bool | None = None
+
+
+
 def _redact_config(value):
     """Return a JSON-serializable config snapshot with secrets redacted."""
     if isinstance(value, dict):
@@ -136,6 +147,65 @@ def create_app(context: SharedContext) -> FastAPI:
             return {"status": "ok", "key": request.key}
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
+
+    @app.post("/config/update_provider")
+    async def update_provider(request: ProviderUpdateRequest):
+        """Update a specific provider's API key, model name, enabled status, priority, and default flag."""
+        import yaml
+        config_path = context.config.workspace / "config.user.yaml"
+        try:
+            if not config_path.exists():
+                data = {}
+            else:
+                with open(config_path, encoding="utf-8") as f:
+                    data = yaml.safe_load(f) or {}
+
+            llm_data = data.setdefault("llm", {})
+            providers = llm_data.setdefault("providers", [])
+
+            # Find provider
+            provider_entry = None
+            for p in providers:
+                if p.get("id") == request.provider_id:
+                    provider_entry = p
+                    break
+
+            if not provider_entry:
+                provider_entry = {
+                    "id": request.provider_id,
+                    "provider": request.provider_id,
+                    "model": request.model or "gpt-4",
+                    "api_key": request.api_key or "",
+                    "priority": request.priority or 1,
+                    "enabled": request.enabled if request.enabled is not None else False
+                }
+                providers.append(provider_entry)
+
+            # Update fields
+            if request.model is not None:
+                provider_entry["model"] = request.model
+            if request.api_key is not None and request.api_key != "***REDACTED***" and request.api_key.strip() != "":
+                provider_entry["api_key"] = request.api_key
+            if request.enabled is not None:
+                provider_entry["enabled"] = request.enabled
+            if request.priority is not None:
+                provider_entry["priority"] = request.priority
+
+            # If is_default is true, update default_provider
+            if request.is_default:
+                llm_data["default_provider"] = request.provider_id
+
+            # Write back to yaml
+            with open(config_path, "w", encoding="utf-8") as f:
+                yaml.dump(data, f)
+
+            # Reload config
+            context.config.reload()
+
+            return {"status": "ok", "provider_id": request.provider_id}
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
 
     # ── Channels ───────────────────────────────────────────────────
     @app.get("/channels")
