@@ -2,7 +2,12 @@
 
 import json
 import time
+import mimetypes
 from typing import AsyncIterator
+
+# Explicitly register standard MIME types to fix Windows Registry lookup errors
+mimetypes.add_type("text/css", ".css")
+mimetypes.add_type("application/javascript", ".js")
 
 from fastapi import FastAPI, HTTPException, WebSocket, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
