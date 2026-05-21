@@ -98,6 +98,75 @@ class ElevenLabsTTSProvider(TTSProvider):
                     yield chunk
 
 
+class SupertonicTTSProvider(TTSProvider):
+    """Local, offline, edge-native ONNX TTS using the Supertonic library."""
+
+    def __init__(self, voice: str = "M4"):
+        self.default_voice = voice
+        self._tts_engine = None
+
+    @property
+    def name(self) -> str:
+        return "supertonic"
+
+    async def synthesize(self, text: str, voice: str | None = None) -> bytes:
+        import io
+        import soundfile as sf
+
+        # Lazy load supertonic engine
+        if self._tts_engine is None:
+            from supertonic import TTS
+            self._tts_engine = TTS(auto_download=True)
+
+        voice_name = voice or self.default_voice
+
+        # Load voice style preset or custom JSON path
+        if voice_name.endswith(".json"):
+            style = self._tts_engine.get_voice_style_from_path(voice_name)
+        else:
+            style = self._tts_engine.get_voice_style(voice_name=voice_name)
+
+        # Synthesize speech
+        wav, duration = self._tts_engine.synthesize(text, voice_style=style)
+
+        # Flatten NumPy array and write to WAV bytes in memory
+        data = wav.flatten()
+        out = io.BytesIO()
+        sf.write(out, data, 24000, format='WAV', subtype='PCM_16')
+        return out.getvalue()
+
+    async def stream_synthesize(self, text: str, voice: str | None = None) -> AsyncIterator[bytes]:
+        import re
+        import io
+        import soundfile as sf
+
+        # Lazy load supertonic engine
+        if self._tts_engine is None:
+            from supertonic import TTS
+            self._tts_engine = TTS(auto_download=True)
+
+        voice_name = voice or self.default_voice
+
+        if voice_name.endswith(".json"):
+            style = self._tts_engine.get_voice_style_from_path(voice_name)
+        else:
+            style = self._tts_engine.get_voice_style(voice_name=voice_name)
+
+        # Robust regex-based sentence level split (ignoring common abbreviations)
+        pattern = r"(?<!Mr\.)(?<!Mrs\.)(?<!Ms\.)(?<!Dr\.)(?<!Prof\.)(?<!Sr\.)(?<!Jr\.)(?<!Ph\.D\.)(?<!etc\.)(?<!e\.g\.)(?<!i\.e\.)(?<!vs\.)(?<!Inc\.)(?<!Ltd\.)(?<!Co\.)(?<!Corp\.)(?<!St\.)(?<!Ave\.)(?<!Blvd\.)(?<=[.!?])\s+"
+        sentences = [s.strip() for s in re.split(pattern, text) if s.strip()]
+
+        if not sentences:
+            sentences = [text]
+
+        for sentence in sentences:
+            wav, duration = self._tts_engine.synthesize(sentence, voice_style=style)
+            data = wav.flatten()
+            out = io.BytesIO()
+            sf.write(out, data, 24000, format='WAV', subtype='PCM_16')
+            yield out.getvalue()
+
+
 class TTSManager:
     """Manages TTS providers and provides a unified interface."""
 

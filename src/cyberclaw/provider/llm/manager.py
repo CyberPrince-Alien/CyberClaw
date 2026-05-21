@@ -16,6 +16,9 @@ if TYPE_CHECKING:
 class MultiLLMProvider:
     """Manages multiple LLM providers with failover capability."""
 
+    # Shared circuit-breaker cache: provider_id -> cooldown_until_timestamp
+    _failed_providers: dict[str, float] = {}
+
     def __init__(self, config: "LLMConfig"):
         """Initialize multi-provider manager."""
         self.config = config
@@ -75,9 +78,41 @@ class MultiLLMProvider:
         **kwargs: Any,
     ) -> tuple[str, list[LLMToolCall]]:
         """Attempt chat with failover to backup providers."""
-        last_error = None
+        import time
+        import random
 
-        for priority, provider_id, provider in self.providers:
+        last_error = None
+        now = time.time()
+
+        # 1. Filter out cooled-off providers
+        available_providers = []
+        for priority, pid, provider in self.providers:
+            cooldown_until = self._failed_providers.get(pid, 0.0)
+            if now < cooldown_until:
+                self.logger.warning(
+                    "Provider %s is in cooling-off period (circuit broken) for another %.1fs. Skipping.",
+                    pid,
+                    cooldown_until - now,
+                )
+                continue
+            available_providers.append((priority, pid, provider))
+
+        # Fallback: if all configured providers are cooled off, ignore cooldown so we don't return empty
+        if not available_providers:
+            available_providers = self.providers
+
+        # 2. Priority-based Load Balancing: group by priority and shuffle within groups
+        priority_groups = {}
+        for priority, pid, provider in available_providers:
+            priority_groups.setdefault(priority, []).append((priority, pid, provider))
+
+        sorted_available = []
+        for prio in sorted(priority_groups.keys()):
+            group = priority_groups[prio]
+            random.shuffle(group)  # Load-balance traffic by shuffling equal priorities
+            sorted_available.extend(group)
+
+        for priority, provider_id, provider in sorted_available:
             try:
                 self.logger.info(
                     "Attempting provider: %s/%s (priority: %d)",
@@ -88,11 +123,26 @@ class MultiLLMProvider:
 
                 result = await provider.chat(messages, tools, **kwargs)
                 self.logger.info("Success with provider: %s", provider.model)
+
+                # Reset circuit breaker on success
+                if provider_id in self._failed_providers:
+                    del self._failed_providers[provider_id]
+
                 return result
 
             except Exception as e:
+                # 3. Add to cooling-off period
+                error_str = str(e).lower()
+                cooldown_duration = 120.0 if ("429" in error_str or "rate limit" in error_str) else 60.0
+                self._failed_providers[provider_id] = time.time() + cooldown_duration
+
                 last_error = e
-                self.logger.warning("Provider %s failed: %s", provider.model, str(e))
+                self.logger.warning(
+                    "Provider %s failed: %s. Applying %.1fs cooldown.",
+                    provider_id,
+                    str(e),
+                    cooldown_duration,
+                )
 
                 if not self.config.enable_failover:
                     raise
@@ -140,21 +190,74 @@ class MultiLLMProvider:
                 yield chunk
             return
 
+        import time
+        import random
+
         last_error = None
+        now = time.time()
+
+        # 1. Filter out cooled-off providers
+        available_providers = []
         for priority, pid, provider in self.providers:
+            cooldown_until = self._failed_providers.get(pid, 0.0)
+            if now < cooldown_until:
+                self.logger.warning(
+                    "Stream provider %s is in cooling-off period for another %.1fs. Skipping.",
+                    pid,
+                    cooldown_until - now,
+                )
+                continue
+            available_providers.append((priority, pid, provider))
+
+        # Fallback: if all configured providers are cooled off, ignore cooldown so we don't return empty
+        if not available_providers:
+            available_providers = self.providers
+
+        # 2. Priority-based Load Balancing: group by priority and shuffle within groups
+        priority_groups = {}
+        for priority, pid, provider in available_providers:
+            priority_groups.setdefault(priority, []).append((priority, pid, provider))
+
+        sorted_available = []
+        for prio in sorted(priority_groups.keys()):
+            group = priority_groups[prio]
+            random.shuffle(group)  # Load-balance traffic by shuffling equal priorities
+            sorted_available.extend(group)
+
+        for priority, pid, provider in sorted_available:
             try:
                 self.logger.info("Streaming with provider: %s (priority: %d)", pid, priority)
+                success = False
                 async for chunk in provider.chat_stream(messages, tools, **kwargs):
                     if chunk.type == ChunkType.ERROR:
                         raise RuntimeError(chunk.error)
                     yield chunk
-                return  # Success
+                    success = True
+
+                if success:
+                    # Reset circuit breaker on success
+                    if pid in self._failed_providers:
+                        del self._failed_providers[pid]
+                    return  # Success
+
             except Exception as e:
+                # 3. Add to cooling-off period
+                error_str = str(e).lower()
+                cooldown_duration = 120.0 if ("429" in error_str or "rate limit" in error_str) else 60.0
+                self._failed_providers[pid] = time.time() + cooldown_duration
+
                 last_error = e
-                self.logger.warning("Stream provider %s failed: %s", pid, str(e))
+                self.logger.warning(
+                    "Stream provider %s failed: %s. Applying %.1fs cooldown.",
+                    pid,
+                    str(e),
+                    cooldown_duration,
+                )
+
                 if not self.config.enable_failover:
                     yield StreamChunk(type=ChunkType.ERROR, error=str(e))
                     return
+
                 continue
 
         yield StreamChunk(

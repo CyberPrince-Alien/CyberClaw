@@ -44,6 +44,19 @@ An enterprise-grade, massive cognitive directory containing over **1,440+ ready-
 * **Wide Domains:** Covers advanced fullstack programming, SEO blog copywriting, UI/UX audit checklists, cybersecurity penetration testing, financial modeling, medical triage, and more.
 * **Instant Parity:** Zero setup required. During first-run onboarding, these skills are loaded directly into CyberClaw's context registers, allowing the AI to use expert blueprints on demand.
 
+### 🛡️ 3. Smart Gateway Routing & Circuit Breaker Failover
+CyberClaw hosts an intelligent, multi-provider model routing gateway layer. If your primary LLM endpoint suffers rate limits (`429`) or server failures, CyberClaw automatically, dynamically, and transparently routes queries to backup models.
+* **Circuit-Breaker Cooldown:** Bypasses failing endpoints for 120 seconds on rate limits (`429`) or 60 seconds on standard server errors to avoid redundant network overhead.
+* **Equal-Priority Load Balancing:** Shuffles and load-balances incoming traffic randomly across multiple active providers set at the identical priority level.
+* **Seamless Coexistence:** Runs as a transparent layer within CyberClaw's LLM engine, keeping the premium V9 Model Selection System fully active.
+
+### 🎙️ 4. Local Edge-Native Offline TTS Subsystem
+An advanced offline voice synthesis engine utilizing pre-trained, high-quality ONNX models. Run 100% private, ultra-low latency voice chat sessions without any external API calls.
+* **Edge-Native ONNX Synthesis:** Real-time synthesis executing directly on local CPU/GPU hardware.
+* **Sentence-Level Streaming:** Paragraphs are chunked dynamically into sentences and streamed immediately as separate WAV blocks for instant playback responsiveness.
+* **Emotional Tags Stripping:** Automatically removes emotional tags (like `[happy]` or `*giggles*`) from the assistant text prior to playback for clean, professional narration.
+* **Smart Audio Dispatcher:** Features high-fidelity synchronous playbacks on Windows (`winsound` for zero-lag WAV files, and computed-duration PowerShell `MediaPlayer` for online MP3 fallbacks).
+
 ---
 
 ## 🚀 Visual Terminal Walkthrough — Install to Chat in 3 Minutes

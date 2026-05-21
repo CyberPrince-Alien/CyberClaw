@@ -1048,22 +1048,42 @@ def talk(ctx: typer.Context) -> None:
         console.print("Install voice support: pip install cyberclaw[voice]")
         raise typer.Exit(1)
 
-    console.print("[bold cyan]CyberClaw Talk Mode[/bold cyan]")
-    console.print("Speak into your microphone. Press Ctrl+C to stop.")
-    console.print("[yellow]Note: Requires edge-tts and a microphone.[/yellow]")
+    console.print("[bold cyan]CyberClaw Premium Voice Talk Mode[/bold cyan]")
+    console.print(f"Active Provider: [bold green]{cfg.tts.provider or 'edge-tts'}[/bold green] | Voice Style: [bold green]{cfg.tts.voice or 'default'}[/bold green]")
+    console.print("Speak/Type to converse. Press Ctrl+C to exit.")
 
     # Voice conversation loop
     async def voice_loop():
-        from cyberclaw.voice import TTSManager, EdgeTTSProvider
+        import re
+        import os
+        import tempfile
+        import subprocess
+        from cyberclaw.voice import TTSManager, EdgeTTSProvider, ElevenLabsTTSProvider, SupertonicTTSProvider
+
         tts = TTSManager()
-        tts.register(EdgeTTSProvider(), default=True)
+        
+        # 1. Register EdgeTTS
+        edge_provider = EdgeTTSProvider()
+        tts.register(edge_provider, default=(cfg.tts.provider == "edge-tts"))
+
+        # 2. Register ElevenLabs if configured
+        if cfg.tts.api_key:
+            el_provider = ElevenLabsTTSProvider(
+                api_key=cfg.tts.api_key,
+                voice_id=cfg.tts.voice_id or "21m00Tcm4TlvDq8ikWAM"
+            )
+            tts.register(el_provider, default=(cfg.tts.provider == "elevenlabs"))
+
+        # 3. Register Supertonic
+        supertonic_provider = SupertonicTTSProvider(voice=cfg.tts.voice or "M4")
+        tts.register(supertonic_provider, default=(cfg.tts.provider == "supertonic"))
 
         context = SharedContext(cfg, [])
         agent_def = context.agent_loader.load(cfg.default_agent)
         agent = Agent(agent_def, context)
         session = agent.new_session(CliEventSource())
 
-        console.print("[dim]Voice mode ready. Type messages (voice input requires STT setup).[/dim]")
+        console.print("[dim]Voice mode ready. Type messages below...[/dim]")
 
         while True:
             user_input = await asyncio.to_thread(
@@ -1075,19 +1095,61 @@ def talk(ctx: typer.Context) -> None:
             response = await session.chat(user_input)
             console.print(f"[green]CyberClaw:[/green] {response}")
 
+            # Strip expression tags (e.g., [happy], *giggles*) for clean speech synthesis
+            clean_speech = re.sub(r"\[.*?\]", "", response)
+            clean_speech = re.sub(r"\*.*?\*", "", clean_speech)
+            clean_speech = clean_speech.strip()
+
+            if not clean_speech:
+                continue
+
             # Speak the response
             try:
-                audio = await tts.speak(response, voice=cfg.tts.voice)
-                # Play audio (platform-dependent)
-                import tempfile, subprocess
-                with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as f:
+                audio = await tts.speak(clean_speech, provider=cfg.tts.provider, voice=cfg.tts.voice)
+                
+                # Check if it is a WAV file (starts with b"RIFF") or MP3
+                is_wav = audio.startswith(b"RIFF")
+                suffix = ".wav" if is_wav else ".mp3"
+                
+                with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
                     f.write(audio)
                     f.flush()
-                    # Windows: use default player
-                    subprocess.Popen(
-                        ["powershell", "-c", f"(New-Object Media.SoundPlayer '{f.name}').PlaySync()"],
-                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                    )
+                    f.close()
+                    
+                    try:
+                        if os.name == "nt":
+                            if is_wav:
+                                # Standard Windows library play for WAV (synchronous, native)
+                                import winsound
+                                winsound.PlaySound(f.name, winsound.SND_FILENAME)
+                            else:
+                                # Play MP3 cleanly via PowerShell MediaPlayer
+                                sleep_sec = max(3.0, len(clean_speech) / 12.0)
+                                ps_cmd = (
+                                    f"Add-Type -AssemblyName PresentationCore; "
+                                    f"$p = New-Object System.Windows.Media.MediaPlayer; "
+                                    f"$p.Open('{f.name}'); "
+                                    f"$p.Play(); "
+                                    f"Start-Sleep -Seconds {sleep_sec}"
+                                )
+                                subprocess.run(
+                                    ["powershell", "-c", ps_cmd],
+                                    stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL
+                                )
+                        else:
+                            # Unix fallback: play using standard utilities
+                            play_cmd = ["aplay"] if is_wav else ["ffplay", "-nodisp", "-autoexit"]
+                            subprocess.run(
+                                play_cmd + [f.name],
+                                stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL
+                            )
+                    finally:
+                        try:
+                            os.unlink(f.name)
+                        except Exception:
+                            pass
             except Exception as e:
                 console.print(f"[dim]TTS playback error: {e}[/dim]")
 

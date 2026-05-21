@@ -390,6 +390,41 @@ print(f"Selected Model: {cheapest_vision_model.ref}")</code></pre>
           <p>You can discover models on-the-fly directly from any standard OpenAI-compatible API endpoint:</p>
           <pre><code># Query models from Groq or OpenRouter live API using your credential
 await catalog.discover_live(provider="groq", api_key="your-api-key")</code></pre>
+
+          <h2>Smart Gateway Routing & Rate-Limit Failover</h2>
+          <p>CyberClaw features an intelligent, multi-provider model routing layer. If a high-priority provider encounters rate limits (<code>429</code>) or server failures, CyberClaw transparently routes the query to backup/secondary providers with no downtime.</p>
+          
+          <div class="info-note" style="margin-top: 15px;">
+            <h4>🛡️ SMART ROUTING KEY CAPABILITIES:</h4>
+            <ul>
+              <li><strong>Circuit-Breaker Cooling-Off:</strong> Automatically applies cooling-off periods (120s for <code>429</code> rate-limit errors, 60s for standard server errors) to avoid hammering failing endpoints.</li>
+              <li><strong>Equal-Priority Load Balancing:</strong> Traffic is automatically shuffled and balanced across multiple configured providers sharing the same priority level.</li>
+              <li><strong>Zero-Downtime Failover:</strong> Transparently falls back to backup providers in order of priority level (sorted lower to higher priority number) if primary models fail.</li>
+            </ul>
+          </div>
+
+          <p>Configure multiple LLM provider entries in your <code>config.user.yaml</code> to enable automatic failovers:</p>
+          <pre><code>llm:
+  enable_failover: true
+  providers:
+    - id: primary-a
+      provider: openai
+      model: gpt-4o
+      api_key: "sk-..."
+      priority: 1
+      enabled: true
+    - id: primary-b
+      provider: groq
+      model: llama-3.3-70b-versatile
+      api_key: "gsk-..."
+      priority: 1
+      enabled: true
+    - id: backup-1
+      provider: gemini
+      model: gemini-2.5-pro
+      api_key: "AIzaSy..."
+      priority: 2
+      enabled: true</code></pre>
         </section>
 
         <!-- ── SECTION: TASK SYSTEM & SQLITE ─────────────────────────── -->
@@ -569,6 +604,25 @@ session = mgr.create_session("my-session", provider="deepgram", api_key="your-de
 
 # Start receiving transcribed segments
 await session.start(on_transcript=lambda segment: print("Transcribed:", segment.text))</code></pre>
+
+          <h2>Local Edge-Native Offline TTS Subsystem</h2>
+          <p>CyberClaw features a built-in, local, offline edge-native Text-to-Speech (TTS) engine utilizing advanced ONNX model voice synthesis. Run private, fast voice interactions with zero external API calls.</p>
+          
+          <div class="info-note" style="margin-top: 15px;">
+            <h4>🎙️ OFFLINE TTS KEY CAPABILITIES:</h4>
+            <ul>
+              <li><strong>Edge-Native ONNX Synthesis:</strong> Private offline synthesis running directly on your local hardware with no external network latency or subscriptions.</li>
+              <li><strong>Dynamic Voice Style Presets:</strong> Supports pre-packaged styles (like <code>M4</code>, etc.) or custom external style JSON configurations.</li>
+              <li><strong>Sentence-Level Chunking & Streaming:</strong> Automatically splits paragraphs and streams WAV audio sentence-by-sentence to provide ultra-low startup latency.</li>
+              <li><strong>Emotional Expression Stripping:</strong> Intelligent real-time filter that removes assistant emotion tags (e.g. <code>[happy]</code> or <code>*laughs*</code>) before synthesizing for a flawless natural flow.</li>
+            </ul>
+          </div>
+
+          <p>Configure local TTS inside your <code>config.user.yaml</code> to enable offline voice:</p>
+          <pre><code>tts:
+  enabled: true
+  provider: supertonic
+  voice: M4  # Set to a style preset name or custom JSON path</code></pre>
 
           <h2>Wake Word & Push-to-Talk</h2>
           <p>Toggle wake word detection ("Hey CyberClaw") or use the keyboard spacebar fallback trigger to begin conversing instantly:</p>
