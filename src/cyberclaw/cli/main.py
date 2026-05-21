@@ -3,6 +3,7 @@
 from pathlib import Path
 import asyncio
 import subprocess
+from types import SimpleNamespace
 from typing import Annotated
 
 import yaml
@@ -19,6 +20,18 @@ from cyberclaw.core.events import CliEventSource
 from cyberclaw.utils.config import Config
 from cyberclaw.utils.logging import setup_logging
 
+# Fix Windows console encoding for emoji/unicode output
+import os as _os
+if _os.name == 'nt':
+    import sys as _sys
+    _os.environ.setdefault('PYTHONIOENCODING', 'utf-8')
+    if hasattr(_sys.stdout, 'reconfigure'):
+        try:
+            _sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+            _sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+        except Exception:
+            pass
+
 app = typer.Typer(
     name="cyberclaw",
     help="CyberClaw: personal AI assistant",
@@ -34,10 +47,59 @@ console = Console()
 
 
 def workspace_callback(ctx: typer.Context, workspace: str) -> Path:
-    """Store workspace path in context for later use."""
+    """Store workspace path in context for later use.
+
+    Smart auto-detection order:
+    1. Explicit --workspace / -w flag
+    2. ./workspace/config.user.yaml  (CWD has workspace subdir)
+    3. ./config.user.yaml            (CWD IS the workspace)
+    4. Walk up to 5 parent dirs looking for workspace/config.user.yaml
+    5. ~/.cyberclaw/workspace/config.user.yaml (global default)
+    6. Fallback to 'workspace' (old behaviour)
+    """
     ctx.ensure_object(dict)
-    ctx.obj["workspace"] = Path(workspace)
-    return Path(workspace)
+
+    # If user explicitly provided a path, use it
+    resolved = Path(workspace)
+    if workspace != "workspace":
+        ctx.obj["workspace"] = resolved
+        return resolved
+
+    # Auto-detect: ./workspace/
+    if (Path.cwd() / "workspace" / "config.user.yaml").exists():
+        ctx.obj["workspace"] = Path.cwd() / "workspace"
+        return ctx.obj["workspace"]
+
+    # Auto-detect: CWD is workspace itself
+    if (Path.cwd() / "config.user.yaml").exists():
+        ctx.obj["workspace"] = Path.cwd()
+        return ctx.obj["workspace"]
+
+    # Walk up parents (up to 5 levels)
+    current = Path.cwd()
+    for _ in range(5):
+        parent = current.parent
+        if parent == current:
+            break
+        candidate = parent / "workspace" / "config.user.yaml"
+        if candidate.exists():
+            ctx.obj["workspace"] = parent / "workspace"
+            return ctx.obj["workspace"]
+        candidate2 = parent / "config.user.yaml"
+        if candidate2.exists():
+            ctx.obj["workspace"] = parent
+            return ctx.obj["workspace"]
+        current = parent
+
+    # Global default: ~/.cyberclaw/workspace/
+    global_ws = Path.home() / ".cyberclaw" / "workspace"
+    if (global_ws / "config.user.yaml").exists():
+        ctx.obj["workspace"] = global_ws
+        return ctx.obj["workspace"]
+
+    # Fallback
+    ctx.obj["workspace"] = resolved
+    return resolved
 
 
 @app.callback()
@@ -60,7 +122,12 @@ def main(
 
     if not config_file.exists():
         console.print(f"[yellow]No configuration found at {config_file}[/yellow]")
-        console.print("Run `cyberclaw onboard` to create a local workspace config.")
+        console.print("\n[dim]Searched locations:[/dim]")
+        console.print(f"  [dim]• {Path.cwd() / 'workspace' / 'config.user.yaml'}[/dim]")
+        console.print(f"  [dim]• {Path.cwd() / 'config.user.yaml'}[/dim]")
+        console.print(f"  [dim]• {Path.home() / '.cyberclaw' / 'workspace' / 'config.user.yaml'}[/dim]")
+        console.print("\n[bold cyan]Fix:[/bold cyan] Run [green]cyberclaw onboard[/green] to create a workspace")
+        console.print("     or use [green]cyberclaw -w /path/to/workspace chat[/green]")
         raise typer.Exit(1)
 
     try:
@@ -243,8 +310,8 @@ def onboard(
             """Chat launcher callback for model selector."""
             try:
                 cfg = Config.load(ws_path)
-                chat_command_ctx = typer.Context(app, obj={"config": cfg, "workspace": ws_path})
-                chat_command(chat_command_ctx, agent_id=None)
+                fake_ctx = SimpleNamespace(obj={"config": cfg, "workspace": ws_path})
+                chat_command(fake_ctx, agent_id=None)
             except Exception as e:
                 console.print(f"[red]Chat launch failed: {e}[/red]")
                 console.print("[dim]You can start chatting manually: cyberclaw chat[/dim]")
@@ -262,7 +329,12 @@ def onboard(
         console.print("\n[bold yellow]======================================================[/bold yellow]")
         console.print("[bold yellow]   GATEWAY SERVER SETUP                              [/bold yellow]")
         console.print("[bold yellow]======================================================[/bold yellow]")
-        port = typer.prompt("HTTP Gateway Port", default=8000, type=int)
+        port = 8000
+        while True:
+            port = typer.prompt("HTTP Gateway Port", default=8000, type=int)
+            if 1 <= port <= 65535:
+                break
+            console.print(f"  [red]❌ Port must be between 1 and 65535 (you entered {port})[/red]")
         if "api" not in config_data:
             config_data["api"] = {}
         config_data["api"]["host"] = "127.0.0.1"
@@ -420,8 +492,8 @@ def select_model_cmd(
         """Chat launcher callback for select-model command."""
         try:
             cfg = Config.load(ws_path)
-            chat_ctx = typer.Context(app, obj={"config": cfg, "workspace": ws_path})
-            chat_command(chat_ctx, agent_id=None)
+            fake_ctx = SimpleNamespace(obj={"config": cfg, "workspace": ws_path})
+            chat_command(fake_ctx, agent_id=None)
         except Exception as e:
             console.print(f"[red]Chat launch failed: {e}[/red]")
             console.print("[dim]You can start chatting manually: cyberclaw chat[/dim]")
@@ -916,10 +988,66 @@ def talk(ctx: typer.Context) -> None:
 
 # -- Self-update command ------------------------------------------------
 @app.command("update")
-def update_cmd() -> None:
-    """Update CyberClaw to the latest version."""
+def update_cmd(
+    check: Annotated[
+        bool,
+        typer.Option("--check", "-c", help="Only check for updates without installing."),
+    ] = False,
+) -> None:
+    """Update CyberClaw to the latest version (or check with --check)."""
+    import re
+
+    current_version = "0.2.0"  # synced with pyproject.toml
+    repo_url = "https://github.com/CyberPrince-Alien/CyberClaw.git"
+
+    # ── Fetch latest version from git tags ──────────────────────────
     console.print("[bold cyan]Checking for updates...[/bold cyan]")
+    latest_version = None
     try:
+        result = subprocess.run(
+            ["git", "ls-remote", "--tags", repo_url],
+            capture_output=True, text=True, timeout=15,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            tags = re.findall(r"refs/tags/v?([\d.]+)", result.stdout)
+            if tags:
+                # Sort by version tuple
+                tags.sort(key=lambda v: tuple(int(x) for x in v.split(".")))
+                latest_version = tags[-1]
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        console.print("[dim]Could not check remote tags (git not found or network error).[/dim]")
+
+    # ── Display version comparison ──────────────────────────────────
+    table = Table(title="CyberClaw Version Check", show_header=True)
+    table.add_column("", style="bold")
+    table.add_column("Version", style="cyan")
+    table.add_row("Installed", f"v{current_version}")
+    table.add_row("Latest", f"v{latest_version}" if latest_version else "[dim]unknown[/dim]")
+
+    if latest_version and latest_version != current_version:
+        try:
+            current_tuple = tuple(int(x) for x in current_version.split("."))
+            latest_tuple = tuple(int(x) for x in latest_version.split("."))
+            if latest_tuple > current_tuple:
+                table.add_row("Status", "[yellow]Update available![/yellow]")
+            else:
+                table.add_row("Status", "[green]Up to date[/green]")
+        except ValueError:
+            table.add_row("Status", "[dim]Could not compare[/dim]")
+    elif latest_version:
+        table.add_row("Status", "[green]Up to date[/green]")
+    else:
+        table.add_row("Status", "[dim]Could not determine[/dim]")
+
+    console.print(table)
+
+    if check:
+        return
+
+    # ── Install update ──────────────────────────────────────────────
+    console.print("\n[bold cyan]Installing update...[/bold cyan]")
+    try:
+        # Try uv first
         result = subprocess.run(
             ["uv", "self", "update"],
             capture_output=True, text=True,
@@ -938,8 +1066,21 @@ def update_cmd() -> None:
 
         console.print("[green]Update complete.[/green]")
     except FileNotFoundError:
-        console.print("[red]uv not found. Install uv first: https://docs.astral.sh/uv/[/red]")
-        raise typer.Exit(1)
+        # Fallback: pip install from git
+        console.print("[dim]uv not found, trying pip...[/dim]")
+        try:
+            result = subprocess.run(
+                ["pip", "install", "--upgrade", f"git+{repo_url}"],
+                capture_output=True, text=True,
+            )
+            if result.returncode == 0:
+                console.print("[green]Update complete via pip.[/green]")
+            else:
+                console.print(f"[red]pip install failed: {result.stderr}[/red]")
+                console.print(f"[dim]Try manually: pip install --upgrade git+{repo_url}[/dim]")
+        except FileNotFoundError:
+            console.print("[red]Neither uv nor pip found. Please install manually.[/red]")
+            raise typer.Exit(1)
 
 
 # -- Service commands ---------------------------------------------------

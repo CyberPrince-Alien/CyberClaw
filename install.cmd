@@ -1,148 +1,65 @@
 @echo off
-title CyberClaw Automatic Setup Wizard
+title CyberClaw Installer
 color 0B
-clear
 
 echo ======================================================================
-echo          🌌 CYBERCLAW AUTOMATIC INSTALLER & ENVIRONMENT WIZARD 🌌
+echo          CYBERCLAW AUTOMATIC INSTALLER
 echo ======================================================================
-echo   Brought to you with ❤️ by Cyber Prince (Sourov)
-echo   Optimizing your system, creating stable environments, and setting up...
+echo   Detecting Python and launching cross-platform installer...
 echo ======================================================================
 echo.
 
-:: 1. Check Python Installation
-echo [🔎] Checking for Python installation...
-where python >nul 2>nul
-if %errorlevel% neq 0 (
-    color 0C
-    echo [❌] ERROR: Python is not installed on your system!
-    echo      Please download and install Python 3.12 (Stable) from:
-    echo      https://www.python.org/downloads/
-    echo      Make sure to check "Add Python to PATH" during installation.
-    pause
-    exit /b
+:: Try python commands in order of preference
+:: 1. Check AppData local install first (bypasses Windows Store alias)
+for /d %%P in ("%LOCALAPPDATA%\Programs\Python\Python3*") do (
+    if exist "%%P\python.exe" (
+        echo [OK] Found Python at: %%P\python.exe
+        "%%P\python.exe" install.py
+        if %errorlevel% == 0 goto :done
+    )
 )
 
-:: 2. Check for UV Package Manager
-echo [🔎] Checking for uv package manager...
-where uv >nul 2>nul
-set HAS_UV=0
+:: 2. Try 'py' launcher (Windows Python Launcher)
+where py >nul 2>nul
 if %errorlevel% == 0 (
-    set HAS_UV=1
-    echo [✨] Found ultra-fast uv package manager!
-) else (
-    echo [ℹ️] uv is not installed. We will use standard python venv.
+    echo [OK] Found Python via 'py' launcher
+    py -3 install.py
+    if %errorlevel% == 0 goto :done
 )
 
-:: 3. Setup Virtual Environment (Ensuring Stable Python v3.11/v3.12 context)
-echo.
-echo [⚙️] Step 1: Setting up isolated stable Virtual Environment (.venv)...
-if %HAS_UV% == 1 (
-    echo [⚙️] Creating environment using uv (forcing stable Python 3.12 compatibility)...
-    uv venv --python 3.12
-) else (
-    echo [⚙️] Creating standard Python virtual environment...
-    python -m venv .venv
+:: 3. Try 'python' command
+where python >nul 2>nul
+if %errorlevel% == 0 (
+    echo [OK] Found 'python' command
+    python install.py
+    if %errorlevel% == 0 goto :done
 )
 
-if not exist .venv (
-    color 0C
-    echo [❌] ERROR: Failed to create Virtual Environment!
-    pause
-    exit /b
-)
-echo [✅] Virtual Environment successfully created!
-
-:: 4. Activating Virtual Environment
-echo.
-echo [⚙️] Step 2: Activating environment...
-call .venv\Scripts\activate.bat
-if %errorlevel% neq 0 (
-    color 0C
-    echo [❌] ERROR: Failed to activate virtual environment!
-    pause
-    exit /b
-)
-echo [✅] Environment active!
-
-:: 5. Upgrading pip and Installing Dependencies
-echo.
-echo [⚙️] Step 3: Upgrading package managers and installing CyberClaw...
-python -m pip install --upgrade pip
-
-if %HAS_UV% == 1 (
-    echo [⚙️] Running ultra-fast uv pip sync...
-    uv pip install -e .
-) else (
-    echo [⚙️] Running standard pip install...
-    pip install -e .
+:: 4. Try 'python3' command
+where python3 >nul 2>nul
+if %errorlevel% == 0 (
+    echo [OK] Found 'python3' command
+    python3 install.py
+    if %errorlevel% == 0 goto :done
 )
 
-if %errorlevel% neq 0 (
-    color 0C
-    echo [❌] ERROR: Installation failed! This is usually due to python versions.
-    echo      Please ensure you have a stable Python 3.10 - 3.12 version active.
-    pause
-    exit /b
-)
-echo [✅] CyberClaw dependencies successfully installed!
-
-:: 6. Running Onboarding Wizard
+:: Nothing worked
+color 0C
 echo.
-echo [⚙️] Step 4: Running onboarding setup...
-cyberclaw onboard
-if %errorlevel% neq 0 (
-    echo [⚠️] Onboarding returned warning, continuing...
-)
-
-:: 7. Running Diagnostics check
+echo [XX] ERROR: Python 3.11+ not found on your system!
 echo.
-echo [⚙️] Step 5: Running health diagnostics...
-cyberclaw doctor
-
-:: 8. Create dynamic one-click startup launchers
+echo     Please download and install Python from:
+echo     https://www.python.org/downloads/
 echo.
-echo [⚙️] Step 6: Generating one-click startup scripts...
-
-:: Create Start Web UI Dashboard script
-(
-echo @echo off
-echo title CyberClaw Web UI Gateway
-echo color 0A
-echo echo ==============================================================
-echo echo          🌌 LAUNCHING CYBERCLAW CONTROL PANEL 🌌
-echo echo ==============================================================
-echo call .venv\Scripts\activate.bat
-echo echo Starting server on http://localhost:8000/ui ...
-echo cyberclaw gateway start
-echo pause
-) > start_dashboard.cmd
-
-:: Create Start CLI Chat script
-(
-echo @echo off
-echo title CyberClaw Interactive CLI Chat
-echo color 0B
-echo echo ==============================================================
-echo echo          🤖 LAUNCHING INTERACTIVE CYBERCLAW CHAT 🤖
-echo echo ==============================================================
-echo call .venv\Scripts\activate.bat
-echo cyberclaw chat
-echo pause
-) > start_chat.cmd
-
-echo [✅] Created 'start_dashboard.cmd' (One-click Web UI Control Panel launch)
-echo [✅] Created 'start_chat.cmd' (One-click terminal CLI Chat launch)
-
-color 0A
+echo     IMPORTANT: Check "Add Python to PATH" during installation!
 echo.
-echo ======================================================================
-echo 🎉 CONGRATULATIONS! CYBERCLAW SETUP IS 100%% COMPLETE! 🎉
-echo ======================================================================
-echo  1. Double-click 'start_dashboard.cmd' to launch the space Web UI!
-echo  2. Double-click 'start_chat.cmd' to talk directly in the console!
-echo ======================================================================
+echo     Windows Tip: Go to Settings ^> Apps ^> App Execution Aliases
+echo     and disable the 'python.exe' and 'python3.exe' Store aliases.
 echo.
 pause
-exit /b
+exit /b 1
+
+:done
+echo.
+pause
+exit /b 0
