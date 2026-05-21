@@ -732,19 +732,48 @@ tr:hover td {
   transform: rotate(90deg);
 }
 
-/* ── Responsive Viewpoints ───────────────────────── */
-@media (max-width: 1200px) {
-  .landing-wrapper {
-    padding: 0 24px;
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE — Mobile, Tablet, PC, TV / 4K
+   (Docs Tutorial Page + shared landing page fallbacks)
+═══════════════════════════════════════════════════════════ */
+
+/* ── TV / 4K (1920px+) ─ Docs page scales up ───────────── */
+@media (min-width: 1920px) {
+  .docs-content {
+    max-width: 1200px;
+    padding: 80px 80px 120px 80px;
   }
-  .hero-container {
-    gap: 40px;
+  .doc-hero h1 {
+    font-size: 56px;
   }
-  .hero-title {
-    font-size: 54px;
+  .doc-hero p {
+    font-size: 22px;
+  }
+  h2 {
+    font-size: 30px;
+  }
+  p {
+    font-size: 18px;
+  }
+  pre {
+    padding: 28px;
+  }
+  code {
+    font-size: 15px;
+  }
+  .feature-card {
+    padding: 36px;
   }
 }
 
+/* ── Large Desktop (1200px–1440px) ─────────────────────── */
+@media (max-width: 1200px) {
+  .docs-content {
+    padding: 40px 40px 80px 40px;
+  }
+}
+
+/* ── Tablet Landscape / Small Laptop (max 1024px) ──────── */
 @media (max-width: 1024px) {
   .docs-sidebar {
     width: 280px;
@@ -756,26 +785,17 @@ tr:hover td {
   .docs-content {
     padding: 30px;
   }
-  .hero-container {
+  .doc-hero h1 {
+    font-size: 38px;
+  }
+  .features-grid {
     grid-template-columns: 1fr;
-    text-align: center;
-    padding: 60px 0 100px 0;
-  }
-  .hero-subtitle {
-    margin: 0 auto 30px auto;
-  }
-  .hero-actions {
-    justify-content: center;
-  }
-  .mock-terminal {
-    max-width: 650px;
-    margin: 0 auto;
-    width: 100%;
   }
 }
 
+/* ── Tablet Portrait (max 768px) ───────────────────────── */
 @media (max-width: 768px) {
-  /* Doc tutorial page responsive conversion */
+  /* Doc tutorial page — slide-in sidebar */
   .mobile-nav-bar {
     display: flex;
   }
@@ -802,7 +822,7 @@ tr:hover td {
     display: block;
   }
   .docs-header {
-    display: none; /* Mobile nav bar handles logo/actions */
+    display: none;
   }
   .docs-content {
     padding: 30px 20px 80px 20px;
@@ -810,68 +830,192 @@ tr:hover td {
   .doc-hero h1 {
     font-size: 32px;
   }
-  
-  /* Landing page overrides */
-  .landing-header {
-    height: auto;
-    padding: 16px 0;
-  }
-  .landing-header .landing-wrapper {
-    flex-direction: column;
-    gap: 16px;
-  }
-  .header-links {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-  }
-  .hero-title {
-    font-size: 40px;
-  }
-  .hero-subtitle {
+  .doc-hero p {
     font-size: 16px;
+  }
+  h2 {
+    font-size: 22px;
   }
   .features-grid {
     grid-template-columns: 1fr;
   }
-  .footer-landing {
-    flex-direction: column;
-    gap: 24px;
-    text-align: center;
+  .feature-card {
+    padding: 24px;
   }
-  .footer-left {
-    flex-direction: column;
-    gap: 12px;
+  .feature-card-header h3 {
+    font-size: 17px;
+  }
+  .course-timeline {
+    padding-left: 28px;
+    margin: 30px 0;
+  }
+  .timeline-step {
+    margin-bottom: 28px;
+  }
+  .timeline-step h3 {
+    font-size: 16px;
+  }
+  .info-note {
+    padding: 18px;
+  }
+  pre {
+    padding: 18px;
+    margin-left: -4px;
+    margin-right: -4px;
+  }
+  code {
+    font-size: 12.5px;
+  }
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  th, td {
+    padding: 12px 16px;
+    font-size: 13px;
+    white-space: nowrap;
   }
 }
 
+/* ── Mobile (max 480px) ────────────────────────────────── */
 @media (max-width: 480px) {
-  .hero-title {
-    font-size: 32px;
+  .docs-content {
+    padding: 20px 16px 60px 16px;
   }
-  .hero-actions {
-    flex-direction: column;
+  .doc-hero h1 {
+    font-size: 26px;
+    letter-spacing: -1px;
+  }
+  .doc-hero p {
+    font-size: 14px;
+  }
+  h2 {
+    font-size: 20px;
+    margin: 36px 0 14px 0;
+  }
+  p {
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+  .features-grid {
+    gap: 16px;
+  }
+  .feature-card {
+    padding: 18px;
+  }
+  .feature-card-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  .feature-card-header {
     gap: 12px;
-    width: 100%;
   }
-  .btn-primary, .btn-secondary {
-    width: 100%;
-    justify-content: center;
+  .feature-card-header h3 {
+    font-size: 15px;
   }
-  .mock-terminal {
-    height: 350px;
+  .feature-card p {
+    font-size: 13.5px;
   }
-  .terminal-content {
-    font-size: 12.5px;
-    padding: 16px;
+  .course-timeline {
+    padding-left: 24px;
   }
-  .brand-logo-subtitle {
-    display: none; /* Hide subtitle to keep logo clean */
+  .timeline-step h3 {
+    font-size: 15px;
   }
-  pre {
-    padding: 16px;
+  .timeline-step p {
+    font-size: 13.5px;
   }
-  code {
+  .info-note {
+    padding: 14px;
+    margin-bottom: 24px;
+  }
+  .info-note h4 {
     font-size: 12px;
   }
+  .info-note li {
+    font-size: 13px;
+  }
+  pre {
+    padding: 14px;
+    border-radius: 10px;
+  }
+  code {
+    font-size: 11.5px;
+  }
+  li {
+    font-size: 13.5px;
+    margin-bottom: 6px;
+  }
+  .mobile-nav-bar {
+    height: 56px;
+    padding: 0 16px;
+  }
+  .mobile-nav-logo img {
+    width: 30px;
+    height: 30px;
+  }
+  .mobile-nav-logo span {
+    font-size: 14px;
+  }
+  .search-box {
+    padding: 14px 16px;
+  }
+  .search-input-wrapper input {
+    padding: 12px 14px 12px 40px;
+    font-size: 13px;
+  }
+  .menu-item {
+    padding: 10px 14px;
+    font-size: 13px;
+    gap: 10px;
+  }
+  .menu-section-title {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+  }
 }
+
+/* ── Small Mobile (max 360px) ──────────────────────────── */
+@media (max-width: 360px) {
+  .docs-content {
+    padding: 16px 12px 50px 12px;
+  }
+  .doc-hero h1 {
+    font-size: 22px;
+  }
+  h2 {
+    font-size: 18px;
+  }
+  p {
+    font-size: 13px;
+  }
+  pre {
+    padding: 10px;
+  }
+  code {
+    font-size: 10.5px;
+  }
+  .feature-card {
+    padding: 14px;
+  }
+}
+
+/* ── Landscape Mobile Fix ──────────────────────────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .docs-sidebar {
+    width: 240px;
+    min-width: 240px;
+  }
+  .docs-content {
+    padding: 20px;
+  }
+  .doc-hero h1 {
+    font-size: 28px;
+  }
+  .doc-hero {
+    margin-bottom: 24px;
+  }
+}
+

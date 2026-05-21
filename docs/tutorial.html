@@ -72,13 +72,17 @@
             <span class="menu-item-icon">⚡</span>
             <span class="menu-item-text">Quick Launch Guide</span>
           </a>
+          <a class="menu-item" data-view="model-selector">
+            <span class="menu-item-icon">🎯</span>
+            <span class="menu-item-text">V9 Model Selector</span>
+          </a>
         </div>
 
         <div class="menu-section">
           <div class="menu-section-title">CLI Masterclass</div>
           <a class="menu-item" data-view="cli-reference">
             <span class="menu-item-icon">💻</span>
-            <span class="menu-item-text">17-Command Reference</span>
+            <span class="menu-item-text">18-Command Reference</span>
           </a>
         </div>
 
@@ -210,9 +214,13 @@ pip install -e .
 # Or install optional speech-to-text / voice capabilities
 pip install -e .[voice]</code></pre>
 
-          <h2>Step 2: Execute First-Time Onboarding</h2>
-          <p>Just like the reference setup scripts, run the onboarding tool to automatically generate the local workspace folder structure, system settings, and SQLite tables:</p>
-          <pre><code>cyberclaw onboard</code></pre>
+          <h2>Step 2: Execute First-Time Onboarding + V9 Model Wizard</h2>
+          <p>Run the onboarding tool to generate workspace folders, settings, and SQLite tables. The Premium V9 Model Selection Wizard will launch automatically, detecting your hardware and letting you choose your AI provider:</p>
+          <pre><code># Run onboarding (auto-launches V9 model wizard)
+cyberclaw onboard
+
+# Or run the model selector wizard separately anytime
+cyberclaw select-model</code></pre>
           <div class="info-note">
             <h4>📁 WHAT ONBOARDING CREATES:</h4>
             <ul>
@@ -244,8 +252,8 @@ cyberclaw secrets set DEEPGRAM_API_KEY "your-deepgram-api-key-here"</code></pre>
         <!-- ── SECTION: CLI REFERENCE ────────────────────────────────── -->
         <section id="section-cli-reference" class="doc-section">
           <div class="doc-hero">
-            <h1>The 17-Command Reference Masterclass</h1>
-            <p>CyberClaw features a powerful console command center. Here is the exhaustive reference tutorial for all 17 commands available in the CLI.</p>
+            <h1>The 18-Command Reference Masterclass</h1>
+            <p>CyberClaw features a powerful console command center. Here is the exhaustive reference tutorial for all 18 commands available in the CLI.</p>
           </div>
 
           <h2>1. `onboard`</h2>
@@ -332,6 +340,21 @@ cyberclaw service start</code></pre>
           <h2>17. `version`</h2>
           <p>Displays the current version, build signature, and workspace configurations.</p>
           <pre><code>cyberclaw version</code></pre>
+
+          <h2>18. `select-model`</h2>
+          <p>Launches the Premium V9 Model Selection Wizard — a gorgeous terminal-based wizard that detects your hardware, shows available providers, validates API keys, and auto-configures your model. Run it anytime to switch AI providers.</p>
+          <pre><code># Launch the Premium V9 Model Selector
+cyberclaw select-model</code></pre>
+          <div class="info-note">
+            <h4>🎯 V9 WIZARD FEATURES:</h4>
+            <ul>
+              <li><strong>Hardware Detection</strong> — Auto-detects RAM, CPU, GPU and classifies your system tier (ULTRA/HIGH/MEDIUM/LIGHT).</li>
+              <li><strong>8 Cloud Providers</strong> — Google Gemini, OpenAI, Anthropic, Groq, OpenRouter, NVIDIA NIM, DeepSeek.</li>
+              <li><strong>Ollama Integration</strong> — List installed models, pull new ones from 25+ model catalogs.</li>
+              <li><strong>API Key Validation</strong> — Instantly tests your key against the provider's real endpoint.</li>
+              <li><strong>Auto-Launch Chat</strong> — Prompts to start chatting immediately after model selection.</li>
+            </ul>
+          </div>
         </section>
 
         <!-- ── SECTION: MODEL CATALOG DETAILS ────────────────────────── -->
@@ -531,7 +554,7 @@ cyberclaw secrets delete OPENAI_API_KEY
 cyberclaw secrets list</code></pre>
         </section>
 
-        <!-- ── SECTION: DEPLOYMENT ───────────────────────────────────── -->
+        <!-- ── SECTION: 18-COMMAND ───────────────────────────────────── -->
         <section id="section-deployment" class="doc-section">
           <div class="doc-hero">
             <h1>Services & Scaling</h1>

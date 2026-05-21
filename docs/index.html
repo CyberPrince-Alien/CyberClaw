@@ -369,18 +369,417 @@
       display: block;
     }
     
+    /* ═══════════════════════════════════════════════════════════
+       SUPER RESPONSIVE — Mobile, Tablet, PC, TV / 4K
+    ═══════════════════════════════════════════════════════════ */
+
+    /* ── TV / 4K Ultra-Wide (1920px+) ──────────────────────── */
+    @media (min-width: 1920px) {
+      .landing-wrapper {
+        max-width: 1600px;
+      }
+      .hero-container {
+        gap: 80px;
+        padding: 120px 0 160px 0;
+      }
+      .hero-title {
+        font-size: 80px;
+      }
+      .hero-subtitle {
+        font-size: 24px;
+        max-width: 720px;
+      }
+      .mock-terminal {
+        height: 520px;
+      }
+      .terminal-content {
+        font-size: 16px;
+        padding: 32px;
+      }
+      .section-header h2 {
+        font-size: 52px;
+      }
+      .section-header p {
+        font-size: 22px;
+        max-width: 800px;
+      }
+      .feature-card {
+        padding: 40px;
+      }
+      .feature-card-header h3 {
+        font-size: 22px;
+      }
+      .feature-card p {
+        font-size: 17px;
+      }
+      .interactive-features-section {
+        padding: 120px 0;
+      }
+      .btn-primary, .btn-secondary {
+        padding: 20px 44px;
+        font-size: 18px;
+      }
+    }
+
+    /* ── Large Desktop (1440px) ─────────────────────────────── */
+    @media (min-width: 1440px) and (max-width: 1919px) {
+      .landing-wrapper {
+        max-width: 1320px;
+      }
+      .hero-title {
+        font-size: 72px;
+      }
+      .hero-subtitle {
+        font-size: 22px;
+      }
+      .mock-terminal {
+        height: 460px;
+      }
+    }
+
+    /* ── Standard Desktop (1200px–1439px) ───────────────────── */
+    @media (max-width: 1439px) and (min-width: 1200px) {
+      .hero-title {
+        font-size: 60px;
+      }
+    }
+
+    /* ── Small Laptop / Tablet Landscape (1024px–1199px) ───── */
+    @media (max-width: 1199px) and (min-width: 1025px) {
+      .landing-wrapper {
+        padding: 0 24px;
+      }
+      .hero-container {
+        gap: 40px;
+      }
+      .hero-title {
+        font-size: 52px;
+      }
+      .hero-subtitle {
+        font-size: 18px;
+      }
+      .mock-terminal {
+        height: 400px;
+      }
+      .terminal-content {
+        font-size: 13px;
+        padding: 20px;
+      }
+    }
+
+    /* ── Tablet Landscape / Small Laptop (max 1024px) ──────── */
     @media (max-width: 1024px) {
       .hero-container {
         grid-template-columns: 1fr;
         text-align: center;
-        padding: 60px 0;
+        padding: 60px 0 80px 0;
         gap: 40px;
+      }
+      .hero-badge {
+        margin-left: auto;
+        margin-right: auto;
       }
       .hero-subtitle {
         margin: 0 auto 30px auto;
       }
       .hero-actions {
         justify-content: center;
+      }
+      .mock-terminal {
+        max-width: 650px;
+        margin: 0 auto;
+        width: 100%;
+        height: auto;
+        min-height: 380px;
+      }
+      .section-header h2 {
+        font-size: 36px;
+      }
+      .interactive-features-section {
+        padding: 80px 0;
+      }
+    }
+
+    /* ── Tablet Portrait (768px–1024px) ─────────────────────── */
+    @media (max-width: 768px) {
+      .landing-wrapper {
+        padding: 0 20px;
+      }
+      .landing-header {
+        height: auto;
+        padding: 16px 0;
+      }
+      .landing-header .landing-wrapper {
+        flex-direction: column;
+        gap: 14px;
+      }
+      .header-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+      }
+      .hero-container {
+        padding: 40px 0 60px 0;
+        gap: 32px;
+      }
+      .hero-title {
+        font-size: 40px;
+        letter-spacing: -1.5px;
+      }
+      .hero-subtitle {
+        font-size: 16px;
+        line-height: 1.6;
+      }
+      .hero-badge {
+        font-size: 11px;
+        padding: 6px 14px;
+        letter-spacing: 1px;
+      }
+      .btn-primary, .btn-secondary {
+        padding: 14px 28px;
+        font-size: 14px;
+      }
+      .mock-terminal {
+        border-radius: 16px;
+        min-height: 340px;
+      }
+      .terminal-content {
+        font-size: 12.5px;
+        padding: 18px;
+        line-height: 1.5;
+      }
+      .terminal-header {
+        height: 40px;
+        padding: 0 16px;
+      }
+      .terminal-title {
+        font-size: 10px;
+      }
+      .terminal-dots span {
+        width: 8px;
+        height: 8px;
+      }
+      .features-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      .feature-card {
+        padding: 24px;
+      }
+      .feature-card-header h3 {
+        font-size: 17px;
+      }
+      .section-header h2 {
+        font-size: 32px;
+      }
+      .section-header p {
+        font-size: 16px;
+      }
+      .interactive-features-section {
+        padding: 60px 0;
+      }
+      .footer-landing {
+        flex-direction: column;
+        gap: 24px;
+        text-align: center;
+        padding: 40px 0;
+      }
+      .footer-left {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .social-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      pre {
+        margin-left: -8px;
+        margin-right: -8px;
+        border-radius: 12px;
+      }
+      pre code {
+        font-size: 12.5px;
+      }
+    }
+
+    /* ── Mobile (max 480px) ─────────────────────────────────── */
+    @media (max-width: 480px) {
+      .landing-wrapper {
+        padding: 0 16px;
+      }
+      .hero-container {
+        padding: 28px 0 44px 0;
+        gap: 24px;
+      }
+      .hero-title {
+        font-size: 32px;
+        letter-spacing: -1px;
+      }
+      .hero-subtitle {
+        font-size: 15px;
+        margin-bottom: 24px;
+      }
+      .hero-badge {
+        font-size: 10px;
+        padding: 5px 12px;
+        margin-bottom: 16px;
+      }
+      .hero-actions {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+      }
+      .btn-primary, .btn-secondary {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 24px;
+        font-size: 14px;
+      }
+      .mock-terminal {
+        border-radius: 14px;
+        min-height: 300px;
+      }
+      .terminal-content {
+        font-size: 11px;
+        padding: 14px;
+        line-height: 1.45;
+      }
+      .terminal-header {
+        height: 36px;
+        padding: 0 12px;
+      }
+      .terminal-dots span {
+        width: 7px;
+        height: 7px;
+        gap: 6px;
+      }
+      .term-line {
+        margin-bottom: 8px;
+      }
+      .brand-logo-section img {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+      }
+      .brand-logo-title {
+        font-size: 16px;
+      }
+      .brand-logo-subtitle {
+        display: none;
+      }
+      .section-header h2 {
+        font-size: 26px;
+      }
+      .section-header p {
+        font-size: 14px;
+      }
+      .section-header {
+        margin-bottom: 36px;
+      }
+      .interactive-features-section {
+        padding: 44px 0;
+      }
+      .feature-card {
+        padding: 20px;
+      }
+      .feature-card-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 20px;
+      }
+      .feature-card-header h3 {
+        font-size: 16px;
+      }
+      .feature-card p {
+        font-size: 14px;
+      }
+      .footer-text {
+        font-size: 12px;
+      }
+      .social-btn {
+        padding: 8px 14px;
+        font-size: 11px;
+      }
+      pre {
+        padding: 14px;
+        margin-left: -4px;
+        margin-right: -4px;
+      }
+      pre code {
+        font-size: 11.5px;
+      }
+    }
+
+    /* ── Small Mobile (max 360px) ───────────────────────────── */
+    @media (max-width: 360px) {
+      .landing-wrapper {
+        padding: 0 12px;
+      }
+      .hero-title {
+        font-size: 26px;
+      }
+      .hero-subtitle {
+        font-size: 13.5px;
+      }
+      .hero-badge {
+        font-size: 9px;
+      }
+      .terminal-content {
+        font-size: 9.5px;
+        padding: 10px;
+        line-height: 1.4;
+      }
+      .terminal-header {
+        height: 32px;
+      }
+      .section-header h2 {
+        font-size: 22px;
+      }
+      .feature-card {
+        padding: 16px;
+      }
+      .btn-primary, .btn-secondary {
+        padding: 12px 20px;
+        font-size: 13px;
+      }
+    }
+
+    /* ── Landscape Mobile Fix ──────────────────────────────── */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .hero-container {
+        padding: 20px 0 40px 0;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        text-align: left;
+      }
+      .hero-title {
+        font-size: 28px;
+      }
+      .hero-subtitle {
+        font-size: 13px;
+        margin-bottom: 16px;
+      }
+      .hero-badge {
+        margin-left: 0;
+        margin-right: 0;
+      }
+      .hero-actions {
+        justify-content: flex-start;
+      }
+      .mock-terminal {
+        min-height: 240px;
+        height: auto;
+      }
+      .terminal-content {
+        font-size: 10px;
+        padding: 10px;
+      }
+      .interactive-features-section {
+        padding: 30px 0;
+      }
+      .landing-header {
+        height: 56px;
+        padding: 0;
       }
     }
   </style>
@@ -413,11 +812,11 @@
     <div class="hero-container">
       <div>
         <div class="hero-badge">
-          <span>✨</span> Enterprise Parity Release v0.2.0
+          <span>✨</span> v0.2.0 — Premium V9 Model Selector
         </div>
         <h1 class="hero-title">The AI Agent System You Actually Own.</h1>
         <p class="hero-subtitle">
-          Open-source, self-hosted, and designed to perfection. CyberClaw orchestrates your models, custom task queues, and messaging channels under a beautiful dark cosmic space UI. 100% private, highly secure, and zero developer lock-in.
+          Open-source, self-hosted, and designed to perfection. Featuring a Premium V9-Style Model Selection Wizard with hardware detection, 8 cloud providers, Ollama integration, and instant API key validation. 100% private, highly secure, and zero lock-in.
         </p>
         <div class="hero-actions">
           <a href="tutorial.html" class="btn-primary">
@@ -442,26 +841,32 @@
         </div>
         <div class="terminal-content">
           <div class="term-line">
-            <span class="term-input">$ pip install git+https://github.com/CyberPrince-Alien/CyberClaw.git</span>
+            <span class="term-input">$ cyberclaw select-model</span>
+          </div>
+          <div class="term-line" style="margin-bottom:6px;">
+            <span style="color:#0ae878;font-weight:700;">═══════════════════════════════════════</span><br>
+            <span style="color:#0aff88;font-weight:800;letter-spacing:1px;"> ██████╗██╗   ██╗██████╗ ██████╗</span><br>
+            <span style="color:#50ffa0;font-weight:800;"> █ READY — CyberClaw AI Online</span><br>
+            <span style="color:#0ae878;font-weight:700;">═══════════════════════════════════════</span>
+          </div>
+          <div class="term-line" style="margin-bottom:6px;">
+            <span style="color:#78ffb4;">⚡ RAM:</span> <span style="color:#fff;">16.0 GB</span>
+            <span style="color:#78ffb4;"> │ CPU:</span> <span style="color:#fff;">i7-12700H</span>
+            <span style="color:#78ffb4;"> │ GPU:</span> <span style="color:#fff;">RTX 4060</span>
+            <span style="color:#78ffb4;"> │ Tier:</span> <span style="color:#0aff88;font-weight:700;">[ULTRA]</span>
+          </div>
+          <div class="term-line" style="margin-bottom:6px;">
+            <span style="color:#0aff88;font-weight:700;">SELECT AI PROVIDER:</span><br>
+            <span style="color:#50ffa0;"> [1]</span> <span style="color:#fff;">Ollama (Local)    — Free</span><br>
+            <span style="color:#50ffa0;"> [2]</span> <span style="color:#fff;">Google Gemini      — 2.5/3.0</span><br>
+            <span style="color:#50ffa0;"> [3]</span> <span style="color:#fff;">OpenAI / Codex     — o3/4.1</span><br>
+            <span style="color:#50ffa0;"> [4]</span> <span style="color:#fff;">Anthropic Claude   — 4/3.5</span><br>
+            <span style="color:#50ffa0;"> [5]</span> <span style="color:#fff;">Groq              — Ultra-fast</span>
           </div>
           <div class="term-line">
-            <span class="term-output">Downloading CyberClaw library...</span><br>
-            <span class="term-output">Successfully installed cyberclaw-0.2.0</span>
-          </div>
-          <div class="term-line">
-            <span class="term-input">$ cyberclaw onboard</span>
-          </div>
-          <div class="term-line">
-            <span class="term-output">🔍 Scanning local folders...</span><br>
-            <span class="term-output">📦 Building SQLite database registries...</span><br>
-            <span class="term-output term-success">✅ Onboarding Complete! Welcome to CyberClaw.</span>
-          </div>
-          <div class="term-line">
-            <span class="term-input">$ cyberclaw doctor</span>
-          </div>
-          <div class="term-line">
-            <span class="term-output">Database status: <span class="term-success">HEALTHY</span></span><br>
-            <span class="term-output">Model catalog: <span class="term-success">25 models loaded</span></span>
+            <span style="color:#0aff88;">✅ Key VALID!</span>
+            <span style="color:#fff;"> Model: llama-3.3-70b-versatile</span><br>
+            <span class="term-success">🚀 Start Chat? [Y/n]: y</span>
           </div>
         </div>
       </div>
@@ -477,6 +882,16 @@
       </div>
       
       <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-card-header">
+            <div class="feature-card-icon">🎯</div>
+            <h3>Premium V9 Model Selector</h3>
+          </div>
+          <p>
+            Gorgeous terminal-based wizard with jungle gradient banner, hardware spec detection (RAM/CPU/GPU), Ollama integration, 8 cloud providers, instant API key validation, and auto-launch chat.
+          </p>
+        </div>
+        
         <div class="feature-card">
           <div class="feature-card-header">
             <div class="feature-card-icon">🧠</div>
@@ -529,13 +944,19 @@
       </div>
       
       <div style="max-width: 800px; margin: 0 auto;">
-        <pre><span class="btn-copy" onclick="navigator.clipboard.writeText('pip install git+https://github.com/CyberPrince-Alien/CyberClaw.git')">Copy</span><code><span style="color: var(--text-dim);"># Install the entire platform directly from your live GitHub</span>
+        <pre><span class="btn-copy" onclick="navigator.clipboard.writeText('pip install git+https://github.com/CyberPrince-Alien/CyberClaw.git')">Copy</span><code><span style="color: var(--text-dim);"># Install the entire platform from GitHub</span>
 pip install git+https://github.com/CyberPrince-Alien/CyberClaw.git
 
-<span style="color: var(--text-dim);"># Run the automatic setup wizard</span>
+<span style="color: var(--text-dim);"># Initialize workspace + launch V9 Model Wizard</span>
 cyberclaw onboard
 
-<span style="color: var(--text-dim);"># Launch the stunning UI Control Panel</span>
+<span style="color: var(--text-dim);"># Switch models anytime with Premium V9 Selector</span>
+cyberclaw select-model
+
+<span style="color: var(--text-dim);"># Start chatting in terminal</span>
+cyberclaw chat
+
+<span style="color: var(--text-dim);"># Or launch the stunning UI Control Panel</span>
 cyberclaw gateway start</code></pre>
       </div>
     </div>

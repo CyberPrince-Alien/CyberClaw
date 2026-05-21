@@ -1,5 +1,5 @@
 # 🌌 CyberClaw — Advanced AI Orchestration Platform & Control Dashboard
-> **An Enterprise-Grade, Multi-Channel Personal AI Agent System with Premium Web UI, Detached Background Task Store, Cryptographic Secrets Vault, and Real-Time Voice Speech-to-Text.**
+> **An Enterprise-Grade, Multi-Channel Personal AI Agent System with Premium Web UI, V9-Style Model Selector, Cryptographic Secrets Vault, and Real-Time Voice Speech-to-Text.**
 
 ---
 
@@ -24,7 +24,153 @@
 ## 🌟 Executive Overview & Market Readiness
 **CyberClaw** is a state-of-the-art, modular personal AI system engineered in high-performance native Python. Designed to meet or exceed commercial standards for marketplaces like **CodeCanyon** and professional open-source registries, it provides a decoupled, event-driven assistant capable of running 24/7 across multiple messaging channels.
 
-Featuring a premium **Dark Space Glassmorphic Single Page Web UI**, SQLite history & task registers, and a hardware-locked cryptographic vault, CyberClaw is the ultimate ready-to-sell or ready-to-deploy AI gateway.
+Featuring a premium **Dark Space Glassmorphic Single Page Web UI**, **V9-Style Premium Model Selection Wizard**, SQLite history & task registers, and a hardware-locked cryptographic vault, CyberClaw is the ultimate ready-to-sell or ready-to-deploy AI gateway.
+
+---
+
+## 🚀 Visual Terminal Walkthrough — Install to Chat in 3 Minutes
+
+### Step 1: One-Line Install
+```bash
+$ pip install git+https://github.com/CyberPrince-Alien/CyberClaw.git
+
+  Downloading CyberClaw library...
+  Installing collected packages: cyberclaw
+  Successfully installed cyberclaw-0.2.0
+```
+
+### Step 2: Onboard Your Workspace
+```bash
+$ cyberclaw onboard
+
+  ══════════════════════════════════════════════════════
+     CYBERCLAW WORKSPACE ONBOARDING
+  ══════════════════════════════════════════════════════
+
+      ✅ Created agents/
+      ✅ Created skills/
+      ✅ Created plugins/
+      ✅ Created crons/
+      ✅ Created memories/
+      ✅ Deployed config.user.yaml
+
+  Would you like to run the Premium Model Selection Wizard (V9 Style) now? [y/N]: y
+```
+
+### Step 3: Premium V9 Model Selector Launches Automatically
+```
+  ═══════════════════════════════════════════════════════════════════════════════
+
+   ██████╗██╗   ██╗██████╗ ███████╗██████╗  ██████╗██╗      █████╗ ██╗    ██╗
+  ██╔════╝╚██╗ ██╔╝██╔══██╗██╔════╝██╔══██╗██╔════╝██║     ██╔══██╗██║    ██║
+  ██║      ╚████╔╝ ██████╔╝█████╗  ██████╔╝██║     ██║     ███████║██║ █╗ ██║
+  ██║       ╚██╔╝  ██╔══██╗██╔══╝  ██╔══██╗██║     ██║     ██╔══██║██║███╗██║
+  ╚██████╗   ██║   ██████╔╝███████╗██║  ██║╚██████╗███████╗██║  ██║╚███╔███╔╝
+   ╚═════╝   ╚═╝   ╚═════╝ ╚══════╝╚═╝  ╚═╝ ╚═════╝╚══════╝╚═╝  ╚═╝ ╚══╝╚══╝
+
+  ═══════════════════════════════════════════════════════════════════════════════
+
+                           █ READY — CyberClaw AI Online
+
+  ┌──────────────┬────────────────────────────────────────────────────┐
+  │ Component    │ Details                                            │
+  ├──────────────┼────────────────────────────────────────────────────┤
+  │ RAM          │ 16.0 GB total / 10.2 GB free                      │
+  │ CPU          │ Intel Core i7-12700H (20 cores)                   │
+  │ GPU          │ NVIDIA GeForce RTX 4060 (8.0 GB VRAM)             │
+  │ Tier         │ [ULTRA]                                            │
+  └──────────────┴────────────────────────────────────────────────────┘
+  💡 Your system can handle large 70B+ models.
+
+  ┌────┬──────────────────────┬──────────────────────────────────────┐
+  │ #  │ Provider             │ Description                          │
+  ├────┼──────────────────────┼──────────────────────────────────────┤
+  │  1 │ Ollama (Local)       │ Free — run models locally            │
+  │  2 │ Google Gemini        │ Gemini 2.5/3.0/3.1, Gemma 3/4       │
+  │  3 │ OpenAI / Codex       │ o3, gpt-4.1, gpt-4o                 │
+  │  4 │ Anthropic Claude     │ Claude 4/3.5 Sonnet/Opus             │
+  │  5 │ Groq                 │ Ultra-fast inference — Free tier      │
+  │  6 │ OpenRouter           │ 100+ models — Free credits           │
+  │  7 │ NVIDIA NIM           │ Llama, Qwen, DeepSeek on NVIDIA      │
+  │  8 │ DeepSeek             │ Reasoning & Coding specialist        │
+  └────┴──────────────────────┴──────────────────────────────────────┘
+
+  Select provider [0-8]: 5
+
+  Enter Groq API Key: ••••••••••••
+  🔑 Test API key now? [Y/n]: y
+  ✅ Key is VALID! Connection successful.
+
+  ✅ MODEL CONFIGURED SUCCESSFULLY!
+     Provider: groq
+     Model:    llama-3.3-70b-versatile
+
+  🚀 Would you like to start the Chat Session in terminal now? [Y/n]: y
+```
+
+### Step 4: Chat Starts Immediately
+```bash
+  ╔══════════════════════════════════════════════════╗
+  ║          CYBERCLAW INTERACTIVE CHAT              ║
+  ╚══════════════════════════════════════════════════╝
+
+  You > Hello CyberClaw! What can you do?
+
+  CyberClaw > I'm your personal AI assistant! I can:
+  • Search the web and read websites
+  • Execute code and shell commands
+  • Manage background tasks
+  • Connect to Telegram, Discord, WhatsApp & more
+  • Run cron jobs and scheduled automations
+
+  You > _
+```
+
+### Step 5: Verify Everything is Healthy
+```bash
+$ cyberclaw doctor
+
+  ══════════════════════════════════════════════════════
+     CYBERCLAW SYSTEM DIAGNOSTICS
+  ══════════════════════════════════════════════════════
+
+  ✅ LLM Providers: 2 enabled
+  ✅ Provider 'groq' -> model: llama-3.3-70b-versatile
+  ✅ Directory 'agents' exists
+  ✅ Directory 'skills' exists
+  ✅ Directory 'crons' exists
+  ✅ Directory 'memories' exists
+  ✅ Directory 'plugins' exists
+  ✅ Config file: workspace/config.user.yaml
+
+  All checks passed — CyberClaw is healthy!
+  ══════════════════════════════════════════════════════
+```
+
+---
+
+## 🎯 Premium V9 Model Selection Wizard
+
+CyberClaw ships with an **industry-leading terminal-based model selection experience** inspired by Cyber Prince CLI V9:
+
+| Feature | Description |
+|:--------|:------------|
+| 🌿 **Jungle Gradient Banner** | Beautiful 6-line ASCII CYBERCLAW art with dark-forest → emerald → lime gradient |
+| 🖥️ **Hardware Auto-Detection** | Detects RAM, CPU model/cores, GPU name/VRAM via PowerShell |
+| ⚡ **Tier Classification** | ULTRA / HIGH / MEDIUM / LIGHT with smart model recommendations |
+| 🦙 **Ollama Integration** | Lists installed models, auto-pull from 25+ cloud/local/uncensored catalogs |
+| ☁️ **8 Cloud Providers** | Google Gemini, OpenAI, Anthropic, Groq, OpenRouter, NVIDIA NIM, DeepSeek |
+| 🔑 **Instant API Validation** | Tests your key against the provider's real endpoint before saving |
+| 💾 **Safe Config Merge** | Updates provider without destroying your channels, gateway, or other settings |
+| 🚀 **Auto-Launch Chat** | Prompts you to start chatting immediately after model selection |
+
+```bash
+# Run the wizard anytime to switch models
+cyberclaw select-model
+
+# Or run it during first-time setup
+cyberclaw onboard
+```
 
 ---
 
@@ -57,12 +203,13 @@ Featuring a premium **Dark Space Glassmorphic Single Page Web UI**, SQLite histo
 
 ---
 
-## 💻 The 17-Command CLI Masterclass
-CyberClaw hosts 17 terminal operational triggers. Here is the direct command guide:
+## 💻 The 18-Command CLI Masterclass
+CyberClaw hosts 18 terminal operational triggers. Here is the direct command guide:
 
 | Command | Action / Purpose | Example Code |
 |:---|:---|:---|
 | **`onboard`** | Initializes folder setup & configs | `cyberclaw onboard` |
+| **`select-model`** | Premium V9 Model Selection Wizard | `cyberclaw select-model` |
 | **`doctor`** | Runs 10+ diagnostic system checks | `cyberclaw doctor` |
 | **`chat`** | Boots terminal interactive AI session | `cyberclaw chat` |
 | **`agent`** | Spawns a single turn query for piping | `cyberclaw agent --message "Build check"` |
@@ -82,10 +229,8 @@ CyberClaw hosts 17 terminal operational triggers. Here is the direct command gui
 
 ---
 
-## 📦 Commercial Installation Blueprint
+## 📦 Quick Installation
 
-### 1. Simple Marketplace & GitHub Installation
-Users can install the package in one simple command:
 ```bash
 # Install directly from GitHub (Globally accessible one-line install!)
 pip install git+https://github.com/CyberPrince-Alien/CyberClaw.git
@@ -97,31 +242,16 @@ pip install -e .
 pip install -e .[voice]
 ```
 
-### 2. First-Time Setup Wizard
-Generate your workspace configs, SQLite databases, and folders instantly:
+Then run the full setup:
 ```bash
-cyberclaw onboard
+cyberclaw onboard          # Initialize workspace + V9 model wizard
+cyberclaw doctor           # Verify system health
+cyberclaw select-model     # Switch models anytime
+cyberclaw chat             # Start chatting immediately
+cyberclaw gateway start    # Launch the premium Web UI
 ```
 
-### 3. Verification Protocol
-Verify that everything is perfectly aligned and configured:
-```bash
-cyberclaw doctor
-```
-
-### 4. Lock Your API Credentials
-Add your secret API credentials to the secure vault:
-```bash
-cyberclaw secrets set OPENAI_API_KEY "sk-..."
-cyberclaw secrets set DEEPGRAM_API_KEY "dg-..."
-```
-
-### 5. Open the Premium Dashboard UI
-Start your server gateway:
-```bash
-cyberclaw gateway start
-```
-👉 Now, simply launch your browser and navigate to **`http://localhost:8000/ui`** to view the space-themed Control Dashboard!
+👉 Navigate to **`http://localhost:8000/ui`** for the Dark Space Control Dashboard!
 
 ---
 
@@ -145,4 +275,4 @@ This platform has been polished to production perfection by **Cyber Prince**. We
 For commercial customization, enterprise scaling, or feature requests, contact us directly through our social media handles!
 
 ---
-*Developed under strict modular enterprise standards. Verified 100% operational with 31/31 unit tests passing.*
+*Developed under strict modular enterprise standards. Verified 100% operational with full A-Z testing.*
