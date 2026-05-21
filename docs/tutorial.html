@@ -3,17 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CyberClaw Masterclass — The Complete Professional Blueprint</title>
-  <meta name="description" content="CyberClaw AI Assistant System Comprehensive Documentation, Developer Architecture, and 17-Command Course Guide">
+  <title>CyberClaw Documentation Masterclass — Complete Professional Developer Guide</title>
+  
+  <!-- Search Engine Optimization (SEO) Metadata -->
+  <meta name="description" content="Official developer documentation for CyberClaw: a self-hosted, private AI Agent ecosystem. Complete 17-command masterclass reference guide and configurations.">
+  <meta name="keywords" content="CyberClaw documentation, CyberClaw commands, AI agent developer guide, private LLM gateway, Ollama, self-hosted API setup">
+  <meta name="author" content="Cyber Prince (Sourov)">
+  <link rel="canonical" href="https://cyberprince-alien.github.io/CyberClaw/tutorial.html">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://cyberprince-alien.github.io/CyberClaw/tutorial.html">
+  <meta property="og:title" content="CyberClaw Documentation Masterclass — Complete Professional Developer Guide">
+  <meta property="og:description" content="Official developer guide for CyberClaw: an open-source, private AI agent platform. Master command usage, models, cron jobs, and pairings.">
+  <meta property="og:image" content="https://cyberprince-alien.github.io/CyberClaw/cyberclaw_logo.png">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://cyberprince-alien.github.io/CyberClaw/tutorial.html">
+  <meta name="twitter:title" content="CyberClaw Documentation Masterclass — Complete Developer Guide">
+  <meta name="twitter:description" content="Official developer guide for CyberClaw: an open-source, private AI agent platform. Master command usage, models, cron jobs, and pairings.">
+  <meta name="twitter:image" content="https://cyberprince-alien.github.io/CyberClaw/cyberclaw_logo.png">
+
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+
+  <!-- Mobile Top Navigation Bar -->
+  <div class="mobile-nav-bar">
+    <button id="sidebarToggle" class="hamburger-btn" aria-label="Toggle Navigation Menu">☰</button>
+    <div class="mobile-nav-logo">
+      <img src="./cyberclaw_logo.png" alt="CyberClaw Logo">
+      <span>CYBERCLAW DOCS</span>
+    </div>
+    <div style="width: 40px;"></div> <!-- Spacer to center the title -->
+  </div>
+
+  <!-- Mobile Sidebar Overlay Backdrop -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <div class="docs-wrapper">
     <!-- Sidebar Navigation -->
-    <aside class="docs-sidebar">
+    <aside class="docs-sidebar" id="docsSidebar">
+      <!-- Close button for mobile sidebar -->
+      <button class="sidebar-close-btn" id="sidebarClose" aria-label="Close Navigation Menu">&times;</button>
+      
       <div class="sidebar-brand" style="flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 20px 10px; border-bottom: 1px solid var(--border-glass);">
         <img src="./cyberclaw_logo.png" alt="CyberClaw Logo" style="width: 70px; height: 70px; border-radius: 12px; box-shadow: 0 0 20px rgba(114, 9, 183, 0.4); object-fit: cover;">
-        <h1 style="font-size: 1.15rem; margin-top: 4px; background: linear-gradient(90deg, #fff, #b5b3cd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;">CyberClaw</h1>
+        <h1 style="font-size: 1.15rem; margin-top: 4px; background: linear-gradient(90deg, #fff, #b5b3cd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; border: none; padding: 0;">CyberClaw</h1>
         <span style="font-size: 0.75rem; color: #4cc9f0; text-shadow: 0 0 10px rgba(76, 201, 240, 0.3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Made by Cyber Prince</span>
       </div>
       

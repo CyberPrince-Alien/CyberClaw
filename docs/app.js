@@ -6,6 +6,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const sections = document.querySelectorAll('.doc-section');
   const viewTitle = document.getElementById('viewTitle');
 
+  // Mobile Sidebar Drawer Management
+  const sidebar = document.getElementById('docsSidebar');
+  const toggleBtn = document.getElementById('sidebarToggle');
+  const closeBtn = document.getElementById('sidebarClose');
+  const overlay = document.getElementById('sidebarOverlay');
+
+  function openSidebar() {
+    if (sidebar) sidebar.classList.add('active');
+    if (overlay) overlay.classList.add('active');
+  }
+
+  function closeSidebar() {
+    if (sidebar) sidebar.classList.remove('active');
+    if (overlay) overlay.classList.remove('active');
+  }
+
+  if (toggleBtn) toggleBtn.addEventListener('click', openSidebar);
+  if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+  if (overlay) overlay.addEventListener('click', closeSidebar);
+
   menuItems.forEach(item => {
     item.addEventListener('click', () => {
       const targetView = item.getAttribute('data-view');
@@ -25,7 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       // Update header title
-      viewTitle.textContent = item.querySelector('.menu-item-text').textContent;
+      if (viewTitle) {
+        viewTitle.textContent = item.querySelector('.menu-item-text').textContent;
+      }
+
+      // Auto close sidebar on mobile choice click
+      closeSidebar();
 
       // Smooth scroll to top of content
       window.scrollTo({ top: 0, behavior: 'smooth' });
