@@ -317,9 +317,14 @@ def create_app(context: SharedContext) -> FastAPI:
     # ── Web UI (static files) ──────────────────────────────────────
     from pathlib import Path
     from fastapi.staticfiles import StaticFiles
-    from fastapi.responses import FileResponse
+    from fastapi.responses import FileResponse, RedirectResponse
 
     ui_dir = Path(__file__).parent / "ui"
+
+    @app.get("/")
+    async def redirect_root_to_ui():
+        """Redirect root path to the Web UI."""
+        return RedirectResponse(url="/ui")
 
     @app.get("/ui")
     async def serve_ui():
