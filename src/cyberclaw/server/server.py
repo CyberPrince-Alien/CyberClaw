@@ -32,6 +32,15 @@ class Server:
 
     async def run(self) -> None:
         """Start all workers and monitor for crashes."""
+        # Discover and load plugins dynamically
+        plugins_dir = self.context.config.workspace / "plugins"
+        logger.info(f"Discovering plugins in {plugins_dir}...")
+        try:
+            plugin_count = await self.context.plugin_registry.discover_and_load(plugins_dir)
+            logger.info(f"Loaded {plugin_count} plugins successfully")
+        except Exception as e:
+            logger.error(f"Failed to discover and load plugins: {e}")
+
         self._setup_workers()
         self._start_workers()
 
