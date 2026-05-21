@@ -241,7 +241,12 @@ class AgentSession:
         user_msg: Message = {"role": "user", "content": message}
         self.state.add_message(user_msg)
 
-        tool_schemas = self.tools.get_tool_schemas()
+        # Safeguard: Skip passing tools for simple conversational greetings or extremely short chitchat
+        cleaned_msg = message.strip().lower().rstrip("?.!")
+        is_simple_greeting = cleaned_msg in {
+            "hi", "hello", "hey", "howdy", "yo", "test", "hola", "hi there", "hello there", "good morning", "good afternoon", "good evening"
+        }
+        tool_schemas = None if is_simple_greeting else self.tools.get_tool_schemas()
 
         while True:
             messages = self.state.build_messages()
@@ -298,7 +303,12 @@ class AgentSession:
         user_msg: Message = {"role": "user", "content": message}
         self.state.add_message(user_msg)
 
-        tool_schemas = self.tools.get_tool_schemas()
+        # Safeguard: Skip passing tools for simple conversational greetings or extremely short chitchat
+        cleaned_msg = message.strip().lower().rstrip("?.!")
+        is_simple_greeting = cleaned_msg in {
+            "hi", "hello", "hey", "howdy", "yo", "test", "hola", "hi there", "hello there", "good morning", "good afternoon", "good evening"
+        }
+        tool_schemas = None if is_simple_greeting else self.tools.get_tool_schemas()
         messages = self.state.build_messages()
         self.state = await self.context_guard.check_and_compact(self.state)
 
