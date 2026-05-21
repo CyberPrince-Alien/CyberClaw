@@ -1243,5 +1243,74 @@ def migrate_history(ctx: typer.Context) -> None:
     sqlite_store.close()
 
 
+# -- Coding Workspace Command ------------------------------------------
+@app.command("code")
+def code_command(
+    ctx: typer.Context,
+    dev: Annotated[
+        bool,
+        typer.Option(
+            "--dev",
+            help="Run launcher in dev mode using TS files",
+        ),
+    ] = True,
+    path: Annotated[
+        str,
+        typer.Option(
+            "--path",
+            help="Path to free-code-main workspace",
+        ),
+    ] = r"C:\Users\Sourov\Desktop\free-code-main",
+) -> None:
+    """Launch the Cyber Prince V9 Agentic Coding Workspace (Claude Code Engine)."""
+    import os
+    import subprocess
+    from pathlib import Path
+    from cyberclaw.security.secrets_store import SecretsStore
+
+    free_code_dir = Path(path)
+    if not free_code_dir.exists():
+        console.print(f"[red]Error: free-code-main directory not found at {free_code_dir}[/red]")
+        raise typer.Exit(1)
+
+    cfg = ctx.obj.get("config")
+    env = os.environ.copy()
+    
+    if cfg:
+        vault_path = cfg.workspace / ".secrets" / "vault.json"
+        if vault_path.exists():
+            try:
+                store = SecretsStore(vault_path)
+                key_mapping = {
+                    "anthropic.api_key": "ANTHROPIC_API_KEY",
+                    "openai.api_key": "OPENAI_API_KEY",
+                    "gemini.api_key": "GEMINI_API_KEY",
+                    "tavily.api_key": "TAVILY_API_KEY",
+                    "brave.api_key": "BRAVE_API_KEY",
+                    "groq.api_key": "GROQ_API_KEY",
+                    "openrouter.api_key": "OPENROUTER_API_KEY",
+                    "deepseek.api_key": "DEEPSEEK_API_KEY",
+                }
+                for vault_key, env_var in key_mapping.items():
+                    val = store.get(vault_key)
+                    if val:
+                        env[env_var] = val
+            except Exception as e:
+                console.print(f"[yellow]Warning: Could not load keys from vault: {e}[/yellow]")
+
+    console.print(f"[bold green]Starting Cyber Prince CLI V9 (Claude Code Workspace)...[/bold green]")
+    console.print(f"Directory: [cyan]{free_code_dir}[/cyan]")
+    
+    # Run bun run launch-v9-simple.ts
+    cmd = ["bun", "run", "launch-v9-simple.ts"]
+    try:
+        subprocess.run(cmd, cwd=free_code_dir, env=env, check=True)
+    except subprocess.CalledProcessError as e:
+        console.print(f"[red]CLI process exited with error code {e.returncode}[/red]")
+        raise typer.Exit(e.returncode)
+    except KeyboardInterrupt:
+        console.print("\n[yellow]CLI workspace closed by user.[/yellow]")
+
+
 if __name__ == "__main__":
     app()
