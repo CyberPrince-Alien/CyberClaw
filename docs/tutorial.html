@@ -100,6 +100,10 @@
             <span class="menu-item-icon">🧠</span>
             <span class="menu-item-text">Context & Prompts</span>
           </a>
+          <a class="menu-item" data-view="skills-mcp">
+            <span class="menu-item-icon">🤖</span>
+            <span class="menu-item-text">Skills & Browser MCP</span>
+          </a>
         </div>
 
         <div class="menu-section">
@@ -464,6 +468,44 @@ def system_time_provider(request: ContextRequest):
     )
 
 engine.register_provider("time", system_time_provider)</code></pre>
+        </section>
+
+        <!-- ── SECTION: SKILLS & BROWSER MCP ────────────────────────── -->
+        <section id="section-skills-mcp" class="doc-section">
+          <div class="doc-hero">
+            <h1>Skills & Native Browser Automation (MCP)</h1>
+            <p>Supercharge CyberClaw with in-page browser GUI control and a library of 1,440+ expert cognitive skills.</p>
+          </div>
+
+          <h2>1. Native Browser GUI Automation (MCP)</h2>
+          <p>CyberClaw integrates a native <strong>Model Context Protocol (MCP)</strong> JSON-RPC client connected via background stdio subprocess to Alibaba's <code>@page-agent/mcp</code> server.</p>
+          <p>Unlike basic scraper tools, this allows the AI to interact with web pages exactly like a human user: clicking, filling fields, scrolling, dragging, and executing full multi-page flows.</p>
+
+          <h3>Active Configuration</h3>
+          <p>The MCP server is dynamically registered and run from <code>workspace/config.user.yaml</code>:</p>
+          <pre><code>mcp:
+  servers:
+    page-agent:
+      command: "node"
+      args:
+        - "D:/00-System/Tools/Custom/Cyber Prince CLI V9/external/page-agent-main/page-agent-main/packages/mcp/dist/index.js"
+      enabled: true</code></pre>
+
+          <h3>Dynamic Stdio Filter & Resilient Parsing</h3>
+          <p>Some Stdio processes write informational/warning logs to <code>stdout</code> alongside standard JSON-RPC payloads, which can cause traditional JSON parsers to crash. CyberClaw resolves this natively with a built-in pre-filter engine that ignores non-JSON logs and strictly parses valid JSON-RPC frames, ensuring 100% stable execution.</p>
+
+          <h2>2. Massive 1,440+ Production Skills Library</h2>
+          <p>CyberClaw ships with a massive directory of pre-installed expert cognitive skill templates located in <code>workspace/skills/</code>.</p>
+          <p>These templates instruct the AI on best practices and precise step-by-step methodologies across various specialized fields, such as:</p>
+          <ul>
+            <li><strong>Fullstack Programming:</strong> Best-practice React, Next.js, FastAPI, and database architecture guidelines.</li>
+            <li><strong>SEO Blog Writing:</strong> Highly optimized content structures, metadata guidelines, and tone engineering.</li>
+            <li><strong>UI/UX Audits:</strong> In-depth accessibility (WCAG), layout alignment, and conversion audit checklists.</li>
+            <li><strong>Security Audits:</strong> Penetration testing scripts, vulnerability checks, and security protocols.</li>
+          </ul>
+
+          <h3>Loading Custom Skills</h3>
+          <p>Any skill subfolder containing a valid <code>SKILL.md</code> file in the <code>workspace/skills/</code> directory is loaded dynamically at startup into CyberClaw's context, making it instantly available for task execution.</p>
         </section>
 
         <!-- ── SECTION: AUTO-REPLY ───────────────────────────────────── -->

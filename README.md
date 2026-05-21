@@ -28,6 +28,24 @@ Featuring a premium **Dark Space Glassmorphic Single Page Web UI**, **V9-Style P
 
 ---
 
+## ⚡ Core Power-ups & Native Integrations (Latest Release)
+
+CyberClaw now features fully integrated, high-powered native execution engines to handle in-depth web operations and complex cognitive workflows:
+
+### 🤖 1. Native Browser GUI Automation (Page Agent MCP Client)
+CyberClaw hosts a built-in standard **Model Context Protocol (MCP)** JSON-RPC client mapping to **Alibaba's `@page-agent/mcp`** server via background Stdio subprocesses.
+* **Chrome Control:** Allows CyberClaw to launch and control a Chromium browser session natively.
+* **Interactive Elements:** Can dynamically click elements, scroll through long pages, fill forms, submit searches, solve captchas, and execute full multi-page workflows.
+* **Visual Capabilities:** Full support for page screenshot capturing and selector extraction.
+* **Resilient Connection:** Built-in JSON-RPC message filter that ignores standard output debug logs and parses only strictly valid JSON-RPC frames for robust stability on Windows/Linux.
+
+### 💼 2. 1,440+ Pre-Installed Production Skills (`workspace/skills/`)
+An enterprise-grade, massive cognitive directory containing over **1,440+ ready-to-run specialized AI skill definitions**.
+* **Wide Domains:** Covers advanced fullstack programming, SEO blog copywriting, UI/UX audit checklists, cybersecurity penetration testing, financial modeling, medical triage, and more.
+* **Instant Parity:** Zero setup required. During first-run onboarding, these skills are loaded directly into CyberClaw's context registers, allowing the AI to use expert blueprints on demand.
+
+---
+
 ## 🚀 Visual Terminal Walkthrough — Install to Chat in 3 Minutes
 
 ### Step 1: One-Line Install
