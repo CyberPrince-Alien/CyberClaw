@@ -107,13 +107,15 @@ async function start() {
             const from = msg.key.remoteJid;
             if (!from) continue;
             
+            // Skip status broadcasts
+            if (from === 'status@broadcast') continue;
+
+            // Skip messages sent by us (our own outgoing messages).
+            // We ONLY want to process messages sent TO us by other people.
+            if (msg.key.fromMe) continue;
+
             const fromNumber = from.split('@')[0];
-            const myPhone = sock.user.id.split(':')[0].split('@')[0];
-            const isSelf = fromNumber === myPhone;
-
-            // Ignore messages sent by ourselves, UNLESS we are messaging ourselves for testing (self-chat)
-            if (msg.key.fromMe && !isSelf) continue;
-
+            
             // Extract text message content robustly
             const text = extractText(msg.message);
             const displayName = msg.pushName || '';
