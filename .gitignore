@@ -43,3 +43,20 @@ build/
 
 # Node.js dependencies
 node_modules/
+
+# Scratch / development testing
+scratch/
+
+# Loose test files (proper tests are in tests/)
+test_*.py
+final_system_test.py
+
+# UV lock file (generated)
+uv.lock
+
+# Workspace runtime data
+workspace/memories/
+workspace/.logs/
+workspace/.history/
+workspace/.event/
+workspace/.tasks/
