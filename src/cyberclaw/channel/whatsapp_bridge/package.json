@@ -4,7 +4,7 @@
   "description": "WhatsApp linked-device bridge for CyberClaw using Baileys",
   "main": "bridge.js",
   "dependencies": {
-    "@whiskeysockets/baileys": "^6.6.0",
+    "@whiskeysockets/baileys": "^6.7.9",
     "pino": "^8.19.0",
     "qrcode-terminal": "^0.12.0"
   }

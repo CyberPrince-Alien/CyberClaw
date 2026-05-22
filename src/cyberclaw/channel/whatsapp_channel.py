@@ -110,7 +110,7 @@ class WhatsAppChannel(Channel[WhatsAppEventSource]):
                 str(auth_dir),
                 stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=None
             )
             
             self._listener_task = asyncio.create_task(self._read_stdout())

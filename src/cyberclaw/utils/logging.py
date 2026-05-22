@@ -9,6 +9,11 @@ from logging.handlers import RotatingFileHandler
 
 def setup_logging(config: Config, console_output: bool = False) -> None:
     """Set up logging for CyberClaw-bot."""
+    # Ensure stdout/stderr replace unencodable characters instead of crashing on Windows
+    with suppress(AttributeError, OSError, ValueError):
+        sys.stdout.reconfigure(errors="replace")
+        sys.stderr.reconfigure(errors="replace")
+
     format_str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     formatter = logging.Formatter(format_str)
 
@@ -26,6 +31,7 @@ def setup_logging(config: Config, console_output: bool = False) -> None:
             config.logging_path / "cyberclaw.log",
             maxBytes=256 * 1024 * 128,
             backupCount=3,
+            encoding="utf-8",
         )
         file_handler.setFormatter(formatter)
         file_handler.setLevel(logging.DEBUG)
@@ -40,3 +46,4 @@ def setup_logging(config: Config, console_output: bool = False) -> None:
 
     if not root_logger.handlers:
         root_logger.addHandler(logging.NullHandler())
+

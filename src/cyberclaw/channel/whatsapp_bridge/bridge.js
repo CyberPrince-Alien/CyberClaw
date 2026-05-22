@@ -1,7 +1,10 @@
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
 const pino = require('pino');
 const path = require('path');
 const fs = require('fs');
+const qrcode = require('qrcode-terminal');
+
+let sock = null;
 
 async function start() {
     const authDir = process.argv[2] || path.join(__dirname, 'auth_info');
@@ -16,10 +19,21 @@ async function start() {
     // Use a completely silent logger for pino to prevent JSON logging clutter
     const logger = pino({ level: 'silent' });
     
-    const sock = makeWASocket({
+    // Attempt to fetch the latest WhatsApp version to avoid 405 Method Not Allowed error
+    let version = [2, 3000, 1035194821]; // Solid known-good fallback
+    try {
+        const latest = await fetchLatestBaileysVersion();
+        if (latest && latest.version) {
+            version = latest.version;
+        }
+    } catch (err) {
+        // Fallback silently to our defined working version array
+    }
+
+    sock = makeWASocket({
         auth: state,
         logger: logger,
-        printQRInTerminal: true // Prints the QR code directly to terminal via qrcode-terminal
+        version: version
     });
 
     sock.ev.on('creds.update', saveCreds);
@@ -30,6 +44,8 @@ async function start() {
         if (qr) {
             // Write a structured JSON line so Python knows a QR code is generated
             console.log(JSON.stringify({ type: 'qr', qr: qr }));
+            // Manually render the QR code in terminal using qrcode-terminal
+            qrcode.generate(qr, { small: true });
         }
 
         if (connection === 'close') {
@@ -59,18 +75,47 @@ async function start() {
         }
     });
 
+    // Helper function to extract text robustly from any WhatsApp message type
+    function extractText(message) {
+        if (!message) return '';
+        if (message.conversation) return message.conversation;
+        if (message.extendedTextMessage && message.extendedTextMessage.text) {
+            return message.extendedTextMessage.text;
+        }
+        if (message.ephemeralMessage && message.ephemeralMessage.message) {
+            return extractText(message.ephemeralMessage.message);
+        }
+        if (message.viewOnceMessage && message.viewOnceMessage.message) {
+            return extractText(message.viewOnceMessage.message);
+        }
+        if (message.viewOnceMessageV2 && message.viewOnceMessageV2.message) {
+            return extractText(message.viewOnceMessageV2.message);
+        }
+        if (message.imageMessage && message.imageMessage.caption) return message.imageMessage.caption;
+        if (message.videoMessage && message.videoMessage.caption) return message.videoMessage.caption;
+        if (message.documentMessage && message.documentMessage.caption) return message.documentMessage.caption;
+        return '';
+    }
+
     sock.ev.on('messages.upsert', async (m) => {
+        // Output debug line so user can see raw message arriving in the server logs
+        console.log("DEBUG_UPSERT: Received message upsert event: " + JSON.stringify(m));
+        
         if (m.type !== 'notify') return;
         
         for (const msg of m.messages) {
-            // Ignore messages sent by ourselves to avoid agent feedback loops
-            if (msg.key.fromMe) continue;
-
             const from = msg.key.remoteJid;
-            const fromNumber = from.split('@')[0];
+            if (!from) continue;
             
-            // Extract text message content
-            const text = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
+            const fromNumber = from.split('@')[0];
+            const myPhone = sock.user.id.split(':')[0].split('@')[0];
+            const isSelf = fromNumber === myPhone;
+
+            // Ignore messages sent by ourselves, UNLESS we are messaging ourselves for testing (self-chat)
+            if (msg.key.fromMe && !isSelf) continue;
+
+            // Extract text message content robustly
+            const text = extractText(msg.message);
             const displayName = msg.pushName || '';
 
             if (text) {
@@ -84,28 +129,29 @@ async function start() {
             }
         }
     });
-
-    // Listen on stdin for commands from Python subprocess manager
-    process.stdin.on('data', async (data) => {
-        try {
-            const line = data.toString().trim();
-            if (!line) return;
-            const cmd = JSON.parse(line);
-            
-            if (cmd.type === 'send') {
-                const jid = cmd.to.includes('@') ? cmd.to : `${cmd.to}@s.whatsapp.net`;
-                await sock.sendMessage(jid, { text: cmd.body });
-                console.log(JSON.stringify({ type: 'send_success', to: cmd.to }));
-            } else if (cmd.type === 'logout') {
-                await sock.logout();
-                console.log(JSON.stringify({ type: 'logout_success' }));
-                process.exit(0);
-            }
-        } catch (err) {
-            console.error(JSON.stringify({ type: 'error', message: err.message }));
-        }
-    });
 }
+
+// Register stdin command listener ONCE globally to prevent MaxListenersExceeded memory leaks
+process.stdin.on('data', async (data) => {
+    if (!sock) return;
+    try {
+        const line = data.toString().trim();
+        if (!line) return;
+        const cmd = JSON.parse(line);
+        
+        if (cmd.type === 'send') {
+            const jid = cmd.to.includes('@') ? cmd.to : `${cmd.to}@s.whatsapp.net`;
+            await sock.sendMessage(jid, { text: cmd.body });
+            console.log(JSON.stringify({ type: 'send_success', to: cmd.to }));
+        } else if (cmd.type === 'logout') {
+            await sock.logout();
+            console.log(JSON.stringify({ type: 'logout_success' }));
+            process.exit(0);
+        }
+    } catch (err) {
+        console.error(JSON.stringify({ type: 'error', message: err.message }));
+    }
+});
 
 // Start the client thread
 start();

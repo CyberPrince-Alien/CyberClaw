@@ -775,6 +775,7 @@ def channels_login(
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
+            encoding="utf-8",
             bufsize=1
         )
         
