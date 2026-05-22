@@ -3,9 +3,15 @@
 # Suppress LiteLLM warnings BEFORE it's imported (import-time noise about botocore)
 import os as _os
 import logging as _logging
+import warnings as _warnings
 _os.environ["LITELLM_LOG"] = "ERROR"
 _logging.getLogger("LiteLLM").setLevel(_logging.ERROR)
 _logging.getLogger("litellm").setLevel(_logging.ERROR)
+
+import litellm
+litellm.suppress_helper_warnings = True
+
+_warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 from pathlib import Path
 import asyncio

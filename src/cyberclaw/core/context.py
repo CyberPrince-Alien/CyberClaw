@@ -57,3 +57,8 @@ class SharedContext:
         self.websocket_worker = None
         self.plugin_registry = PluginRegistry(self)
         self.pairing_store = PairingStore(config.workspace / ".pairing")
+        
+        # MCP server connection caching
+        self._mcp_clients = {}
+        self._mcp_initialized_servers = set()
+        self._mcp_failed_servers = set()

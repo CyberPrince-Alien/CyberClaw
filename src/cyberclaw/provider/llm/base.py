@@ -3,7 +3,15 @@
 from dataclasses import dataclass
 import logging
 import os
+import warnings
 from typing import Any, AsyncIterator, Optional, cast
+
+import litellm
+# Suppress LiteLLM helper warnings
+litellm.suppress_helper_warnings = True
+
+# Suppress Pydantic serialization UserWarnings
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 from litellm import acompletion, Choices, TYPE_CHECKING, token_counter, model_cost
 from litellm.types.completion import ChatCompletionMessageParam as Message

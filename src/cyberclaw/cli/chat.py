@@ -1,6 +1,14 @@
 """Chat CLI command for interactive sessions with event-driven architecture."""
 
 import asyncio
+import warnings
+
+import litellm
+# Suppress LiteLLM helper warnings
+litellm.suppress_helper_warnings = True
+
+# Suppress Pydantic serialization UserWarnings
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 import typer
 from rich.console import Console

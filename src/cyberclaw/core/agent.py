@@ -1,9 +1,17 @@
 import uuid
 import json
 import asyncio
+import warnings
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING, AsyncIterator
+
+import litellm
+# Suppress LiteLLM helper warnings
+litellm.suppress_helper_warnings = True
+
+# Suppress Pydantic serialization UserWarnings
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 from cyberclaw.core.context_guard import ContextGuard
 from cyberclaw.core.session_state import SessionState
@@ -226,10 +234,16 @@ class AgentSession:
         # Store clients on shared context so they persist across sessions
         if not hasattr(self.agent.context, "_mcp_clients"):
             self.agent.context._mcp_clients = {}
+        if not hasattr(self.agent.context, "_mcp_failed_servers"):
+            self.agent.context._mcp_failed_servers = set()
 
         for server_config in mcp_servers:
             name = server_config.name
             cmd = server_config.command
+            
+            # Skip if we know this server has failed in this session/run
+            if name in self.agent.context._mcp_failed_servers:
+                continue
             
             if name in self.agent.context._mcp_clients:
                 client = self.agent.context._mcp_clients[name]
@@ -243,6 +257,7 @@ class AgentSession:
                     self.agent.context._mcp_clients[name] = client
                 except Exception as e:
                     logger.error(f"Failed to connect to MCP server '{name}': {e}")
+                    self.agent.context._mcp_failed_servers.add(name)
                     continue
 
             for mcp_tool in client.tools:
