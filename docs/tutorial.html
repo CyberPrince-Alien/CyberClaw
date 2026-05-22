@@ -96,6 +96,10 @@
             <span class="menu-item-icon">⚙️</span>
             <span class="menu-item-text">Task System & SQLite</span>
           </a>
+          <a class="menu-item" data-view="holographic-memory">
+            <span class="menu-item-icon">🧠</span>
+            <span class="menu-item-text">Holographic Memory VSA</span>
+          </a>
           <a class="menu-item" data-view="context-engine">
             <span class="menu-item-icon">🧠</span>
             <span class="menu-item-text">Context & Prompts</span>
@@ -115,6 +119,10 @@
           <a class="menu-item" data-view="tools">
             <span class="menu-item-icon">🛠️</span>
             <span class="menu-item-text">AI Tools Suite</span>
+          </a>
+          <a class="menu-item" data-view="posix-shell">
+            <span class="menu-item-icon">🪟</span>
+            <span class="menu-item-text">POSIX Windows Shell</span>
           </a>
           <a class="menu-item" data-view="voice">
             <span class="menu-item-icon">🎙️</span>
@@ -566,6 +574,21 @@ channels:
           <h2>3. Discord Bot Integration</h2>
           <p>Create an application on Discord Developer Portal, configure bot intents (Message Content intent is required), and add the bot token:</p>
           <pre><code>cyberclaw secrets set DISCORD_BOT_TOKEN "your-bot-token"</code></pre>
+
+          <h2>4. WhatsApp (QR Local &amp; Cloud API) Integration</h2>
+          <p>CyberClaw supports two modes for WhatsApp messaging integration: local QR scanning or standard cloud API webhooks.</p>
+          <h3>Option A: QR Local Web Session (Zero-Config)</h3>
+          <p>Launch the login CLI to scan a QR code using your WhatsApp phone client to link CyberClaw as an active companion device:</p>
+          <pre><code># Run the interactive WhatsApp QR login flow
+cyberclaw channels login whatsapp</code></pre>
+          <p>This generates a secure session folder under <code>workspace/.sessions/whatsapp/</code>, keeping your linked account authenticated across system restarts.</p>
+          
+          <h3>Option B: Meta Cloud API Webhook</h3>
+          <p>For high-volume production bots, configure Meta Graph API credentials in your secrets store:</p>
+          <pre><code>cyberclaw secrets set WHATSAPP_CLOUD_TOKEN "EAAB..."
+cyberclaw secrets set WHATSAPP_PHONE_ID "123456789"
+cyberclaw secrets set WHATSAPP_VERIFY_TOKEN "my_secure_random_string"</code></pre>
+          <p>Then configure your webhook endpoint in your Cloud Console pointing to <code>http://your-server-ip:8000/api/channels/whatsapp/webhook</code>.</p>
         </section>
 
         <!-- ── SECTION: TOOLS ────────────────────────────────────────── -->
@@ -724,6 +747,174 @@ cyberclaw select-model</code></pre>
             <h4>💡 PRO TIP</h4>
             <p>The wizard remembers your existing config. If you already have channels, gateway settings, or other providers configured, they are preserved when you switch models. The safe merge only updates the active LLM provider.</p>
           </div>
+        </section>
+
+        <!-- ── SECTION: HOLOGRAPHIC MEMORY ───────────────────────────── -->
+        <section id="section-holographic-memory" class="doc-section">
+          <div class="doc-hero">
+            <h1>Holographic Memory VSA</h1>
+            <p>Dive deep into CyberClaw's two-phase long-term memory engine utilizing circular Vector Symbolic Architecture (VSA / HRR) and SQLite FTS5.</p>
+          </div>
+
+          <h2>The Challenge of AI Memory</h2>
+          <p>Traditional AI agents rely on simple raw chat history window limits or flat vector embeddings stored in complex external vector databases. This leads to either catastrophic forgetting (when history gets trimmed) or slow, expensive indexing processes.</p>
+          <p>CyberClaw solves this with a **Two-Phase Holographic Memory Consolidation Engine**:</p>
+          <ol>
+            <li><strong>Phase 1: Real-time Rollout & Vector Encoding</strong> — Conversational facts are extracted at runtime, projected into a circular Vector Symbolic Architecture, and stored in a local SQLite FTS5 database for instant, sub-millisecond retrieval.</li>
+            <li><strong>Phase 2: Local Git Consolidation</strong> — Periodically, stale or duplicate facts are consolidated, written into structured <code>MEMORY.md</code> directories, and compiled into active cognitive skill templates within a local Git repository.</li>
+          </ol>
+
+          <h2>Circular Vector Symbolic Architecture (VSA)</h2>
+          <p>Holographic Reduced Representations (HRR) utilize circular phase vectors to perform algebraic operations directly on data vectors. Instead of sending raw text embeddings to an external database, CyberClaw binds semantic relations directly:</p>
+          <pre><code>Vector Binding:   C = A ⊛ B  (Circular Convolution)
+Vector Bundling:  S = X + Y  (Vector Addition)
+Vector Unbinding: B' = C ⊛ A⁻¹ (Approximate Inverse Retrieval)</code></pre>
+          <p>This mathematical structure allows CyberClaw to "bundle" hundreds of facts into a single dense circular vector representation, executing blazing-fast associative memory scans locally on your CPU with zero external API calls.</p>
+
+          <h2>SQLite Memory Schema</h2>
+          <p>Consolidated facts are persisted locally in <code>workspace/history.db</code>. Below is the active schema representing the facts store:</p>
+          <pre><code>CREATE TABLE memory_facts (
+    id TEXT PRIMARY KEY,
+    session_id TEXT NOT NULL,
+    fact_category TEXT NOT NULL,
+    fact_content TEXT NOT NULL,
+    vsa_vector BLOB NOT NULL, -- Circular phase float vector array
+    occurrence_count INTEGER DEFAULT 1,
+    last_updated REAL NOT NULL
+);
+
+-- Virtual table for high-speed full-text search (FTS5)
+CREATE VIRTUAL TABLE memory_facts_fts USING fts5(
+    fact_category,
+    fact_content,
+    content='memory_facts',
+    content_rowid='rowid'
+);</code></pre>
+
+          <h2>Writing a Memory Adapter</h2>
+          <p>Developers can programmatically query or stash facts into the holographic memory using clean Python APIs:</p>
+          <pre><code>from cyberclaw.core.memory import HolographicStore
+from pathlib import Path
+
+# Initialize local VSA-backed database
+store = HolographicStore(Path("./workspace/history.db"))
+
+# Stash a new consolidated fact
+await store.stash_fact(
+    session_id="session_v9_alpha",
+    category="user_preference",
+    fact="User prefers running dev server on port 3000 instead of 8000"
+)
+
+# Perform VSA similarity search
+results = await store.query_similar(
+    query="Where should I start the development server?",
+    limit=3
+)
+for fact in results:
+    print(f"[{fact.category}] {fact.content} (score: {fact.similarity_score:.2f})")</code></pre>
+
+          <h2>The Skill Curator Lifecycle Manager</h2>
+          <p>To prevent context pollution, the **Skill Curator** actively monitors your local cognitive workspace (<code>workspace/skills/</code>). Stale, unused, or highly overlapping skill templates are automatically grouped, archived into `.archive/` subfolders, and logged dynamically. Only high-value, high-relevance templates are loaded into active context.</p>
+        </section>
+
+        <!-- ── SECTION: POSIX WINDOWS SHELL ──────────────────────────── -->
+        <section id="section-posix-shell" class="doc-section">
+          <div class="doc-hero">
+            <h1>POSIX Windows Shell Bridge</h1>
+            <p>Learn how CyberClaw translates Unix shell syntax, redirection targets, and slash paths to Windows natively and securely.</p>
+          </div>
+
+          <h2>Why Cross-Platform Scripting Fails</h2>
+          <p>AI agents frequently write scripts or run bash commands (e.g. <code>rm -rf tmp/ && mkdir tmp</code> or <code>cat /etc/hosts</code>). When executed on a Windows host machine, these commands instantly crash because Windows command processors (PowerShell / cmd.exe) do not recognize Unix syntax, forward slashes, or system files like <code>/dev/null</code>.</p>
+          <p>CyberClaw solves this with a built-in <strong>POSIX Windows Shell Bridge</strong> that intercepts, parses, and translates Unix parameters before they reach the execution runner.</p>
+
+          <h2>Syntax Translation & Command Mappings</h2>
+          <p>The bridge translates Unix commands programmatically according to this rigorous spec:</p>
+          
+          <table>
+            <thead>
+              <tr>
+                <th>Unix Command / Syntax</th>
+                <th>Windows Translation</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/dev/null</code></td>
+                <td><code>nul</code></td>
+                <td>Translates standard stream redirection targets</td>
+              </tr>
+              <tr>
+                <td><code>/c/Users/Sourov/project</code></td>
+                <td><code>C:\Users\Sourov\project</code></td>
+                <td>Maps absolute drive letters and forward slashes</td>
+              </tr>
+              <tr>
+                <td><code>open file.txt</code> / <code>xdg-open</code></td>
+                <td><code>start "" file.txt</code></td>
+                <td>Translates system file opener calls</td>
+              </tr>
+              <tr>
+                <td><code>ls -la</code></td>
+                <td><code>dir</code></td>
+                <td>Maps directory listings programmatically</td>
+              </tr>
+              <tr>
+                <td><code>cat file.log</code></td>
+                <td><code>type file.log</code></td>
+                <td>Maps stream prints for file inspection</td>
+              </tr>
+              <tr>
+                <td><code>touch file.txt</code></td>
+                <td><code>type nul > file.txt</code></td>
+                <td>Creates empty files cleanly on Windows cmd/powershell</td>
+              </tr>
+              <tr>
+                <td><code>rm -rf folder</code></td>
+                <td><code>rmdir /s /q folder</code></td>
+                <td>Translates directory cleanup chains recursively</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>How It Works under the Hood</h2>
+          <p>When the AI triggers a <code>bash</code> or <code>powershell</code> tool, the command is processed by CyberClaw's translation pipeline:</p>
+          <div class="course-timeline">
+            <div class="timeline-step">
+              <h3>Step 1: Detection</h3>
+              <p>CyberClaw checks the host operating system. If the host is Windows, the translation bridge is engaged.</p>
+            </div>
+            <div class="timeline-step">
+              <h3>Step 2: String Parsing</h3>
+              <p>Regex tokenizers parse variables, paths, and pipe chain segments. It matches patterns like <code>/([a-zA-Z])/(.*)</code> to resolve drive letters (e.g. <code>/d/project</code> ➔ <code>D:\project</code>).</p>
+            </div>
+            <div class="timeline-step">
+              <h3>Step 3: Safe Subprocess Execution</h3>
+              <p>The translated command is wrapped inside a secure Win32 Job Object sandbox (restricting memory to 50MB) and executed safely.</p>
+            </div>
+          </div>
+
+          <h2>Declaring Robust Cross-Platform Tools</h2>
+          <p>When developing custom plugins for CyberClaw, write tool declarations using the built-in translation APIs to ensure your plugin is immediately cross-platform:</p>
+          <pre><code>from cyberclaw.security.sandbox import execute_command_in_sandbox
+from cyberclaw.utils.posix_bridge import translate_command
+
+# Command input written in POSIX style
+posix_cmd = "cat /c/Users/Sourov/Desktop/logs/error.log > /dev/null"
+
+# Translate command automatically based on OS
+translated_cmd = translate_command(posix_cmd)
+print("Running command:", translated_cmd)
+# Output on Windows: "type C:\\Users\\Sourov\\Desktop\\logs\\error.log > nul"
+
+# Execute safely inside sandbox
+result = await execute_command_in_sandbox(translated_cmd, timeout_seconds=30)
+if result.exit_code == 0:
+    print("Execution Success:", result.stdout)
+else:
+    print("Execution Failed:", result.error)</code></pre>
         </section>
 
         <!-- ── SECTION: DEPLOYMENT ───────────────────────────────────── -->

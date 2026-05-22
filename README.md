@@ -146,6 +146,47 @@ graph TB
 
 Two-phase memory consolidation that gives your agent true long-term recall. The LLM extracts structured facts from conversations, encodes them via **Vector Symbolic Architecture (HRR)**, and persists everything to SQLite. Memories are Git-committed as `MEMORY.md` files and reusable skill templates — creating an ever-growing knowledge base that survives restarts.
 
+<details>
+<summary><strong>Explore Two-Phase Circular Vector Consolidation Architecture</strong></summary>
+
+CyberClaw uses **Holographic Reduced Representations (HRR)**, a branch of Vector Symbolic Architecture (VSA), to model brain-like cognitive bindings directly on local systems.
+
+#### 1. The Math of Vector Binding & Bundling
+- **Binding (Circular Convolution)** associates a category and fact cleanly:
+  $$C = A \circledast B$$
+- **Bundling (Vector Addition)** consolidates multiple facts into a single dense memory vector:
+  $$S = X + Y + Z$$
+- **Unbinding (Approximate Correlation)** retrieves semantic associations from the memory bundle:
+  $$B' = S \circledast A^{-1}$$
+
+This high-speed vector symbolic math runs locally, matching facts in less than a millisecond.
+
+#### 2. Two-Phase Consolidation Pipeline
+```
+[User Chat] ➔ [Extract Facts (LLM)] ➔ [VSA Vector Binding] ➔ [SQLite FTS5 Store]
+                                                                  │
+                                                                  ▼ (Periodic Git Task)
+                                                        [MEMORY.md + skills/ templates]
+                                                                  │
+                                                                  ▼
+                                                        [Local Git Repository]
+                                                  (Auto-committed for long-term recall)
+```
+
+#### 3. SQLite FTS5 Schema Configuration
+```sql
+CREATE TABLE memory_facts (
+    id TEXT PRIMARY KEY,
+    session_id TEXT NOT NULL,
+    fact_category TEXT NOT NULL,
+    fact_content TEXT NOT NULL,
+    vsa_vector BLOB NOT NULL, -- Compressed circular phase vector array
+    occurrence_count INTEGER DEFAULT 1,
+    last_updated REAL NOT NULL
+);
+```
+</details>
+
 ### 🛡️ Secure Sandbox Execution
 
 Every tool invocation runs inside an isolation boundary. On Windows, **Win32 Job Objects** enforce a 50 MB memory ceiling and process tree limits. On Linux/macOS, Docker containers provide full filesystem isolation. If a command mutates your workspace, CyberClaw captures a **Git baseline** beforehand and can auto-rollback on failure — protecting your code at every step.
@@ -234,6 +275,25 @@ An interactive setup wizard that detects your hardware profile (RAM, CPU cores, 
 | `system_info` | Hardware and OS diagnostics |
 
 All tools run inside the security sandbox and emit structured telemetry.
+
+</details>
+
+### 🪟 POSIX Windows Shell Bridge
+
+Allows cross-platform Unix shell commands and scripts to execute flawlessly on Windows hosts. When executing tools like `bash` or `powershell`, CyberClaw's dynamic translation layer intercepts command strings and parses them on-the-fly.
+
+<details>
+<summary><strong>View Command Translation Mappings</strong></summary>
+
+| Unix Style Syntax | Translated Windows Syntax | Description |
+|-------------------|---------------------------|-------------|
+| `/dev/null` | `nul` | Standard error/output stream redirect target |
+| `/c/Users/Sourov/project` | `C:\Users\Sourov\project` | Path/drive translation from Unix slash to Windows backslash |
+| `open index.html` / `xdg-open` | `start "" index.html` | Operating system file/url opener translation |
+| `ls -la` | `dir` | Directory listings |
+| `cat file.txt` | `type file.txt` | Print file streams |
+| `rm -rf folder` | `rmdir /s /q folder` | Clean directories recursively |
+| `touch log.txt` | `type nul > log.txt` | Create empty files |
 
 </details>
 

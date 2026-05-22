@@ -26,6 +26,20 @@ document.addEventListener('DOMContentLoaded', () => {
   if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
   if (overlay) overlay.addEventListener('click', closeSidebar);
 
+  let isHandlingHash = false;
+
+  function handleHash() {
+    const hash = window.location.hash.substring(1);
+    if (!hash) return;
+
+    const matchedItem = Array.from(menuItems).find(item => item.getAttribute('data-view') === hash);
+    if (matchedItem) {
+      isHandlingHash = true;
+      matchedItem.click();
+      isHandlingHash = false;
+    }
+  }
+
   menuItems.forEach(item => {
     item.addEventListener('click', () => {
       const targetView = item.getAttribute('data-view');
@@ -52,10 +66,23 @@ document.addEventListener('DOMContentLoaded', () => {
       // Auto close sidebar on mobile choice click
       closeSidebar();
 
+      // Update URL hash without breaking state if not already in feedback loop
+      if (!isHandlingHash) {
+        if (history.pushState) {
+          history.pushState(null, null, `#${targetView}`);
+        } else {
+          window.location.hash = targetView;
+        }
+      }
+
       // Smooth scroll to top of content
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
+
+  // Execute initial hash check and listen to hashchange events
+  handleHash();
+  window.addEventListener('hashchange', handleHash);
 
   // Dynamic search system
   const searchInput = document.getElementById('docsSearch');
