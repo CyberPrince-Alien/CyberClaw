@@ -386,16 +386,35 @@ def onboard(
                 console.print("  [green]OK[/green] Discord configured")
 
             # WhatsApp
-            if typer.confirm("  Enable WhatsApp Business API?", default=False):
-                wa_phone = typer.prompt("  WhatsApp Phone Number ID")
-                wa_token = typer.prompt("  WhatsApp Access Token", hide_input=True)
-                wa_verify = typer.prompt("  WhatsApp Verify Token", default="cyberclaw-verify")
-                config_data["channels"]["whatsapp"] = {
-                    "enabled": True, "phone_number_id": wa_phone,
-                    "access_token": wa_token, "verify_token": wa_verify,
-                    "dm_policy": "pairing", "allow_from": [],
-                }
-                console.print("  [green]OK[/green] WhatsApp configured")
+            if typer.confirm("  Enable WhatsApp?", default=False):
+                console.print("    Select WhatsApp Mode:")
+                console.print("      1) Local Mode (Scan QR Code from terminal with personal/business account) [default]")
+                console.print("      2) Cloud Mode (Official Meta Business Cloud API)")
+                wa_mode_choice = typer.prompt("    Enter choice (1-2)", default="1")
+                
+                if wa_mode_choice == "2":
+                    wa_phone = typer.prompt("    WhatsApp Phone Number ID")
+                    wa_token = typer.prompt("    WhatsApp Access Token", hide_input=True)
+                    wa_verify = typer.prompt("    WhatsApp Verify Token", default="cyberclaw-verify")
+                    config_data["channels"]["whatsapp"] = {
+                        "enabled": True,
+                        "mode": "cloud",
+                        "phone_number_id": wa_phone,
+                        "access_token": wa_token,
+                        "verify_token": wa_verify,
+                        "dm_policy": "pairing",
+                        "allow_from": [],
+                    }
+                    console.print("    [green]OK[/green] WhatsApp configured in [cyan]Cloud Mode[/cyan]")
+                else:
+                    config_data["channels"]["whatsapp"] = {
+                        "enabled": True,
+                        "mode": "local",
+                        "dm_policy": "pairing",
+                        "allow_from": [],
+                    }
+                    console.print("    [green]OK[/green] WhatsApp configured in [cyan]Local Mode (QR Code Scan)[/cyan]")
+                    console.print("    [dim]Tip: You will scan the QR code by running 'cyberclaw channels login' later.[/dim]")
 
             # Slack
             if typer.confirm("  Enable Slack?", default=False):

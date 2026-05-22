@@ -100,11 +100,14 @@ api:
 #
 #   whatsapp:
 #     enabled: true
-#     phone_number_id: your-phone-number-id
-#     access_token: your-access-token
-#     verify_token: cyberclaw-verify
-#     dm_policy: pairing
+#     mode: local          # local (Linked Device QR scan) [default] or cloud (Business API)
+#     dm_policy: pairing   # pairing | allowlist | open
 #     allow_from: []
+#
+#     # (Required for cloud mode only)
+#     # phone_number_id: your-phone-number-id
+#     # access_token: your-access-token
+#     # verify_token: cyberclaw-verify
 #
 #   slack:
 #     enabled: true
