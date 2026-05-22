@@ -48,3 +48,11 @@ mcp_servers:
   - node
   - D:\00-System\Tools\Custom\Cyber Prince CLI V9\external\page-agent-main\page-agent-main\packages\mcp\src\index.js
   name: page-agent
+channels:
+  enabled: true
+  whatsapp:
+    enabled: true
+    mode: local
+    dm_policy: open
+    allow_from:
+    - '*'
