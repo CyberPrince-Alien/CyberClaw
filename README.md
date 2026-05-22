@@ -1,309 +1,519 @@
-# 🌌 CyberClaw — Advanced AI Orchestration Platform & Control Dashboard
-> **An Enterprise-Grade, Multi-Channel Personal AI Agent System with Premium Web UI, V9-Style Model Selector, Cryptographic Secrets Vault, and Real-Time Voice Speech-to-Text.**
+<div align="center">
+
+<img src="docs/cyberclaw_logo.png" alt="CyberClaw Logo" width="200" />
+
+# CyberClaw
+
+### Your Personal AI Command Center — From Terminal to Cloud
+
+[![GitHub Stars](https://img.shields.io/github/stars/CyberPrince-Alien/CyberClaw?style=for-the-badge&logo=github&color=f5a623)](https://github.com/CyberPrince-Alien/CyberClaw/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/CyberPrince-Alien/CyberClaw?style=for-the-badge&logo=github&color=6c63ff)](https://github.com/CyberPrince-Alien/CyberClaw/network)
+[![GitHub Issues](https://img.shields.io/github/issues/CyberPrince-Alien/CyberClaw?style=for-the-badge&logo=github&color=ff6b6b)](https://github.com/CyberPrince-Alien/CyberClaw/issues)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11+-3776ab?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Android%20%7C%20iOS-0ea5e9?style=for-the-badge&logo=windowsterminal&logoColor=white)](#-installation)
+[![Docs](https://img.shields.io/badge/Docs-cyberprince--alien.github.io-8b5cf6?style=for-the-badge&logo=readthedocs&logoColor=white)](https://cyberprince-alien.github.io/CyberClaw/)
+
+**A modular, enterprise-grade personal AI agent system built in pure Python.**<br/>
+CLI chat · Glassmorphic Web UI · 8+ messaging channels · 15+ tools · Multi-LLM routing · Holographic memory
+
+[Documentation](https://cyberprince-alien.github.io/CyberClaw/) · [Report Bug](https://github.com/CyberPrince-Alien/CyberClaw/issues) · [Request Feature](https://github.com/CyberPrince-Alien/CyberClaw/issues)
+
+</div>
 
 ---
 
-<p align="center">
-  <strong>Brought to You with ❤️ by <a href="https://www.youtube.com/channel/UCxDA3V7IciBGKqoC-m0dvxQ">Cyber Prince</a></strong>
-</p>
+## 📖 Table of Contents
 
-<p align="center">
-  <a href="https://cyberprince-alien.github.io/CyberClaw/" target="_blank"><strong>🌐 VIEW LIVE DOCUMENTATION PORTAL</strong></a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/CyberPrince-Alien/CyberClaw/stargazers"><img src="https://img.shields.io/github/stars/CyberPrince-Alien/CyberClaw?style=for-the-badge&color=7209b7" alt="Stars"></a>
-  <a href="https://github.com/CyberPrince-Alien/CyberClaw/network/members"><img src="https://img.shields.io/github/forks/CyberPrince-Alien/CyberClaw?style=for-the-badge&color=f72585" alt="Forks"></a>
-  <a href="https://github.com/CyberPrince-Alien/CyberClaw/issues"><img src="https://img.shields.io/github/issues/CyberPrince-Alien/CyberClaw?style=for-the-badge&color=4cc9f0" alt="Issues"></a>
-  <a href="https://www.facebook.com/ImDarkMagician/"><img src="https://img.shields.io/badge/Facebook-Cyber%20Prince-1877F2?style=for-the-badge&logo=facebook" alt="Facebook"></a>
-  <a href="https://www.youtube.com/channel/UCxDA3V7IciBGKqoC-m0dvxQ"><img src="https://img.shields.io/badge/YouTube-Cyber%20Prince-FF0000?style=for-the-badge&logo=youtube" alt="YouTube"></a>
-</p>
+- [Why CyberClaw](#-why-cyberclaw)
+- [Architecture](#-architecture)
+- [Features](#-features)
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [CLI Reference](#-cli-reference)
+- [REST API](#-rest-api)
+- [Configuration](#-configuration)
+- [Contributing](#-contributing)
+- [License](#-license)
+- [Credits](#-credits)
 
 ---
 
-## 🌟 Executive Overview & Market Readiness
-**CyberClaw** is a state-of-the-art, modular personal AI system engineered in high-performance native Python. Designed to meet or exceed commercial standards for marketplaces like **CodeCanyon** and professional open-source registries, it provides a decoupled, event-driven assistant capable of running 24/7 across multiple messaging channels.
+## 💡 Why CyberClaw
 
-Featuring a premium **Dark Space Glassmorphic Single Page Web UI**, **V9-Style Premium Model Selection Wizard**, SQLite history & task registers, and a hardware-locked cryptographic vault, CyberClaw is the ultimate ready-to-sell or ready-to-deploy AI gateway.
+Most AI tools give you a chatbot. CyberClaw gives you a **complete AI operating system** — a unified platform where a single `pip install` delivers an interactive CLI agent, a real-time web dashboard, multi-channel messaging, secure tool execution, persistent memory, and production-grade observability. Everything runs locally. No SaaS lock-in. No external orchestrators. Just Python.
 
----
-
-## ⚡ Core Power-ups & Native Integrations (Latest Release)
-
-CyberClaw now features fully integrated, high-powered native execution engines to handle in-depth web operations and complex cognitive workflows:
-
-### 🤖 1. Native Browser GUI Automation (Page Agent MCP Client)
-CyberClaw hosts a built-in standard **Model Context Protocol (MCP)** JSON-RPC client mapping to **Alibaba's `@page-agent/mcp`** server via background Stdio subprocesses.
-* **Chrome Control:** Allows CyberClaw to launch and control a Chromium browser session natively.
-* **Interactive Elements:** Can dynamically click elements, scroll through long pages, fill forms, submit searches, solve captchas, and execute full multi-page workflows.
-* **Visual Capabilities:** Full support for page screenshot capturing and selector extraction.
-* **Resilient Connection:** Built-in JSON-RPC message filter that ignores standard output debug logs and parses only strictly valid JSON-RPC frames for robust stability on Windows/Linux.
-
-### 💼 2. 1,440+ Pre-Installed Production Skills (`workspace/skills/`)
-An enterprise-grade, massive cognitive directory containing over **1,440+ ready-to-run specialized AI skill definitions**.
-* **Wide Domains:** Covers advanced fullstack programming, SEO blog copywriting, UI/UX audit checklists, cybersecurity penetration testing, financial modeling, medical triage, and more.
-* **Instant Parity:** Zero setup required. During first-run onboarding, these skills are loaded directly into CyberClaw's context registers, allowing the AI to use expert blueprints on demand.
-
-### 🛡️ 3. Smart Gateway Routing & Circuit Breaker Failover
-CyberClaw hosts an intelligent, multi-provider model routing gateway layer. If your primary LLM endpoint suffers rate limits (`429`) or server failures, CyberClaw automatically, dynamically, and transparently routes queries to backup models.
-* **Circuit-Breaker Cooldown:** Bypasses failing endpoints for 120 seconds on rate limits (`429`) or 60 seconds on standard server errors to avoid redundant network overhead.
-* **Equal-Priority Load Balancing:** Shuffles and load-balances incoming traffic randomly across multiple active providers set at the identical priority level.
-* **Seamless Coexistence:** Runs as a transparent layer within CyberClaw's LLM engine, keeping the premium V9 Model Selection System fully active.
-
-### 🎙️ 4. Local Edge-Native Offline TTS Subsystem
-An advanced offline voice synthesis engine utilizing pre-trained, high-quality ONNX models. Run 100% private, ultra-low latency voice chat sessions without any external API calls.
-* **Edge-Native ONNX Synthesis:** Real-time synthesis executing directly on local CPU/GPU hardware.
-* **Sentence-Level Streaming:** Paragraphs are chunked dynamically into sentences and streamed immediately as separate WAV blocks for instant playback responsiveness.
-* **Emotional Tags Stripping:** Automatically removes emotional tags (like `[happy]` or `*giggles*`) from the assistant text prior to playback for clean, professional narration.
-* **Smart Audio Dispatcher:** Features high-fidelity synchronous playbacks on Windows (`winsound` for zero-lag WAV files, and computed-duration PowerShell `MediaPlayer` for online MP3 fallbacks).
-
----
-
-## 🚀 Visual Terminal Walkthrough — Install to Chat in 3 Minutes
-
-### Step 1: One-Line Install
-```bash
-$ pip install git+https://github.com/CyberPrince-Alien/CyberClaw.git
-
-  Downloading CyberClaw library...
-  Installing collected packages: cyberclaw
-  Successfully installed cyberclaw-0.2.0
 ```
-
-### Step 2: Onboard Your Workspace
-```bash
-$ cyberclaw onboard
-
-  ══════════════════════════════════════════════════════
-     CYBERCLAW WORKSPACE ONBOARDING
-  ══════════════════════════════════════════════════════
-
-      ✅ Created agents/
-      ✅ Created skills/
-      ✅ Created plugins/
-      ✅ Created crons/
-      ✅ Created memories/
-      ✅ Deployed config.user.yaml
-
-  Would you like to run the Premium Model Selection Wizard (V9 Style) now? [y/N]: y
-```
-
-### Step 3: Premium V9 Model Selector Launches Automatically
-```
-  ═══════════════════════════════════════════════════════════════════════════════
-
-   ██████╗██╗   ██╗██████╗ ███████╗██████╗  ██████╗██╗      █████╗ ██╗    ██╗
-  ██╔════╝╚██╗ ██╔╝██╔══██╗██╔════╝██╔══██╗██╔════╝██║     ██╔══██╗██║    ██║
-  ██║      ╚████╔╝ ██████╔╝█████╗  ██████╔╝██║     ██║     ███████║██║ █╗ ██║
-  ██║       ╚██╔╝  ██╔══██╗██╔══╝  ██╔══██╗██║     ██║     ██╔══██║██║███╗██║
-  ╚██████╗   ██║   ██████╔╝███████╗██║  ██║╚██████╗███████╗██║  ██║╚███╔███╔╝
-   ╚═════╝   ╚═╝   ╚═════╝ ╚══════╝╚═╝  ╚═╝ ╚═════╝╚══════╝╚═╝  ╚═╝ ╚══╝╚══╝
-
-  ═══════════════════════════════════════════════════════════════════════════════
-
-                           █ READY — CyberClaw AI Online
-
-  ┌──────────────┬────────────────────────────────────────────────────┐
-  │ Component    │ Details                                            │
-  ├──────────────┼────────────────────────────────────────────────────┤
-  │ RAM          │ 16.0 GB total / 10.2 GB free                      │
-  │ CPU          │ Intel Core i7-12700H (20 cores)                   │
-  │ GPU          │ NVIDIA GeForce RTX 4060 (8.0 GB VRAM)             │
-  │ Tier         │ [ULTRA]                                            │
-  └──────────────┴────────────────────────────────────────────────────┘
-  💡 Your system can handle large 70B+ models.
-
-  ┌────┬──────────────────────┬──────────────────────────────────────┐
-  │ #  │ Provider             │ Description                          │
-  ├────┼──────────────────────┼──────────────────────────────────────┤
-  │  1 │ Ollama (Local)       │ Free — run models locally            │
-  │  2 │ Google Gemini        │ Gemini 2.5/3.0/3.1, Gemma 3/4       │
-  │  3 │ OpenAI / Codex       │ o3, gpt-4.1, gpt-4o                 │
-  │  4 │ Anthropic Claude     │ Claude 4/3.5 Sonnet/Opus             │
-  │  5 │ Groq                 │ Ultra-fast inference — Free tier      │
-  │  6 │ OpenRouter           │ 100+ models — Free credits           │
-  │  7 │ NVIDIA NIM           │ Llama, Qwen, DeepSeek on NVIDIA      │
-  │  8 │ DeepSeek             │ Reasoning & Coding specialist        │
-  └────┴──────────────────────┴──────────────────────────────────────┘
-
-  Select provider [0-8]: 5
-
-  Enter Groq API Key: ••••••••••••
-  🔑 Test API key now? [Y/n]: y
-  ✅ Key is VALID! Connection successful.
-
-  ✅ MODEL CONFIGURED SUCCESSFULLY!
-     Provider: groq
-     Model:    llama-3.3-70b-versatile
-
-  🚀 Would you like to start the Chat Session in terminal now? [Y/n]: y
-```
-
-### Step 4: Chat Starts Immediately
-```bash
-  ╔══════════════════════════════════════════════════╗
-  ║          CYBERCLAW INTERACTIVE CHAT              ║
-  ╚══════════════════════════════════════════════════╝
-
-  You > Hello CyberClaw! What can you do?
-
-  CyberClaw > I'm your personal AI assistant! I can:
-  • Search the web and read websites
-  • Execute code and shell commands
-  • Manage background tasks
-  • Connect to Telegram, Discord, WhatsApp & more
-  • Run cron jobs and scheduled automations
-
-  You > _
-```
-
-### Step 5: Verify Everything is Healthy
-```bash
-$ cyberclaw doctor
-
-  ══════════════════════════════════════════════════════
-     CYBERCLAW SYSTEM DIAGNOSTICS
-  ══════════════════════════════════════════════════════
-
-  ✅ LLM Providers: 2 enabled
-  ✅ Provider 'groq' -> model: llama-3.3-70b-versatile
-  ✅ Directory 'agents' exists
-  ✅ Directory 'skills' exists
-  ✅ Directory 'crons' exists
-  ✅ Directory 'memories' exists
-  ✅ Directory 'plugins' exists
-  ✅ Config file: workspace/config.user.yaml
-
-  All checks passed — CyberClaw is healthy!
-  ══════════════════════════════════════════════════════
+┌─────────────────────────────────────────────────────────┐
+│  $ cyberclaw chat                                       │
+│                                                         │
+│  🤖 CyberClaw v0.2.0 ready.                            │
+│  Provider: gemini-2.0-flash │ Memory: 42 facts loaded   │
+│  Tools: 15 active │ Channels: telegram, discord (live)  │
+│                                                         │
+│  You: Summarize today's logs and post to Slack.         │
+│  CyberClaw: Done. Summary posted to #ops-updates.       │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🎯 Premium V9 Model Selection Wizard
+## 🏗️ Architecture
 
-CyberClaw ships with an **industry-leading terminal-based model selection experience** inspired by Cyber Prince CLI V9:
+CyberClaw is composed of **12 self-contained modules** — each independently testable, each with a clean internal API.
 
-| Feature | Description |
-|:--------|:------------|
-| 🌿 **Jungle Gradient Banner** | Beautiful 6-line ASCII CYBERCLAW art with dark-forest → emerald → lime gradient |
-| 🖥️ **Hardware Auto-Detection** | Detects RAM, CPU model/cores, GPU name/VRAM via PowerShell |
-| ⚡ **Tier Classification** | ULTRA / HIGH / MEDIUM / LIGHT with smart model recommendations |
-| 🦙 **Ollama Integration** | Lists installed models, auto-pull from 25+ cloud/local/uncensored catalogs |
-| ☁️ **8 Cloud Providers** | Google Gemini, OpenAI, Anthropic, Groq, OpenRouter, NVIDIA NIM, DeepSeek |
-| 🔑 **Instant API Validation** | Tests your key against the provider's real endpoint before saving |
-| 💾 **Safe Config Merge** | Updates provider without destroying your channels, gateway, or other settings |
-| 🚀 **Auto-Launch Chat** | Prompts you to start chatting immediately after model selection |
+```
+src/cyberclaw/
+├── channel/                # 8+ messaging platform connectors
+├── cli/                    # Typer-based CLI (18 commands), TUI dashboard, Model Selector
+├── core/                   # Agent loop, context engine, memory, metrics, tasks, streaming
+├── mcp/                    # Model Context Protocol client (browser automation)
+├── plugins/                # Dynamic plugin loading system
+├── provider/               # Multi-LLM routing with circuit-breaker failover
+├── security/               # AES-256 vault, Win32/Docker sandbox, git rollback
+├── server/                 # FastAPI gateway, WebSocket, SSE streaming, Web UI
+├── tools/                  # 15+ built-in tools (bash, read, write, search, repl, etc.)
+├── utils/                  # Config hot-reload, i18n (5 languages), migrator
+├── voice/                  # TTS/STT with edge-tts, whisper, ONNX offline
+└── workspace_template/     # Default workspace scaffolding
+```
 
-```bash
-# Run the wizard anytime to switch models
-cyberclaw select-model
+```mermaid
+graph TB
+    subgraph User Layer
+        CLI["⌨️ CLI / TUI"]
+        WEB["🌐 Web UI :8000"]
+        CH["📡 Channels<br/>Telegram · Discord · Slack<br/>WhatsApp · Matrix · IRC<br/>Signal · WebChat"]
+        VOICE["🎙️ Voice I/O"]
+    end
 
-# Or run it during first-time setup
-cyberclaw onboard
+    subgraph Core Engine
+        AGENT["🧠 Agent Loop"]
+        CTX["📋 Context Engine"]
+        MEM["💾 Holographic Memory<br/>SQLite + VSA/HRR"]
+        SCHED["⏰ Cron Scheduler"]
+        METRICS["📊 Prometheus Metrics"]
+    end
+
+    subgraph Execution Layer
+        TOOLS["🔧 Tool Runtime<br/>bash · powershell · read<br/>write · edit · search<br/>repl · browser · MCP"]
+        SANDBOX["🛡️ Sandbox<br/>Win32 Job · Docker"]
+        GIT["🔄 Git Rollback"]
+    end
+
+    subgraph Provider Layer
+        ROUTER["⚡ LLM Router<br/>Circuit Breaker"]
+        GEMINI["Gemini"]
+        OPENAI["OpenAI"]
+        ANTHROPIC["Anthropic"]
+        GROQ["Groq"]
+        OLLAMA["Ollama"]
+        MORE["DeepSeek · NVIDIA<br/>OpenRouter"]
+    end
+
+    subgraph Security
+        VAULT["🔐 AES-256 Vault"]
+        PLUGINS["🔌 Plugin Loader"]
+    end
+
+    CLI --> AGENT
+    WEB --> AGENT
+    CH --> AGENT
+    VOICE --> AGENT
+    AGENT --> CTX
+    CTX --> MEM
+    AGENT --> SCHED
+    AGENT --> METRICS
+    AGENT --> TOOLS
+    TOOLS --> SANDBOX
+    SANDBOX --> GIT
+    AGENT --> ROUTER
+    ROUTER --> GEMINI
+    ROUTER --> OPENAI
+    ROUTER --> ANTHROPIC
+    ROUTER --> GROQ
+    ROUTER --> OLLAMA
+    ROUTER --> MORE
+    AGENT --> VAULT
+    AGENT --> PLUGINS
 ```
 
 ---
 
-## 🚀 Key Marketplace Features & Highlights
+## ✨ Features
 
-### ⚡ 1. Unified Model Catalog (`core/model_catalog.py`)
-* Track pricing per million input/output tokens dynamically.
-* Advanced query selectors for finding the cheapest or best vision/reasoning models.
-* Dynamic live model discovery from Groq, OpenRouter, and standard `/v1/models` endpoints.
+### 🧠 Holographic Memory Engine
 
-### ⚙️ 2. SQLite Background Task Engine (`core/tasks.py`)
-* Asynchronous execution worker queue with concurrent semaphores, customizable timeouts, and automatic retry handling.
-* Full ACID compliance persisted cleanly in a database.
+Two-phase memory consolidation that gives your agent true long-term recall. The LLM extracts structured facts from conversations, encodes them via **Vector Symbolic Architecture (HRR)**, and persists everything to SQLite. Memories are Git-committed as `MEMORY.md` files and reusable skill templates — creating an ever-growing knowledge base that survives restarts.
 
-### 🧠 3. Advanced Context Engine (`core/context_engine.py`)
-* Prioritized context payload assembler that automatically constructs token-budgeted prompts from active data feeds and plugins.
+### 🛡️ Secure Sandbox Execution
 
-### 📡 4. Multi-Channel Auto-Reply Pipeline (`core/auto_reply.py`)
-* Inbound message debouncing, mention filters, rate-limiting, and thinking mode indicators.
-* Out-of-the-box routing connectors for **Signal**, **Telegram**, **Discord**, **WhatsApp**, **Slack**, and **Matrix**.
+Every tool invocation runs inside an isolation boundary. On Windows, **Win32 Job Objects** enforce a 50 MB memory ceiling and process tree limits. On Linux/macOS, Docker containers provide full filesystem isolation. If a command mutates your workspace, CyberClaw captures a **Git baseline** beforehand and can auto-rollback on failure — protecting your code at every step.
 
-### 🛠️ 5. Commercial-Grade AI Tools
-* **Live Scraper:** URL link auto-extractor and scraper built with rigorous timeout boundaries.
-* **Web Browser:** Playwright Chromium integration for deep research.
-* **Web Search:** Multi-provider fallback registry supporting Brave Search, Tavily AI, and DuckDuckGo.
-* **Media Creators:** Schemas for Suno AI MusicGen and Runway Video Gen.
+### 🤖 Multi-Provider LLM Gateway
 
-### 🔒 6. AES Cryptographic Vault (`security/`)
-* AES-256 Fernet symmetric encryption storing credentials locally in `vault.json`, locked by your machine's hardware fingerprint.
+<details>
+<summary><strong>8 providers with circuit-breaker failover</strong></summary>
 
----
+| Provider | Models | Notes |
+|----------|--------|-------|
+| **Gemini** | gemini-2.0-flash, gemini-2.5-pro | Default provider, streaming support |
+| **OpenAI** | gpt-4o, gpt-4o-mini, o3-mini | Full function-calling support |
+| **Anthropic** | claude-sonnet-4, claude-3.5-haiku | Extended context windows |
+| **Groq** | llama-3.3-70b, mixtral-8x7b | Ultra-low latency inference |
+| **OpenRouter** | 100+ models | Unified gateway to any model |
+| **NVIDIA NIM** | llama-3.1-nemotron | Enterprise-grade endpoints |
+| **DeepSeek** | deepseek-chat, deepseek-reasoner | Cost-effective reasoning |
+| **Ollama** | Any GGUF model | Fully local, zero API keys |
 
-## 💻 The 18-Command CLI Masterclass
-CyberClaw hosts 18 terminal operational triggers. Here is the direct command guide:
+The **circuit-breaker** pattern monitors provider health with configurable cooldowns (60 s / 120 s). When a provider fails, traffic is seamlessly rerouted to the next available backend. Equal-priority providers are load-balanced automatically.
 
-| Command | Action / Purpose | Example Code |
-|:---|:---|:---|
-| **`onboard`** | Initializes folder setup & configs | `cyberclaw onboard` |
-| **`select-model`** | Premium V9 Model Selection Wizard | `cyberclaw select-model` |
-| **`doctor`** | Runs 10+ diagnostic system checks | `cyberclaw doctor` |
-| **`chat`** | Boots terminal interactive AI session | `cyberclaw chat` |
-| **`agent`** | Spawns a single turn query for piping | `cyberclaw agent --message "Build check"` |
-| **`server`** | Boots 24/7 scheduling process engine | `cyberclaw server` |
-| **`gateway`** | Hosts Web UI control center & REST API | `cyberclaw gateway start` |
-| **`config`** | Inspects or sets workspace parameters | `cyberclaw config show` |
-| **`secrets`** | Cryptographic key manager (AES-256) | `cyberclaw secrets set KEY "val"` |
-| **`sessions`** | Audits active database conversation logs | `cyberclaw sessions list` |
-| **`pairing`** | Approves codes for secure chat pairing | `cyberclaw pairing approve --code "123"` |
-| **`channels`** | Audits active chat pipelines status | `cyberclaw channels list` |
-| **`providers`** | Lists LLM backends cleanly | `cyberclaw providers list` |
-| **`talk`** | Boots PTT & Wake-word voice listener | `cyberclaw talk` |
-| **`migrate-history`**| Converts legacy logs into robust SQLite | `cyberclaw migrate-history` |
-| **`service`** | Registers background Windows NT Service | `cyberclaw service install` |
-| **`update`** | Automated updater via package manager | `cyberclaw update` |
-| **`version`** | Displays build, versions, and paths | `cyberclaw version` |
+</details>
 
----
+### 🖥️ Premium 3-Pane TUI Dashboard
 
-## 📦 Quick Installation
+A full-screen terminal dashboard powered by **Rich Live** rendering at 2 Hz:
+
+| Pane | Content |
+|------|---------|
+| **Left** | Workspace file explorer tree |
+| **Center** | Live chat console with streaming output |
+| **Right** | Real-time telemetry — tokens, cost, latency, provider health |
+
+Non-blocking keyboard input keeps the UI responsive during long-running tool executions.
+
+### 🌐 Dark Space Web UI
+
+A glassmorphic single-page dashboard served at `localhost:8000/ui`. Features live model selection, provider configuration cards, real-time health indicators, and session management — all rendered with a sleek dark-space aesthetic. No frontend build step required; it ships as embedded static assets.
+
+### 📡 8-Channel Messaging Hub
+
+<details>
+<summary><strong>Connect your agent to any platform</strong></summary>
+
+| Channel | Auth Method | Features |
+|---------|-------------|----------|
+| **Telegram** | Bot token | Groups, DM policies, markdown rendering |
+| **Discord** | Bot token | Slash commands, thread support |
+| **WhatsApp** | QR code (local) / Cloud API | Media support, pairing codes |
+| **Slack** | OAuth / Bot token | Channel routing, thread replies |
+| **Matrix** | Access token | E2E encryption, federated rooms |
+| **IRC** | Server + nick | Multi-channel, NickServ auth |
+| **Signal** | signal-cli bridge | Privacy-first messaging |
+| **WebChat** | Built-in WebSocket | Zero-config browser chat |
+
+Each channel supports configurable DM policies, routing rules, and independent session management.
+
+</details>
+
+### ⚡ V9 Model Selection Wizard
+
+An interactive setup wizard that detects your hardware profile (RAM, CPU cores, GPU VRAM), classifies your system tier, and recommends optimal models from a **25+ model catalog**. Validates API keys instantly, configures the provider, and launches a chat session — zero manual YAML editing required.
+
+### 🔧 15+ Built-in Tools
+
+<details>
+<summary><strong>Full tool catalog</strong></summary>
+
+| Tool | Description |
+|------|-------------|
+| `bash` | Execute shell commands (Linux/macOS) |
+| `powershell` | Execute PowerShell commands (Windows) |
+| `read` | Read file contents with line ranges |
+| `write` | Create or overwrite files |
+| `edit` | Surgical find-and-replace edits |
+| `search` | Regex search across workspace files |
+| `web_read` | Fetch and parse web pages |
+| `web_search` | Search the web via configurable backends |
+| `repl` | Persistent Python REPL session |
+| `todowrite` | Structured task management |
+| `sleep` | Pause execution for N seconds |
+| `fact_store` | Query and manage memory facts |
+| `browser` | Full browser automation via MCP |
+| `file_tree` | Recursive directory listing |
+| `system_info` | Hardware and OS diagnostics |
+
+All tools run inside the security sandbox and emit structured telemetry.
+
+</details>
+
+### 📊 Prometheus Metrics
+
+Production-ready observability with two export formats:
+
+- **`GET /metrics`** — Prometheus text exposition format
+- **`GET /metrics/json`** — JSON for custom dashboards
+
+Tracks LLM call counts, token usage, response latency percentiles, channel message throughput, and API request rates.
+
+### 🔐 AES-256 Cryptographic Vault
+
+API keys and secrets are encrypted at rest using **Fernet (AES-256-CBC + HMAC-SHA256)**. The encryption key is derived from a hardware fingerprint — secrets are bound to your machine and cannot be extracted by copying files alone.
 
 ```bash
-# Install directly from GitHub (Globally accessible one-line install!)
+cyberclaw secrets set OPENAI_API_KEY "sk-..."
+cyberclaw secrets set TELEGRAM_TOKEN "123456:ABC..."
+```
+
+### 🎙️ Voice Integration
+
+Push-to-talk and wake-word activation with **edge-tts** for synthesis and **Whisper** for recognition. An offline ONNX runtime mode enables fully local voice interaction with no API calls. Streaming sentence-level playback delivers natural, low-latency responses.
+
+### 🔌 Plugin System
+
+Drop a Python module into `workspace/plugins/` and CyberClaw discovers it at startup. Plugins can register new tools, add CLI commands, or hook into the agent loop. Hot-reload support means no restart required during development.
+
+### ⏰ Cron Scheduling
+
+A built-in background task engine with SQLite-backed persistence. Schedule recurring jobs with standard cron expressions, configure timeouts and retry policies, and monitor execution history — all managed through the agent or API.
+
+### 🌍 Internationalization (i18n)
+
+Full UI and message localization in **5 languages**: English, Bengali (বাংলা), Spanish, French, and German. Language detection is automatic with manual override via config.
+
+### 📦 1,440+ Pre-installed Skills
+
+A curated knowledge base of agentic workflow templates covering development, DevOps, data analysis, writing, and research — ready to use out of the box.
+
+### 🔄 Zero-Touch Installer
+
+A cross-platform bootstrap script that handles everything: Python version verification, Git installation, Node.js setup (for MCP tools), dependency resolution, and self-healing file lock recovery. Works on Windows, macOS, Linux, Android (Termux), and iOS (iSH).
+
+---
+
+## 📥 Installation
+
+### Quick Install (recommended)
+
+```bash
+pip install git+https://github.com/CyberPrince-Alien/CyberClaw.git
+```
+
+### Local Development
+
+```bash
+git clone https://github.com/CyberPrince-Alien/CyberClaw.git
+cd CyberClaw
+pip install -e .
+```
+
+### Optional Extras
+
+```bash
+# Voice support (edge-tts, whisper, onnxruntime)
+pip install -e ".[voice]"
+
+# Everything — all optional dependencies
+pip install -e ".[all]"
+```
+
+### Cross-Platform Installer
+
+```bash
+python install.py
+```
+
+Automatically detects your OS, installs missing prerequisites (Python, Git, Node.js), and configures the environment.
+
+### Docker
+
+```bash
+docker compose up
+```
+
+---
+
+## 🚀 Quick Start
+
+Get from zero to a running AI agent in three commands:
+
+```bash
+# 1. Install
 pip install git+https://github.com/CyberPrince-Alien/CyberClaw.git
 
-# Or install from local cloned folder
-pip install -e .
+# 2. Initialize workspace and configure your first provider
+cyberclaw onboard
 
-# Or install with Speech-to-Text / Voice capabilities
-pip install -e .[voice]
+# 3. Start chatting
+cyberclaw chat
 ```
 
-Then run the full setup:
+The `onboard` command walks you through provider selection, API key configuration, and workspace setup. Within 60 seconds, you'll have a fully functional AI agent.
+
+---
+
+## 🖥️ CLI Reference
+
+CyberClaw ships **18 commands** via the `cyberclaw` CLI entry point:
+
+| Command | Description |
+|---------|-------------|
+| `cyberclaw onboard` | Initialize workspace + run the setup wizard |
+| `cyberclaw select-model` | Launch the V9 Model Selection Wizard |
+| `cyberclaw chat` | Start an interactive terminal chat session |
+| `cyberclaw tui` | Open the 3-pane TUI dashboard |
+| `cyberclaw agent --message "..."` | Single-turn query for scripting and piping |
+| `cyberclaw server` | Start the background server with cron engine |
+| `cyberclaw gateway start` | Launch Web UI + REST API on port 8000 |
+| `cyberclaw doctor` | Run 10+ diagnostic health checks |
+| `cyberclaw config show` | Display the runtime configuration |
+| `cyberclaw secrets set KEY "val"` | Store a secret in the AES-256 vault |
+| `cyberclaw sessions list` | List conversation sessions |
+| `cyberclaw channels list` | Show messaging channel status |
+| `cyberclaw channels login` | Interactive channel login (e.g., WhatsApp QR) |
+| `cyberclaw providers list` | List configured LLM provider backends |
+| `cyberclaw talk` | Push-to-talk voice chat |
+| `cyberclaw migrate-history` | Convert legacy logs to SQLite format |
+| `cyberclaw update` | Self-update from GitHub |
+| `cyberclaw version` | Show version, build info, and paths |
+
+<details>
+<summary><strong>Usage examples</strong></summary>
+
 ```bash
-cyberclaw onboard          # Initialize workspace + V9 model wizard
-cyberclaw doctor           # Verify system health
-cyberclaw select-model     # Switch models anytime
-cyberclaw chat             # Start chatting immediately
-cyberclaw gateway start    # Launch the premium Web UI
+# Pipe output to another command
+cyberclaw agent --message "List all TODO items in this project" | grep "high priority"
+
+# Run diagnostics before reporting an issue
+cyberclaw doctor
+
+# Launch the full web experience
+cyberclaw gateway start
+# → open http://localhost:8000/ui in your browser
+
+# Connect Telegram
+cyberclaw secrets set TELEGRAM_TOKEN "123456:ABCdef..."
+cyberclaw channels login telegram
 ```
 
-👉 Navigate to **`http://localhost:8000/ui`** for the Dark Space Control Dashboard!
+</details>
 
 ---
 
-## 🎨 Premium Documentation Portal Included
-Inside the **`docs/`** directory, you will find a fully styled and visual Documentation Website (`index.html`, `styles.css`, `app.js`):
-* **Stunning Design:** Built with deep space glassmorphism panels, neon borders, and polished styling.
-* **Developer Blueprints:** Clear visual steps on SQLite schema databases, multi-channel configurations, Prometheus parameters, and voice wake-word triggers.
-* **Interactive Code Copier:** Easy copy buttons on all code blocks with instant visual indications.
-* **Dynamic Search Filter:** Live filter that queries and displays documents in real-time.
+## 🌐 REST API
+
+When running `cyberclaw gateway start`, the following endpoints are available at `http://localhost:8000`:
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/health` | Gateway health check and runtime status |
+| `GET` | `/metrics` | Prometheus text exposition metrics |
+| `GET` | `/metrics/json` | JSON-formatted metrics |
+| `GET` | `/config` | Redacted configuration snapshot |
+| `POST` | `/chat` | Direct chat API (batch + SSE streaming) |
+| `GET` | `/sessions` | List active sessions |
+| `POST` | `/sessions/spawn` | Create a new session |
+| `POST` | `/sessions/{id}/send` | Send a message to an existing session |
+| `GET` | `/models` | Browse the full model catalog |
+| `GET` | `/models/cheapest` | Find the cheapest available model |
+| `WS` | `/ws` | WebSocket for real-time bidirectional events |
+| `GET` | `/ui` | Serve the Dark Space Web UI dashboard |
+
+<details>
+<summary><strong>Example: streaming chat via cURL</strong></summary>
+
+```bash
+curl -N -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Explain quantum entanglement in simple terms",
+    "stream": true
+  }'
+```
+
+</details>
 
 ---
 
-## 💎 Project Credits & Support
+## ⚙️ Configuration
 
-This platform has been polished to production perfection by **Cyber Prince**. We take code quality and scaling seriously. 
+CyberClaw uses a layered configuration system. User settings live in `config.user.yaml` inside your workspace:
 
-* **Developer & Branding:** Cyber Prince
-* **Facebook Profile:** [ImDarkMagician](https://www.facebook.com/ImDarkMagician/)
-* **YouTube Channel:** [Cyber Prince Official](https://www.youtube.com/channel/UCxDA3V7IciBGKqoC-m0dvxQ)
+```yaml
+# config.user.yaml
+llm:
+  provider: gemini
+  model: gemini-2.0-flash
+  temperature: 0.7
+  max_tokens: 8192
 
-For commercial customization, enterprise scaling, or feature requests, contact us directly through our social media handles!
+providers:
+  gemini:
+    api_key: ${GEMINI_API_KEY}        # Reads from vault or env
+  openai:
+    api_key: ${OPENAI_API_KEY}
+  ollama:
+    base_url: http://localhost:11434
+
+channels:
+  telegram:
+    enabled: true
+    token: ${TELEGRAM_TOKEN}
+    allowed_users: [123456789]
+  discord:
+    enabled: false
+
+api:
+  host: 0.0.0.0
+  port: 8000
+  cors_origins: ["http://localhost:3000"]
+
+security:
+  sandbox: win32          # win32 | docker | none
+  memory_limit_mb: 50
+  git_rollback: true
+
+voice:
+  engine: edge-tts
+  wake_word: "hey cyber"
+  language: en-US
+
+i18n:
+  language: en            # en | bn | es | fr | de
+```
+
+Configuration supports **hot-reload** — changes take effect without restarting the agent. Secrets referenced as `${VAR}` are resolved from the encrypted vault first, then from environment variables.
 
 ---
-*Developed under strict modular enterprise standards. Verified 100% operational with full A-Z testing.*
+
+## 🤝 Contributing
+
+Contributions are welcome and appreciated! Here's how to get started:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+Please read the [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and development workflow.
+
+---
+
+## 📄 License
+
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for details.
+
+---
+
+## 👤 Credits
+
+<div align="center">
+
+**Built with ❤️ by [Cyber Prince](https://github.com/CyberPrince-Alien)**
+
+[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/channel/UCxDA3V7IciBGKqoC-m0dvxQ)
+[![Facebook](https://img.shields.io/badge/Facebook-1877F2?style=for-the-badge&logo=facebook&logoColor=white)](https://www.facebook.com/ImDarkMagician/)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/CyberPrince-Alien)
+
+</div>
+
+---
+
+<div align="center">
+
+**If CyberClaw helps you, consider giving it a ⭐**
+
+[![Star History Chart](https://api.star-history.com/svg?repos=CyberPrince-Alien/CyberClaw&type=Date)](https://star-history.com/#CyberPrince-Alien/CyberClaw&Date)
+
+</div>
