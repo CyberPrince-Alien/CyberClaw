@@ -48,8 +48,8 @@ node_modules/
 scratch/
 
 # Loose test files (proper tests are in tests/)
-test_*.py
-final_system_test.py
+/test_*.py
+/final_system_test.py
 
 # UV lock file (generated)
 uv.lock

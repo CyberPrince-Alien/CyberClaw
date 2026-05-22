@@ -70,6 +70,19 @@ class ChatLoop:
         self.console.print(prefix, end="")
         self.console.print(content)
 
+    def handle_response_display(self, response: OutboundEvent) -> None:
+        """Route and display the outbound agent response, handling errors elegantly."""
+        if response.error:
+            if response.content:
+                self.display_agent_response(response.content)
+                self.console.print(f"[bold red]Error: {response.error}[/bold red]")
+            else:
+                self.display_agent_response(f"[bold red]Error: {response.error}[/bold red]")
+        elif not response.content.strip():
+            self.display_agent_response("[dim italic]Received empty response from agent[/dim italic]")
+        else:
+            self.display_agent_response(response.content)
+
     async def run(self) -> None:
         """Run the interactive chat loop."""
         model_name = "Unknown Model"
@@ -134,7 +147,7 @@ class ChatLoop:
                         self.response_queue.get(), timeout=60.0
                     )
 
-                    self.display_agent_response(response.content)
+                    self.handle_response_display(response)
                 except asyncio.TimeoutError:
                     self.console.print("[red]Agent response timed out[/red]")
                     self.console.print()

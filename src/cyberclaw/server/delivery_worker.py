@@ -167,9 +167,13 @@ class DeliveryWorker(SubscriberWorker):
                 return
 
             limit = PLATFORM_LIMITS.get(source.platform_name, float("inf"))
+            content = event.content
+            if not content and event.error:
+                content = f"⚠️ CyberClaw Error: {event.error}"
+
             chunks = chunk_message(
-                event.content,
-                int(limit) if limit != float("inf") else len(event.content),
+                content,
+                int(limit) if limit != float("inf") else len(content),
             )
 
             channel = self._get_channel(source.platform_name)
