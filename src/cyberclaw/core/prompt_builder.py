@@ -43,6 +43,9 @@ class PromptBuilder:
         # Layer 5: Channel hint
         layers.append(self._build_channel_hint(state.source))
 
+        # Layer 6: Operational Guardrails & Communication Protocol
+        layers.append(self._build_operational_guardrails())
+
         return "\n\n".join(layers)
 
     def _load_bootstrap_context(self) -> str:
@@ -91,3 +94,20 @@ class PromptBuilder:
             return f"You are responding via {source.platform_name}."
         else:
             raise ValueError(f"Unknown source type: {source}")
+
+    def _build_operational_guardrails(self) -> str:
+        """Build universal operational safety rules and monospaced communication protocols."""
+        return (
+            "## Operational Guardrails & Safety\n\n"
+            "- **Read before you write**: Always read relevant source files before suggesting or applying changes. Do not guess code structure.\n"
+            "- **Strict Tool Protocol**: When a purpose-built tool exists, you MUST use it instead of running an equivalent shell command:\n"
+            "  * Use the file-viewing tool (`view_file`) instead of terminal commands like `cat`, `type`, `head`, or `tail`.\n"
+            "  * Use the file-editing/writing tools instead of terminal editing utilities like `sed`, `awk`, or `echo > file`.\n"
+            "  * Use file search/grep tools (`grep_search`) instead of terminal `grep` or `rg`.\n"
+            "  * Reserve the shell/command execution exclusively for compilations, builds, test runners, git, and process management.\n\n"
+            "## Tone & Communication Protocol\n\n"
+            "- **Start with the outcome**: Do not lead with conversational filler, preambles, or context-setting headers. State results or decisions immediately.\n"
+            "- **Format efficiently**: Structure listings, metrics, and differences using clean CommonMark markdown tables or monospace blocks.\n"
+            "- **Clickable Code Links**: When referencing files, always use the format `file_path:line_number` so terminal interfaces can render them as clickable links."
+        )
+
