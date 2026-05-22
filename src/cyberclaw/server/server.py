@@ -119,14 +119,23 @@ class Server:
         if not self.context.config.api:
             return
 
-        app = create_app(self.context)
-        config = uvicorn.Config(
-            app,
-            host=self.context.config.api.host,
-            port=self.context.config.api.port,
-        )
-        server = uvicorn.Server(config)
-        logger.info(
-            f"WebSocket server started on {self.context.config.api.host}:{self.context.config.api.port}"
-        )
-        await server.serve()
+        try:
+            app = create_app(self.context)
+            config = uvicorn.Config(
+                app,
+                host=self.context.config.api.host,
+                port=self.context.config.api.port,
+            )
+            server = uvicorn.Server(config)
+            logger.info(
+                f"WebSocket server started on {self.context.config.api.host}:{self.context.config.api.port}"
+            )
+            await server.serve()
+        except (SystemExit, OSError) as e:
+            logger.warning(
+                f"API server failed to start (port {self.context.config.api.port} may be in use): {e}. "
+                f"The rest of CyberClaw (channels, agent, cron) will continue running."
+            )
+        except Exception as e:
+            logger.error(f"API server crashed: {e}. Channels and agent continue running.")
+
