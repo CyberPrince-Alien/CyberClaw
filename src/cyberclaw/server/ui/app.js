@@ -208,9 +208,12 @@ async function loadModels() {
         <tr><td><strong>anthropic</strong></td><td>claude-3.5-sonnet</td><td>200K</td><td><span style="color:var(--success)">Yes</span></td><td>2 (Backup)</td></tr>
         <tr><td><strong>groq</strong></td><td>llama-3.3-70b</td><td>128K</td><td>-</td><td>3 (Backup)</td></tr>
         <tr><td><strong>nvidia</strong></td><td>meta/llama-3.1-8b</td><td>128K</td><td>-</td><td>4 (Backup)</td></tr>
+        <tr><td><strong>ollama</strong></td><td>llama3</td><td>8K</td><td>-</td><td>8 (Local Backup)</td></tr>
+        <tr><td><strong>ollama</strong></td><td>mistral</td><td>8K</td><td>-</td><td>8 (Local Backup)</td></tr>
+        <tr><td><strong>ollama</strong></td><td>phi3</td><td>8K</td><td>-</td><td>8 (Local Backup)</td></tr>
       </table></div></div>`;
     const modelBadge = document.getElementById('modelCount');
-    if (modelBadge) modelBadge.textContent = '8';
+    if (modelBadge) modelBadge.textContent = '11';
   } catch (e) { content.innerHTML = `<div class="card">Error loading model catalog: ${e.message}</div>`; }
 }
 
@@ -293,6 +296,7 @@ async function loadProviders() {
                 <option value="groq" ${llm.default_provider === 'groq' ? 'selected' : ''}>groq</option>
                 <option value="openrouter" ${llm.default_provider === 'openrouter' ? 'selected' : ''}>openrouter</option>
                 <option value="nvidia" ${llm.default_provider === 'nvidia' ? 'selected' : ''}>nvidia</option>
+                <option value="ollama" ${llm.default_provider === 'ollama' ? 'selected' : ''}>ollama</option>
               </select>
             </div>
             
@@ -336,14 +340,15 @@ async function loadProviders() {
       </div>
     `;
 
-    const supportedProviderIds = ['gemini', 'groq', 'openai', 'openrouter', 'nvidia'];
+    const supportedProviderIds = ['gemini', 'groq', 'openai', 'openrouter', 'nvidia', 'ollama'];
     
     supportedProviderIds.forEach(pId => {
       const pConfig = providersList.find(p => p.id === pId) || {
         id: pId,
-        model: pId === 'gemini' ? 'gemini-2.5-flash' : pId === 'openai' ? 'gpt-4' : pId === 'groq' ? 'llama-3.3-70b-versatile' : pId === 'openrouter' ? 'openai/gpt-4o-mini' : 'meta/llama-3.1-8b-instruct',
-        api_key: '',
-        priority: 1,
+        model: pId === 'gemini' ? 'gemini-2.5-flash' : pId === 'openai' ? 'gpt-4' : pId === 'groq' ? 'llama-3.3-70b-versatile' : pId === 'openrouter' ? 'openai/gpt-4o-mini' : pId === 'nvidia' ? 'meta/llama-3.1-8b-instruct' : 'llama3',
+        api_key: pId === 'ollama' ? 'ollama' : '',
+        api_base: pId === 'ollama' ? 'http://localhost:11434' : '',
+        priority: pId === 'ollama' ? 8 : 1,
         enabled: false
       };
 
@@ -360,6 +365,11 @@ async function loadProviders() {
               <div class="form-group">
                 <label class="form-label">Active Model</label>
                 <input type="text" id="model-${pId}" class="form-input" value="${pConfig.model || ''}">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">API Base URL</label>
+                <input type="text" id="base-${pId}" class="form-input" placeholder="${pId === 'ollama' ? 'http://localhost:11434' : 'e.g. https://api.openai.com/v1'}" value="${pConfig.api_base || ''}">
               </div>
 
               <div class="form-group">
@@ -482,20 +492,30 @@ async function populateChatModelSelect() {
     
     select.innerHTML = '';
     
-    const providers = window.modelCatalog.models || {};
+    const modelList = window.modelCatalog.models || [];
+    
+    // Group models by provider
+    const grouped = {};
+    modelList.forEach(m => {
+      if (!grouped[m.provider]) {
+        grouped[m.provider] = [];
+      }
+      grouped[m.provider].push(m);
+    });
+    
     let optionsHtml = '';
     
-    Object.entries(providers).forEach(([providerId, modelList]) => {
+    Object.entries(grouped).forEach(([providerId, models]) => {
       const activeProviderEntry = (config.llm?.providers || []).find(p => p.id === providerId);
       const activeModel = activeProviderEntry?.model || '';
-      const providerEnabled = activeProviderEntry?.enabled !== false;
+      const providerEnabled = activeProviderEntry ? activeProviderEntry.enabled === true : false;
       const providerLabel = providerEnabled ? providerId : `${providerId} (Disabled)`;
 
-      modelList.forEach(m => {
-        const value = `${providerId}:${m.id}`;
-        const isDefault = (providerId === defaultProvider && m.id === activeModel);
+      models.forEach(m => {
+        const value = `${providerId}:${m.model}`;
+        const isDefault = (providerId === defaultProvider && m.model === activeModel);
         const selectedAttr = isDefault ? 'selected' : '';
-        optionsHtml += `<option value="${value}" ${selectedAttr}>${providerLabel} - ${m.id}</option>`;
+        optionsHtml += `<option value="${value}" ${selectedAttr}>${providerLabel} - ${m.label || m.model}</option>`;
       });
     });
     
@@ -593,6 +613,7 @@ async function saveProviderSettings(e, providerId) {
   e.preventDefault();
   const apiKey = document.getElementById(`key-${providerId}`).value.trim();
   const model = document.getElementById(`model-${providerId}`).value.trim();
+  const apiBase = document.getElementById(`base-${providerId}`).value.trim();
   const priority = parseInt(document.getElementById(`priority-${providerId}`).value);
   const enabled = document.getElementById(`enabled-${providerId}`).checked;
 
@@ -602,6 +623,7 @@ async function saveProviderSettings(e, providerId) {
     const body = {
       provider_id: providerId,
       model: model,
+      api_base: apiBase,
       priority: priority,
       enabled: enabled
     };

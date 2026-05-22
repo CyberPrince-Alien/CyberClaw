@@ -1,135 +1,50 @@
-# CyberClaw Configuration — v0.2.0
-# All new options are shown commented-out. Uncomment to enable.
-
+default_agent: cyberclaw
 llm:
   default_provider: gemini
-  temperature: 0.7
-  max_tokens: 2048
   enable_failover: true
+  max_tokens: 2048
   providers:
-    - id: openai
-      provider: openai
-      model: gpt-4
-      api_key: sk-your-openai-api-key-here
-      priority: 1
-      enabled: false
-
-    - id: gemini
-      provider: gemini
-      model: gemini-2.5-flash
-      api_key: AIzaSyCBBO-hBho9_k8DoiNuKThrJHPrfiR92Rk
-      priority: 1
-      enabled: true
-
-    - id: openrouter
-      provider: openrouter
-      model: openai/gpt-4o-mini
-      api_key: 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
-      api_base: https://openrouter.ai/api/v1
-      priority: 2
-      enabled: false
-
-    - id: groq
-      provider: groq
-      model: llama-3.3-70b-versatile
-      api_key: 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
-      priority: 3
-      enabled: true
-
-    - id: nvidia
-      provider: nvidia_nim
-      model: meta/llama-3.1-8b-instruct
-      api_key: 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
-      priority: 4
-      enabled: false
-
-default_agent: cyberclaw
-
-# ── Web Search ─────────────────────────────────────────────────
-# websearch:
-#   provider: brave
-#   api_key: your-brave-search-api-key
-
-# ── Web Read ───────────────────────────────────────────────────
-# webread:
-#   provider: crawl4ai
-
-# ── Channels ───────────────────────────────────────────────────
-# channels:
-#   enabled: true
-#
-#   telegram:
-#     enabled: true
-#     bot_token: your-telegram-bot-token
-#     dm_policy: pairing
-#     allow_from: []
-#
-#   discord:
-#     enabled: true
-#     bot_token: your-discord-bot-token
-#     dm_policy: pairing
-#     allow_from: []
-#
-#   slack:
-#     enabled: true
-#     bot_token: xoxb-your-slack-bot-token
-#     app_token: xapp-your-slack-app-token
-#     allowed_channels: []
-#     dm_policy: pairing
-#     allow_from: []
-#
-#   whatsapp:
-#     enabled: true
-#     mode: local                  # local (linked QR code scan) or cloud (Meta Cloud API)
-#     allow_from: ["*"]            # list of allowed phone numbers or "*" for everyone
-#     dm_policy: pairing           # pairing, allowlist, or open
-#
-#   matrix:
-#     enabled: true
-#     homeserver: https://matrix.org
-#     user_id: "@cyberclaw:matrix.org"
-#     access_token: your-matrix-access-token
-#     allowed_rooms: []
-#     allow_from: []
-#
-#   irc:
-#     enabled: true
-#     server: irc.libera.chat
-#     port: 6697
-#     nick: CyberClaw
-#     channels: ["#cyberclaw"]
-#     use_ssl: true
-#     allow_from: []
-#
-#   webchat:
-#     enabled: true
-
-# ── Voice ──────────────────────────────────────────────────────
-# tts:
-#   enabled: true
-#   provider: edge-tts          # edge-tts (free), elevenlabs
-#   voice: en-US-AriaNeural
-#   # api_key: your-elevenlabs-key  # only for elevenlabs
-#   # voice_id: 21m00Tcm4TlvDq8ikWAM  # elevenlabs voice ID
-
-# stt:
-#   enabled: true
-#   provider: whisper            # whisper (OpenAI), deepgram
-#   api_key: your-openai-key     # needed for whisper
-#   # model: whisper-1
-
-# ── Security ───────────────────────────────────────────────────
-# security:
-#   gateway_tokens: []           # Add API tokens for gateway auth
-#   audit_enabled: true
-#   pairing_enabled: true
-
-# ── MCP Servers ────────────────────────────────────────────────
+  - api_key: sk-your-openai-api-key-here
+    enabled: false
+    id: openai
+    model: gpt-4
+    priority: 1
+    provider: openai
+  - api_key: AIzaSyCBBO-hBho9_k8DoiNuKThrJHPrfiR92Rk
+    enabled: true
+    id: gemini
+    model: gemini-2.5-flash
+    priority: 1
+    provider: gemini
+  - api_base: https://openrouter.ai/api/v1
+    api_key: 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
+    enabled: false
+    id: openrouter
+    model: openai/gpt-4o-mini
+    priority: 2
+    provider: openrouter
+  - api_key: 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
+    enabled: true
+    id: groq
+    model: llama-3.3-70b-versatile
+    priority: 3
+    provider: groq
+  - api_key: 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
+    enabled: false
+    id: nvidia
+    model: meta/llama-3.1-8b-instruct
+    priority: 4
+    provider: nvidia_nim
+  - api_base: http://localhost:11434
+    api_key: ''
+    enabled: true
+    id: ollama
+    model: llama3
+    priority: 1
+    provider: ollama
+  temperature: 0.7
 mcp_servers:
-  - name: page-agent
-    command: ["node", "D:\\00-System\\Tools\\Custom\\Cyber Prince CLI V9\\external\\page-agent-main\\page-agent-main\\packages\\mcp\\src\\index.js"]
-
-# ── API Server ─────────────────────────────────────────────────
-# api:
-#   host: 127.0.0.1
-#   port: 8000
+- command:
+  - node
+  - D:\00-System\Tools\Custom\Cyber Prince CLI V9\external\page-agent-main\page-agent-main\packages\mcp\src\index.js
+  name: page-agent

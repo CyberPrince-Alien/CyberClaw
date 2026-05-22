@@ -34,15 +34,15 @@ class MultiLLMProvider:
             if provider_config.enabled:
                 provider = LLMProvider(
                     model=self._model_name(provider_config),
-                    api_key=provider_config.api_key,
+                    api_key=provider_config.api_key or ("ollama" if provider_config.id == "ollama" else ""),
                     api_base=provider_config.api_base,
                     temperature=self.config.temperature,
                     max_tokens=self.config.max_tokens,
                 )
                 providers.append((provider_config.priority, provider_config.id, provider))
 
-        # Sort by priority (lower number = higher priority)
-        providers.sort(key=lambda x: x[0])
+        # Sort by priority (lower number = higher priority), but ensure default_provider is first
+        providers.sort(key=lambda x: (0 if x[1] == self.config.default_provider else 1, x[0]))
 
         # Store as list of tuples (priority, provider_id, provider)
         return providers

@@ -92,6 +92,13 @@ class ChatLoop:
         for worker in self.workers:
             worker.start()
 
+        # Discover and load plugins
+        plugins_dir = self.context.config.workspace / "plugins"
+        try:
+            await self.context.plugin_registry.discover_and_load(plugins_dir)
+        except Exception as e:
+            self.console.print(f"[red]Failed to discover and load plugins: {e}[/red]")
+
         session_id = (
             Agent(self.agent_def, self.context).new_session(CliEventSource()).session_id
         )

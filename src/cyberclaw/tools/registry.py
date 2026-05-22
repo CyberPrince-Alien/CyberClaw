@@ -3,7 +3,16 @@
 from typing import TYPE_CHECKING, Any
 
 from cyberclaw.tools.base import BaseTool
-from cyberclaw.tools.builtin_tools import bash, edit_file, read_file, write_file
+from cyberclaw.tools.builtin_tools import (
+    bash,
+    edit_file,
+    read_file,
+    write_file,
+    sleep_tool,
+    todo_write,
+    repl,
+    powershell,
+)
 
 if TYPE_CHECKING:
     from cyberclaw.core.agent import AgentSession
@@ -52,5 +61,9 @@ class ToolRegistry:
         registry.register(write_file)
         registry.register(edit_file)
         registry.register(bash)
+        registry.register(sleep_tool)
+        registry.register(todo_write)
+        registry.register(repl)
+        registry.register(powershell)
 
         return registry

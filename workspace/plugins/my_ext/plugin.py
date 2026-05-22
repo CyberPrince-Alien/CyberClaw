@@ -32,3 +32,7 @@ class MyCustomPlugin(Plugin):
                 "parameters": {"type": "object", "properties": {}},
             }
         ]
+
+    async def my_ext_ping(self) -> str:
+        return "pong"
+

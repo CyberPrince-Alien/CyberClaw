@@ -66,6 +66,11 @@ class Agent:
         if subagent_tool:
             registry.register(subagent_tool)
 
+        # Register dynamic plugin tools
+        if hasattr(self.context, "plugin_registry") and self.context.plugin_registry:
+            for p_tool in self.context.plugin_registry.get_all_tool_instances():
+                registry.register(p_tool)
+
         return registry
 
     def _get_token_threshold(self) -> int:

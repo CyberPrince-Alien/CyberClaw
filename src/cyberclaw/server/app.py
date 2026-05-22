@@ -61,6 +61,7 @@ class ProviderUpdateRequest(BaseModel):
     enabled: bool | None = None
     priority: int | None = None
     is_default: bool | None = None
+    api_base: str | None = None
 
 
 
@@ -150,7 +151,7 @@ def create_app(context: SharedContext) -> FastAPI:
 
     @app.post("/config/update_provider")
     async def update_provider(request: ProviderUpdateRequest):
-        """Update a specific provider's API key, model name, enabled status, priority, and default flag."""
+        """Update a specific provider's API key, model name, enabled status, priority, default flag, and API base URL."""
         import yaml
         config_path = context.config.workspace / "config.user.yaml"
         try:
@@ -173,9 +174,9 @@ def create_app(context: SharedContext) -> FastAPI:
             if not provider_entry:
                 provider_entry = {
                     "id": request.provider_id,
-                    "provider": request.provider_id,
+                    "provider": "nvidia_nim" if request.provider_id == "nvidia" else request.provider_id,
                     "model": request.model or "gpt-4",
-                    "api_key": request.api_key or "",
+                    "api_key": request.api_key or ("ollama" if request.provider_id == "ollama" else ""),
                     "priority": request.priority or 1,
                     "enabled": request.enabled if request.enabled is not None else False
                 }
@@ -190,6 +191,11 @@ def create_app(context: SharedContext) -> FastAPI:
                 provider_entry["enabled"] = request.enabled
             if request.priority is not None:
                 provider_entry["priority"] = request.priority
+            if request.api_base is not None:
+                if request.api_base.strip() == "":
+                    provider_entry.pop("api_base", None)
+                else:
+                    provider_entry["api_base"] = request.api_base.strip()
 
             # If is_default is true, update default_provider
             if request.is_default:

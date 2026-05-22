@@ -153,6 +153,14 @@ STATIC_CATALOG: list[CatalogEntry] = [
                  ModelCost(3.00, 15.00), ModelCapabilities(reasoning=True, vision=True)),
     CatalogEntry("openrouter", "google/gemini-2.5-flash", "Gemini 2.5 Flash (OR)", 1048576, 65536,
                  ModelCost(0.15, 0.60), ModelCapabilities(reasoning=True, vision=True)),
+
+    # Ollama
+    CatalogEntry("ollama", "llama3", "Llama 3 (Ollama)", 8192, 8192,
+                 ModelCost(0.0, 0.0), ModelCapabilities(vision=False)),
+    CatalogEntry("ollama", "mistral", "Mistral (Ollama)", 8192, 8192,
+                 ModelCost(0.0, 0.0), ModelCapabilities(vision=False)),
+    CatalogEntry("ollama", "phi3", "Phi-3 (Ollama)", 8192, 8192,
+                 ModelCost(0.0, 0.0), ModelCapabilities(vision=False)),
 ]
 
 
