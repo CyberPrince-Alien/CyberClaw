@@ -7,8 +7,9 @@ import warnings
 from typing import Any, AsyncIterator, Optional, cast
 
 import litellm
-# Suppress LiteLLM helper warnings
+# Suppress LiteLLM helper warnings and feedback banner
 litellm.suppress_helper_warnings = True
+litellm.suppress_debug_info = True
 
 # Suppress Pydantic serialization UserWarnings
 warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")

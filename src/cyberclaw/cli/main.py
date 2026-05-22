@@ -10,6 +10,7 @@ _logging.getLogger("litellm").setLevel(_logging.ERROR)
 
 import litellm
 litellm.suppress_helper_warnings = True
+litellm.suppress_debug_info = True
 
 _warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
