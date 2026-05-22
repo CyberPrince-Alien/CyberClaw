@@ -73,7 +73,7 @@ def discover_definitions(
             continue
 
         try:
-            content = def_file.read_text()
+            content = def_file.read_text(encoding="utf-8")
             result = parse_definition(content, def_dir.name, parse_fn)
             if result is not None:
                 results.append(result)
@@ -100,6 +100,6 @@ def write_definition(
     content = f"---\n{yaml_content}---\n\n{body.strip()}\n"
 
     def_file = def_dir / filename
-    def_file.write_text(content)
+    def_file.write_text(content, encoding="utf-8")
 
     return def_file
