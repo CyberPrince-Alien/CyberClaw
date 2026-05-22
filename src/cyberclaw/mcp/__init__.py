@@ -161,8 +161,16 @@ class MCPClient:
 
     async def disconnect(self) -> None:
         if self._process:
-            self._process.terminate()
-            await self._process.wait()
+            try:
+                if self._process.stdin:
+                    self._process.stdin.close()
+            except Exception:
+                pass
+            try:
+                self._process.terminate()
+                await self._process.wait()
+            except Exception:
+                pass
 
     @property
     def tools(self) -> list[dict[str, Any]]:

@@ -8,8 +8,9 @@ import litellm
 litellm.suppress_helper_warnings = True
 litellm.suppress_debug_info = True
 
-# Suppress Pydantic serialization UserWarnings
+# Suppress Pydantic serialization UserWarnings and ResourceWarning for unclosed pipe transports on Windows exit
 warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
+warnings.filterwarnings("ignore", category=ResourceWarning)
 
 import typer
 from rich.console import Console
@@ -155,6 +156,15 @@ class ChatLoop:
         except (KeyboardInterrupt, EOFError):
             self.console.print("\n[bold yellow]Goodbye![/bold yellow]")
         finally:
+            # Disconnect all active MCP clients to prevent orphaned background processes and closed pipe warnings
+            if hasattr(self.context, "_mcp_clients") and self.context._mcp_clients:
+                for client in list(self.context._mcp_clients.values()):
+                    try:
+                        await client.disconnect()
+                    except Exception:
+                        pass
+                self.context._mcp_clients.clear()
+
             for worker in self.workers:
                 await worker.stop()
             self.config_reloader.stop()
