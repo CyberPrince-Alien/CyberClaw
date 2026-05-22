@@ -13,6 +13,10 @@ from cyberclaw.tools.builtin_tools import (
     repl,
     powershell,
 )
+from cyberclaw.tools.fact_store_tool import (
+    fact_store,
+    fact_feedback,
+)
 
 if TYPE_CHECKING:
     from cyberclaw.core.agent import AgentSession
@@ -65,5 +69,7 @@ class ToolRegistry:
         registry.register(todo_write)
         registry.register(repl)
         registry.register(powershell)
+        registry.register(fact_store)
+        registry.register(fact_feedback)
 
         return registry

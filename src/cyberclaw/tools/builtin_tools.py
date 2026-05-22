@@ -130,7 +130,7 @@ async def edit_file(
 
 @tool(
     name="bash",
-    description="Execute a bash shell command",
+    description="Execute a bash shell command in the workspace. Supports POSIX pipelines on Windows via Git Bash.",
     parameters={
         "type": "object",
         "properties": {
@@ -140,35 +140,74 @@ async def edit_file(
     },
 )
 async def bash(command: str, session: "AgentSession") -> str:
-    """Execute a bash command and return the output."""
+    """Execute a bash command, resolving Git Bash on Windows if available, with translation fallback."""
     import sys
     import re
-    
-    if sys.platform.startswith("win"):
-        # Translate unix style /dev/null redirection to Windows nul redirection
-        command = command.replace(">/dev/null", ">nul")
-        command = command.replace("2>/dev/null", "2>nul")
-        
-        # Map Unix open/xdg-open to Windows start
-        command = re.sub(r"(^|[\s;&|])open\b", r"\1start", command)
-        command = re.sub(r"(^|[\s;&|])xdg-open\b", r"\1start", command)
-        
-        # Map google-chrome to start chrome
-        command = re.sub(r"(^|[\s;&|])google-chrome\b", r"\1start chrome", command)
-        
-        # Avoid cmd.exe start window title quirk:
-        # If start is followed by a quoted argument, insert "" as the first parameter.
-        command = re.sub(r"\bstart\s+(\"[^\"]+\")", r'start "" \1', command)
+    import os
+    import shutil
+    from pathlib import Path
 
+    workspace_dir = str(session.shared_context.config.workspace)
+
+    # 1. Discover Git Bash on Windows
+    git_bash_path = None
+    if sys.platform.startswith("win"):
+        path_which = shutil.which("bash")
+        if path_which and ("Git" in path_which or "git" in path_which):
+            git_bash_path = path_which
+        else:
+            typical_paths = [
+                Path(os.environ.get("ProgramFiles", "C:\\Program Files")) / "Git" / "bin" / "bash.exe",
+                Path(os.environ.get("ProgramFiles(x86)", "C:\\Program Files (x86)")) / "Git" / "bin" / "bash.exe",
+                Path.home() / "AppData" / "Local" / "Programs" / "Git" / "bin" / "bash.exe",
+                Path("C:\\Git\\bin\\bash.exe"),
+            ]
+            for p in typical_paths:
+                if p.exists():
+                    git_bash_path = str(p)
+                    break
+            if not git_bash_path:
+                git_bash_path = path_which
+
+    # 2. Path and command translation/mapping
+    if sys.platform.startswith("win"):
+        if not git_bash_path:
+            # Native shell translation fallback
+            command = re.sub(r"/([a-zA-Z])/", r"\1:\\", command)
+            command = re.sub(r"/mnt/([a-zA-Z])/", r"\1:\\", command)
+            command = command.replace(">/dev/null", ">nul")
+            command = command.replace("2>/dev/null", "2>nul")
+            command = command.replace("/dev/null", "nul")
+            command = re.sub(r"(^|[\s;&|])open\b", r"\1start", command)
+            command = re.sub(r"(^|[\s;&|])xdg-open\b", r"\1start", command)
+            command = re.sub(r"(^|[\s;&|])google-chrome\b", r"\1start chrome", command)
+            command = re.sub(r"\bstart\s+(\"[^\"]+\")", r'start "" \1', command)
+        else:
+            # Windows to POSIX path style translation for Git Bash
+            command = re.sub(r"([A-Za-z]):\\", r"/\1/", command)
+            command = command.replace("\\", "/")
+
+    # 3. Subprocess run
     try:
-        process = await asyncio.create_subprocess_shell(
-            command,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
+        if sys.platform.startswith("win") and git_bash_path:
+            process = await asyncio.create_subprocess_exec(
+                git_bash_path,
+                "-c",
+                command,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                cwd=workspace_dir
+            )
+        else:
+            process = await asyncio.create_subprocess_shell(
+                command,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                cwd=workspace_dir
+            )
         stdout, stderr = await process.communicate()
-        output = stdout.decode() if stdout else ""
-        error = stderr.decode() if stderr else ""
+        output = stdout.decode(errors="replace") if stdout else ""
+        error = stderr.decode(errors="replace") if stderr else ""
         if output and error:
             return f"{output}\n{error}"
         return output or error or "Command completed with no output"

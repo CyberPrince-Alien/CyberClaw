@@ -116,6 +116,16 @@ class Agent:
         self.context.history_store.create_session(
             self.agent_def.id, session_id, source
         )
+
+        # Schedule background custom skill curation loop
+        from cyberclaw.core.skill_curator import SkillCurator
+        curator = SkillCurator(self.context.config)
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(curator.curate_skills_async(session))
+        except RuntimeError:
+            pass
+
         return session
 
     def resume_session(self, session_id: str) -> "AgentSession":
@@ -156,12 +166,23 @@ class Agent:
             shared_context=self.context,
         )
 
-        return AgentSession(
+        session = AgentSession(
             agent=self,
             state=state,
             context_guard=context_guard,
             tools=tools,
         )
+
+        # Schedule background custom skill curation loop
+        from cyberclaw.core.skill_curator import SkillCurator
+        curator = SkillCurator(self.context.config)
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(curator.curate_skills_async(session))
+        except RuntimeError:
+            pass
+
+        return session
 
 
 @dataclass
