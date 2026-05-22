@@ -237,6 +237,7 @@ class Config(BaseModel):
     mcp_servers: list[MCPServerConfig] = Field(default_factory=list)
     plugins_path: Path = Field(default=Path("plugins"))
     language: str = "en"
+    sandbox: Literal["danger-full-access", "docker", "workspace-write"] = "danger-full-access"
 
     @model_validator(mode="after")
     def resolve_paths(self) -> "Config":

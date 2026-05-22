@@ -153,6 +153,16 @@ class HolographicStore:
         cursor = conn.cursor()
         try:
             now = datetime.utcnow().isoformat()
+            
+            # Check if fact already exists to determine if it is an update
+            existing_row = cursor.execute("SELECT fact_id FROM facts WHERE content = ?", (content_stripped,)).fetchone()
+            if existing_row:
+                fact_id = existing_row["fact_id"]
+                # Clean up existing entity associations
+                cursor.execute("DELETE FROM fact_entities WHERE fact_id = ?", (fact_id,))
+            else:
+                fact_id = None
+
             cursor.execute(
                 """
                 INSERT INTO facts (content, category, tags, trust_score, hrr_vector, updated_at)
@@ -166,13 +176,12 @@ class HolographicStore:
                 """,
                 (content_stripped, category, tags, trust_score, vector_bytes, now)
             )
-            fact_id = cursor.lastrowid
 
-            if not fact_id or fact_id == 0:
-                row = cursor.execute("SELECT fact_id FROM facts WHERE content = ?", (content_stripped,)).fetchone()
-                fact_id = row["fact_id"]
-                # Clean up existing entity associations
-                cursor.execute("DELETE FROM fact_entities WHERE fact_id = ?", (fact_id,))
+            if fact_id is None:
+                fact_id = cursor.lastrowid
+                if not fact_id or fact_id == 0:
+                    row = cursor.execute("SELECT fact_id FROM facts WHERE content = ?", (content_stripped,)).fetchone()
+                    fact_id = row["fact_id"]
 
             for ent_name in cleaned_entities:
                 cursor.execute(
