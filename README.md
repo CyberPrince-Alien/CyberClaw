@@ -232,18 +232,30 @@ A glassmorphic single-page dashboard served at `localhost:8000/ui`. Features liv
 <details>
 <summary><strong>Connect your agent to any platform</strong></summary>
 
-| Channel | Auth Method | Features |
-|---------|-------------|----------|
-| **Telegram** | Bot token | Groups, DM policies, markdown rendering |
-| **Discord** | Bot token | Slash commands, thread support |
-| **WhatsApp** | QR code (local) / Cloud API | Media support, pairing codes |
-| **Slack** | OAuth / Bot token | Channel routing, thread replies |
-| **Matrix** | Access token | E2E encryption, federated rooms |
-| **IRC** | Server + nick | Multi-channel, NickServ auth |
-| **Signal** | signal-cli bridge | Privacy-first messaging |
-| **WebChat** | Built-in WebSocket | Zero-config browser chat |
+| Channel | Connection Method | Auth | Setup Time |
+|---------|------------------|------|------------|
+| **Telegram** | Long polling | Bot token from @BotFather | 2 min |
+| **Discord** | WebSocket gateway | Bot token from Developer Portal | 5 min |
+| **WhatsApp (Local)** | Node.js subprocess (Baileys) | QR code scan | 3 min |
+| **WhatsApp (Cloud)** | Webhook | Meta Business API | 30 min |
+| **Slack** | Socket Mode WebSocket | Bot token + App token | 10 min |
+| **Signal** | HTTP polling | signal-cli-rest-api Docker | 15 min |
+| **Matrix** | Long sync | Access token | 5 min |
+| **IRC** | Raw TCP socket | None — IRC is open | 1 min |
+| **WebChat** | Built-in (gateway) | None | 0 min |
 
-Each channel supports configurable DM policies, routing rules, and independent session management.
+**DM Policies** — Each channel supports three access modes:
+- **`open`** — Anyone can message your agent
+- **`pairing`** — Unknown users get a 6-char pairing code; you approve via `cyberclaw pairing approve`
+- **`allowlist`** — Only users in `allow_from` can chat
+
+**Quick WhatsApp setup:**
+```bash
+cyberclaw channels login --channel whatsapp   # Scan QR code
+cyberclaw server                               # Start serving
+```
+
+📖 **[Full Channel Setup Guide →](docs/channels-setup-guide.md)** — Step-by-step tutorials for every platform with screenshots, credential setup, and troubleshooting.
 
 </details>
 
@@ -491,48 +503,59 @@ CyberClaw uses a layered configuration system. User settings live in `config.use
 
 ```yaml
 # config.user.yaml
-llm:
-  provider: gemini
-  model: gemini-2.0-flash
-  temperature: 0.7
-  max_tokens: 8192
+default_agent: cyberclaw
 
-providers:
-  gemini:
-    api_key: ${GEMINI_API_KEY}        # Reads from vault or env
-  openai:
-    api_key: ${OPENAI_API_KEY}
-  ollama:
-    base_url: http://localhost:11434
+llm:
+  default_provider: gemini
+  temperature: 0.7
+  max_tokens: 2048
+  enable_failover: true
+  providers:
+    - id: gemini
+      provider: gemini
+      model: gemini-2.5-flash
+      api_key: "your-gemini-api-key"
+      priority: 1
+      enabled: true
+    - id: groq
+      provider: groq
+      model: llama-3.3-70b-versatile
+      api_key: "your-groq-api-key"
+      priority: 2
+      enabled: true
+    - id: ollama
+      provider: ollama
+      model: llama3
+      api_base: "http://localhost:11434"
+      api_key: ""
+      priority: 3
+      enabled: true
 
 channels:
+  enabled: true                          # Master switch for all channels
   telegram:
     enabled: true
-    token: ${TELEGRAM_TOKEN}
-    allowed_users: [123456789]
-  discord:
-    enabled: false
+    bot_token: "123456789:ABCdef..."     # From @BotFather
+    dm_policy: pairing                   # pairing | allowlist | open
+    allow_from: []                       # or ['*'] to allow everyone
+  whatsapp:
+    enabled: true
+    mode: local                          # local (QR scan) | cloud (Meta API)
+    dm_policy: open
+    allow_from:
+      - '*'
 
 api:
-  host: 0.0.0.0
+  host: "127.0.0.1"
   port: 8000
-  cors_origins: ["http://localhost:3000"]
 
-security:
-  sandbox: win32          # win32 | docker | none
-  memory_limit_mb: 50
-  git_rollback: true
-
-voice:
-  engine: edge-tts
-  wake_word: "hey cyber"
-  language: en-US
-
-i18n:
-  language: en            # en | bn | es | fr | de
+sandbox: danger-full-access              # danger-full-access | docker | workspace-write
+language: en                             # en | bn | es | fr | de
 ```
 
-Configuration supports **hot-reload** — changes take effect without restarting the agent. Secrets referenced as `${VAR}` are resolved from the encrypted vault first, then from environment variables.
+Configuration supports **hot-reload** via file watcher — changes take effect without restarting the agent.
+
+📖 **[Channel Setup Guide →](docs/channels-setup-guide.md)** for detailed Telegram, Discord, WhatsApp, Slack, Signal, Matrix, IRC, and WebChat configuration.
 
 ---
 
