@@ -305,11 +305,7 @@ class AgentSession:
 
             # Clean fallback JSON blocks from content if tool calls are present
             if tool_calls and content:
-                import re
-                cleaned = re.sub(r"```json\s*.*?\s*```", "", content, flags=re.DOTALL)
-                if cleaned == content:
-                    cleaned = re.sub(r"(\{.*?\})", "", content, flags=re.DOTALL)
-                content = cleaned.strip()
+                content = self._clean_fallback_json_blocks(content)
 
             tool_call_dicts: list[ChatCompletionMessageToolCallParam] = [
                 {
@@ -381,11 +377,7 @@ class AgentSession:
 
         # Clean fallback JSON blocks from content if tool calls are present
         if collected_tool_calls and collected_content:
-            import re
-            cleaned = re.sub(r"```json\s*.*?\s*```", "", collected_content, flags=re.DOTALL)
-            if cleaned == collected_content:
-                cleaned = re.sub(r"(\{.*?\})", "", collected_content, flags=re.DOTALL)
-            collected_content = cleaned.strip()
+            collected_content = self._clean_fallback_json_blocks(collected_content)
 
         tool_call_dicts: list[ChatCompletionMessageToolCallParam] = [
             {
@@ -535,3 +527,53 @@ class AgentSession:
                 pass
                 
         return tool_calls
+
+    def _clean_fallback_json_blocks(self, content: str) -> str:
+        """Find and remove all valid JSON objects from the text content by balancing braces."""
+        if "{" not in content:
+            return content
+
+        import json
+        
+        i = 0
+        while i < len(content):
+            if content[i] == "{":
+                # Try to find a balanced brace segment starting at index i
+                brace_count = 0
+                in_string = False
+                escape = False
+                j = i
+                while j < len(content):
+                    char = content[j]
+                    if escape:
+                        escape = False
+                    elif char == "\\":
+                        escape = True
+                    elif char == '"':
+                        in_string = not in_string
+                    elif not in_string:
+                        if char == "{":
+                            brace_count += 1
+                        elif char == "}":
+                            brace_count -= 1
+                            if brace_count == 0:
+                                # Found the balancing closing brace
+                                candidate = content[i : j + 1]
+                                try:
+                                    # Check if it is valid JSON
+                                    json.loads(candidate, strict=False)
+                                    # Remove this candidate from the content
+                                    content = content[:i] + content[j + 1 :]
+                                    # Adjust pointer to continue search
+                                    i -= 1
+                                    break
+                                except Exception:
+                                    pass
+                    j += 1
+            i += 1
+            
+        # Clean up any empty markdown json code blocks that might be left
+        import re
+        content = re.sub(r"```json\s*```", "", content, flags=re.DOTALL)
+        
+        return content.strip()
