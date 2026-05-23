@@ -501,6 +501,9 @@ class AgentSession:
             try:
                 data = json.loads(block.strip(), strict=False)
                 if isinstance(data, dict):
+                    if "json" in data and isinstance(data["json"], dict):
+                        data = data["json"]
+                    
                     if "name" in data and "arguments" in data:
                         args = data["arguments"]
                         if not isinstance(args, str):
@@ -514,17 +517,20 @@ class AgentSession:
                         )
                 elif isinstance(data, list):
                     for item in data:
-                        if isinstance(item, dict) and "name" in item and "arguments" in item:
-                            args = item["arguments"]
-                            if not isinstance(args, str):
-                                args = json.dumps(args)
-                            tool_calls.append(
-                                LLMToolCall(
-                                    id=f"fallback-{uuid.uuid4().hex[:8]}",
-                                    name=item["name"],
-                                    arguments=args,
+                        if isinstance(item, dict):
+                            if "json" in item and isinstance(item["json"], dict):
+                                item = item["json"]
+                            if "name" in item and "arguments" in item:
+                                args = item["arguments"]
+                                if not isinstance(args, str):
+                                    args = json.dumps(args)
+                                tool_calls.append(
+                                    LLMToolCall(
+                                        id=f"fallback-{uuid.uuid4().hex[:8]}",
+                                        name=item["name"],
+                                        arguments=args,
+                                    )
                                 )
-                            )
             except Exception:
                 pass
                 
