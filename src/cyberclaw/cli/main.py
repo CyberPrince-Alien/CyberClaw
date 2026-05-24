@@ -220,19 +220,27 @@ def onboard(
     """Create the local workspace files needed for first run."""
     workspace_path: Path = ctx.obj["workspace"]
 
-    console.print("\n[bold magenta]======================================================================[/bold magenta]")
-    console.print("[bold cyan]          === CYBERCLAW AUTOMATIC ONBOARDING & SETUP WIZARD ===          [/bold cyan]")
-    console.print("[bold magenta]======================================================================[/bold magenta]")
-    console.print("  [bold white]Brought to you with love by Cyber Prince (Sourov)[/bold white]")
-    console.print("  [dim]Initializing workspace files, database registries, and configurations...[/dim]\n")
+    banner = (
+        " ██████╗██╗   ██╗██████╗ ███████╗██████╗  ██████╗██╗      █████╗ ██╗    ██╗\n"
+        "██╔════╝╚██╗ ██╔╝██╔══██╗██╔════╝██╔══██╗██╔════╝██║     ██╔══██╗██║    ██║\n"
+        "██║      ╚████╔╝ ██████╔╝█████╗  ██████╔╝██║     ██║     ███████║██║ █╗ ██║\n"
+        "██║       ╚██╔╝  ██╔══██╗██╔══╝  ██╔══██╗██║     ██║     ██╔══██║██║███╗██║\n"
+        "╚██████╗   ██║   ██████╔╝███████╗██║  ██║╚██████╗███████╗██║  ██║╚███╔███╔╝\n"
+        " ╚══════╝   ╚═╝   ╚══════╝ ╚══════╝╚═╝  ╚═╝ ╚══════╝╚══════╝╚═╝  ╚═╝ ╚══╝╚══╝ \n"
+    )
+    console.print(f"\n[bold cyan]{banner}[/bold cyan]")
+    console.print("[bold magenta] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ [/bold magenta]")
+    console.print("   [bold white]CYBERCLAW SETUP WIZARD[/bold white] • [dim]V0.2.0[/dim]")
+    console.print("   [dim]Brought to you with love by[/dim] [bold magenta]Cyber Prince[/bold magenta]")
+    console.print("[bold magenta] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ [/bold magenta]\n")
 
     # Step 1: Checking workspace
-    console.print("[yellow][?] Step 1: Checking local workspace path...[/yellow]")
+    console.print("[bold cyan]📂 Step 1: Verifying active workspace...[/bold cyan]")
     workspace_path.mkdir(parents=True, exist_ok=True)
-    console.print(f"      [green]OK[/green] Active path: [cyan]{workspace_path}[/cyan]\n")
+    console.print(f"   [green]✔[/green] Active path: [cyan]{workspace_path}[/cyan]\n")
 
     # Step 2: Creating directories and copying templates
-    console.print("[yellow][DIR] Step 2: Generating directory structures and copying default templates...[/yellow]")
+    console.print("[bold cyan]🧬 Step 2: Deploying agents, skills, and configuration templates...[/bold cyan]")
     import shutil
     template_dir = Path(__file__).resolve().parent.parent / "workspace_template"
     if template_dir.exists():
@@ -248,7 +256,7 @@ def onboard(
                     if not d_item.exists():
                         shutil.copy2(item, d_item)
         copy_template_dir(template_dir, workspace_path)
-        console.print(f"      [green]OK[/green] Workspace initialized with default agents, skills, and templates.\n")
+        console.print(f"   [green]✔[/green] Workspace initialized with default agents, skills, and templates.\n")
     else:
         # Fallback in case of dev environment or missing template
         dirs_created = []
@@ -256,10 +264,10 @@ def onboard(
             dpath = workspace_path / directory
             dpath.mkdir(exist_ok=True)
             dirs_created.append(directory)
-        console.print(f"      [green]OK[/green] Folders initialized: [cyan]{', '.join(dirs_created)}[/cyan] (Template directory not found)\n")
+        console.print(f"   [green]✔[/green] Folders initialized: [cyan]{', '.join(dirs_created)}[/cyan] (Template directory not found)\n")
 
     # Step 3: Deploy and Configure setting
-    console.print("[yellow][FILE] Step 3: Setting up user configuration files...[/yellow]")
+    console.print("[bold cyan]📝 Step 3: Setting up user configuration files...[/bold cyan]")
     config_path = workspace_path / "config.user.yaml"
     example_path = workspace_path / "config.example.yaml"
 
@@ -340,9 +348,8 @@ def onboard(
             pass
 
         # ── STEP B: Gateway ─────────────────────────────────────────────────
-        console.print("\n[bold yellow]======================================================[/bold yellow]")
-        console.print("[bold yellow]   GATEWAY SERVER SETUP                              [/bold yellow]")
-        console.print("[bold yellow]======================================================[/bold yellow]")
+        console.print("\n[bold cyan]⚡ HTTP Gateway Server Setup[/bold cyan]")
+        console.print("[dim] ────────────────────────────────────────────────────── [/dim]")
         port = 8000
         while True:
             port = typer.prompt("HTTP Gateway Port", default=8000, type=int)
@@ -356,9 +363,8 @@ def onboard(
         console.print(f"  [green]OK[/green] Gateway will run on port [cyan]{port}[/cyan]")
 
         # ── STEP C: Channels ────────────────────────────────────────────────
-        console.print("\n[bold yellow]======================================================[/bold yellow]")
-        console.print("[bold yellow]   MESSAGING CHANNELS SETUP                          [/bold yellow]")
-        console.print("[bold yellow]======================================================[/bold yellow]")
+        console.print("\n[bold cyan]📡 Messaging Channels Setup[/bold cyan]")
+        console.print("[dim] ────────────────────────────────────────────────────── [/dim]")
         console.print("  Available channels: Telegram, Discord, WhatsApp, Slack, Signal, Matrix, IRC")
         configure_channels = typer.confirm("Configure messaging channels now?", default=False)
 
@@ -463,9 +469,8 @@ def onboard(
                 console.print("  [green]OK[/green] IRC configured")
 
         # ── STEP D: Web Search + Skills ─────────────────────────────────────
-        console.print("\n[bold yellow]======================================================[/bold yellow]")
-        console.print("[bold yellow]   WEB SEARCH & SKILLS                               [/bold yellow]")
-        console.print("[bold yellow]======================================================[/bold yellow]")
+        console.print("\n[bold cyan]🔍 Web Search & Skills Setup[/bold cyan]")
+        console.print("[dim] ────────────────────────────────────────────────────── [/dim]")
 
         if typer.confirm("Enable Brave Web Search? (get free key at brave.com/search/api)", default=False):
             brave_key = typer.prompt("  Brave Search API Key", hide_input=True)
@@ -496,17 +501,16 @@ def onboard(
     console.print(f"      [green]OK[/green] Config location: [cyan]{config_path}[/cyan]\n")
 
     # Final Summary
-    console.print("[bold magenta]----------------------------------------------------------------------[/bold magenta]")
-    console.print("[bold green]*** CYBERCLAW WORKSPACE SUCCESSFULLY ONBOARDED! ***[/bold green]")
-    console.print("[bold magenta]----------------------------------------------------------------------[/bold magenta]")
-    console.print("Next steps:")
-    console.print("  [bold white]1.[/bold white] Run diagnostics  -> [cyan]cyberclaw doctor[/cyan]")
-    console.print("  [bold white]2.[/bold white] Switch model     -> [cyan]cyberclaw select-model[/cyan]")
-    console.print("  [bold white]3.[/bold white] List providers   -> [cyan]cyberclaw providers[/cyan]")
-    console.print("  [bold white]4.[/bold white] List channels    -> [cyan]cyberclaw channels[/cyan]")
-    console.print("  [bold white]5.[/bold white] Launch Web UI    -> [cyan]cyberclaw gateway start[/cyan]")
-    console.print("  [bold white]6.[/bold white] Chat in terminal -> [cyan]cyberclaw chat[/cyan]")
-    console.print("[bold magenta]======================================================================[/bold magenta]\n")
+    console.print("\n[bold magenta] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ [/bold magenta]")
+    console.print("[bold green]   ✨ CYBERCLAW WORKSPACE SUCCESSFULLY ONBOARDED! ✨[/bold green]")
+    console.print("[bold magenta] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ [/bold magenta]")
+    console.print("   [bold white]Next Steps & Commands to try:[/bold white]")
+    console.print("     • [bold cyan]cyberclaw doctor[/bold cyan]          [dim]Run full system diagnostics and API verification[/dim]")
+    console.print("     • [bold cyan]cyberclaw select-model[/bold cyan]    [dim]Launch Premium Model Selection Wizard[/dim]")
+    console.print("     • [bold cyan]cyberclaw gateway start[/bold cyan]   [dim]Start WebSocket Web UI & HTTP Server[/dim]")
+    console.print("     • [bold cyan]cyberclaw chat[/bold cyan]            [dim]Begin interactive terminal AI chat session[/dim]")
+    console.print("     • [bold cyan]cyberclaw tui[/bold cyan]             [dim]Launch 3-pane real-time telemetry dashboard[/dim]")
+    console.print("[bold magenta] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ [/bold magenta]\n")
 
     if install_daemon:
         console.print(

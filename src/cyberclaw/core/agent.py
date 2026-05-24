@@ -193,6 +193,65 @@ class Agent:
         return session
 
 
+TOOL_DISPLAY_MAP = {
+    "bash": {"emoji": "🛠️", "label": "Bash", "detail_keys": ["command"]},
+    "powershell": {"emoji": "🛠️", "label": "PowerShell", "detail_keys": ["command"]},
+    "read": {"emoji": "📖", "label": "Read File", "detail_keys": ["path"]},
+    "write": {"emoji": "✍️", "label": "Write File", "detail_keys": ["path"]},
+    "edit": {"emoji": "📝", "label": "Edit File", "detail_keys": ["path"]},
+    "todowrite": {"emoji": "📝", "label": "Todo Write", "detail_keys": ["path"]},
+    "repl": {"emoji": "🧮", "label": "REPL Python", "detail_keys": ["code"]},
+    "sleep": {"emoji": "⏰", "label": "Sleep", "detail_keys": ["seconds"]},
+    
+    "web_search": {"emoji": "🔎", "label": "Web Search", "detail_keys": ["query"]},
+    "web_read": {"emoji": "📄", "label": "Web Read", "detail_keys": ["url"]},
+    
+    "browser_action": {"emoji": "🌐", "label": "Browser", "detail_keys": ["action"]},
+    
+    "image_generate": {"emoji": "🎨", "label": "Image Generation", "detail_keys": ["prompt"]},
+    "music_generate": {"emoji": "🎵", "label": "Music Generation", "detail_keys": ["prompt"]},
+    "video_generate": {"emoji": "🎬", "label": "Video Generation", "detail_keys": ["prompt"]},
+    
+    "subagent_dispatch": {"emoji": "🤖", "label": "Sub-agent", "detail_keys": ["task"]},
+    
+    "fact_store_query": {"emoji": "🧠", "label": "Memory Search", "detail_keys": ["query"]},
+    "fact_store_add": {"emoji": "📓", "label": "Memory Add", "detail_keys": ["fact"]},
+}
+
+
+def format_tool_status(name: str, args: dict) -> str:
+    """Format a tool invocation into a clean status string (emoji + label: detail)."""
+    name_lower = name.lower()
+    spec = TOOL_DISPLAY_MAP.get(name_lower)
+    
+    if not spec:
+        emoji = "🧩"
+        label = name.replace("_", " ").replace("-", " ").title()
+        detail_keys = list(args.keys())
+    else:
+        emoji = spec["emoji"]
+        label = spec["label"]
+        detail_keys = spec["detail_keys"]
+        
+    detail_val = None
+    for k in detail_keys:
+        if k in args:
+            detail_val = args[k]
+            break
+            
+    if detail_val is None and args:
+        detail_val = next(iter(args.values()))
+        
+    if detail_val is not None:
+        detail_str = str(detail_val).strip()
+        if len(detail_str) > 100:
+            detail_str = detail_str[:97] + "..."
+        detail_str = detail_str.replace("\n", " ")
+        return f"{emoji} {label}: `{detail_str}`"
+    else:
+        return f"{emoji} {label}"
+
+
 @dataclass
 class AgentSession:
     """Chat orchestrator - operates on swappable SessionState."""
@@ -438,6 +497,19 @@ class AgentSession:
                 console.print(f"   [dim]Arguments:[/dim] [yellow]{json.dumps(args, indent=2)}[/yellow]")
             except Exception:
                 pass
+        else:
+            try:
+                progress_text = format_tool_status(tool_call.name, args)
+                from cyberclaw.core.events import OutboundEvent, AgentEventSource
+                progress_event = OutboundEvent(
+                    session_id=self.session_id,
+                    source=AgentEventSource(self.agent.agent_def.id),
+                    content=progress_text,
+                )
+                await self.shared_context.eventbus.publish(progress_event)
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).warning(f"Failed to send tool progress update: {e}")
 
         try:
             result = await self.tools.execute_tool(tool_call.name, session=self, **args)
