@@ -5,6 +5,7 @@ const fs = require('fs');
 const qrcode = require('qrcode-terminal');
 
 let sock = null;
+const sentMessageIds = new Set();
 
 async function start() {
     const authDir = process.argv[2] || path.join(__dirname, 'auth_info');
@@ -110,11 +111,15 @@ async function start() {
             // Skip status broadcasts
             if (from === 'status@broadcast') continue;
 
-            // Skip messages sent by us (our own outgoing messages).
-            // We ONLY want to process messages sent TO us by other people.
-            if (msg.key.fromMe) continue;
+            // Skip messages sent by our own bot process
+            if (msg.key.id && sentMessageIds.has(msg.key.id)) continue;
 
+            const myPhone = sock.user.id.split(':')[0];
             const fromNumber = from.split('@')[0];
+            const isSelfChat = (fromNumber === myPhone);
+
+            // Skip messages sent by us to other people
+            if (msg.key.fromMe && !isSelfChat) continue;
             
             // Extract text message content robustly
             const text = extractText(msg.message);
@@ -143,7 +148,15 @@ process.stdin.on('data', async (data) => {
         
         if (cmd.type === 'send') {
             const jid = cmd.to.includes('@') ? cmd.to : `${cmd.to}@s.whatsapp.net`;
-            await sock.sendMessage(jid, { text: cmd.body });
+            const sent = await sock.sendMessage(jid, { text: cmd.body });
+            if (sent && sent.key && sent.key.id) {
+                sentMessageIds.add(sent.key.id);
+                // Limit size to prevent memory leak
+                if (sentMessageIds.size > 200) {
+                    const first = sentMessageIds.values().next().value;
+                    sentMessageIds.delete(first);
+                }
+            }
             console.log(JSON.stringify({ type: 'send_success', to: cmd.to }));
         } else if (cmd.type === 'logout') {
             await sock.logout();

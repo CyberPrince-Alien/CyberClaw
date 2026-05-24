@@ -61,6 +61,8 @@ class WhatsAppChannel(Channel[WhatsAppEventSource]):
         return "whatsapp"
 
     def is_allowed(self, source: WhatsAppEventSource) -> bool:
+        if not self.allow_from:
+            return True
         if "*" in self.allow_from:
             return True
         return source.phone_number in self.allow_from
