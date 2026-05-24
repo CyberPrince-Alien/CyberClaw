@@ -361,6 +361,15 @@ A cross-platform bootstrap script that handles everything: Python version verifi
 pip install git+https://github.com/CyberPrince-Alien/CyberClaw.git
 ```
 
+### 🔄 Upgrading
+
+To upgrade CyberClaw to the latest version directly from GitHub:
+
+```bash
+pip install --upgrade git+https://github.com/CyberPrince-Alien/CyberClaw.git
+```
+
+
 ### Local Development
 
 ```bash
