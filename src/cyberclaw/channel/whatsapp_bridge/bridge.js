@@ -66,7 +66,7 @@ async function start() {
                 process.exit(0);
             }
         } else if (connection === 'open') {
-            const phone = sock.user.id.split(':')[0];
+            const phone = sock.user.id.split(':')[0].split('@')[0];
             console.log(JSON.stringify({ 
                 type: 'connection', 
                 status: 'open', 
@@ -114,8 +114,8 @@ async function start() {
             // Skip messages sent by our own bot process
             if (msg.key.id && sentMessageIds.has(msg.key.id)) continue;
 
-            const myPhone = sock.user.id.split(':')[0];
-            const fromNumber = from.split('@')[0];
+            const myPhone = sock.user.id.split(':')[0].split('@')[0];
+            const fromNumber = from.split('@')[0].split(':')[0];
             const isSelfChat = (fromNumber === myPhone);
 
             // Skip messages sent by us to other people

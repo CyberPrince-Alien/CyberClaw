@@ -19,6 +19,8 @@ class ChannelAccessManager:
 
     def is_allowed(self, platform: str, source: EventSource) -> bool:
         """Return whether an inbound source may be processed."""
+        if platform == "whatsapp" and getattr(source, "is_self", False):
+            return True
         channel_config = self._channel_config(platform)
         policy = getattr(channel_config, "dm_policy", "open")
         allow_from = set(getattr(channel_config, "allow_from", []) or [])

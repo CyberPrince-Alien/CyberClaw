@@ -16,9 +16,10 @@ logger = logging.getLogger(__name__)
 class WhatsAppEventSource(EventSource):
     _namespace = "platform-whatsapp"
 
-    def __init__(self, phone_number: str, display_name: str = ""):
+    def __init__(self, phone_number: str, display_name: str = "", is_self: bool = False):
         self.phone_number = phone_number
         self.display_name = display_name
+        self.is_self = is_self
 
     def __str__(self) -> str:
         return f"platform-whatsapp:{self.phone_number}"
@@ -49,6 +50,7 @@ class WhatsAppChannel(Channel[WhatsAppEventSource]):
         self.allow_from: list[str] = getattr(config, "allow_from", [])
         self.dm_policy: str = getattr(config, "dm_policy", "pairing")
         
+        self.linked_phone: str | None = None
         self._stop_event = asyncio.Event()
         self._on_message = None
         
@@ -61,6 +63,8 @@ class WhatsAppChannel(Channel[WhatsAppEventSource]):
         return "whatsapp"
 
     def is_allowed(self, source: WhatsAppEventSource) -> bool:
+        if getattr(source, "is_self", False):
+            return True
         if not self.allow_from:
             return True
         if "*" in self.allow_from:
@@ -143,7 +147,8 @@ class WhatsAppChannel(Channel[WhatsAppEventSource]):
                 if msg_type == "connection":
                     status = data.get("status")
                     if status == "open":
-                        logger.info(f"WhatsApp channel connected successfully! Linked number: {data.get('phone')}")
+                        self.linked_phone = data.get("phone")
+                        logger.info(f"WhatsApp channel connected successfully! Linked number: {self.linked_phone}")
                     elif status == "close":
                         logger.warning(f"WhatsApp connection closed. Reason: {data.get('reason')}")
                         
@@ -162,9 +167,14 @@ class WhatsAppChannel(Channel[WhatsAppEventSource]):
                     
                     logger.info(f"Received WhatsApp message from {from_num}: {body[:30]}")
                     
+                    is_self = False
+                    if self.linked_phone and from_num == self.linked_phone:
+                        is_self = True
+                        
                     source = WhatsAppEventSource(
                         phone_number=from_num,
-                        display_name=display_name
+                        display_name=display_name,
+                        is_self=is_self
                     )
                     
                     if self._on_message and self.is_allowed(source):
