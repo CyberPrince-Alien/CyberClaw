@@ -404,15 +404,17 @@ print(f"Selected Model: {cheapest_vision_model.ref}")</code></pre>
           <pre><code># Query models from Groq or OpenRouter live API using your credential
 await catalog.discover_live(provider="groq", api_key="your-api-key")</code></pre>
 
-          <h2>Smart Gateway Routing & Rate-Limit Failover</h2>
-          <p>CyberClaw features an intelligent, multi-provider model routing layer. If a high-priority provider encounters rate limits (<code>429</code>) or server failures, CyberClaw transparently routes the query to backup/secondary providers with no downtime.</p>
+          <h2>Resilient Native Routing & Rate-Limit Failover</h2>
+          <p>CyberClaw features a built-in, highly resilient multi-provider model routing layer. If a high-priority provider encounters rate limits (<code>429</code>) or server failures, CyberClaw's native routing engine applies decay penalties and session affinity to ensure uninterrupted chat delivery under your own self-hosted setup.</p>
           
           <div class="info-note" style="margin-top: 15px;">
-            <h4>🛡️ SMART ROUTING KEY CAPABILITIES:</h4>
+            <h4>🛡️ ROUTING ENGINE CAPABILITIES:</h4>
             <ul>
-              <li><strong>Circuit-Breaker Cooling-Off:</strong> Automatically applies cooling-off periods (120s for <code>429</code> rate-limit errors, 60s for standard server errors) to avoid hammering failing endpoints.</li>
-              <li><strong>Equal-Priority Load Balancing:</strong> Traffic is automatically shuffled and balanced across multiple configured providers sharing the same priority level.</li>
-              <li><strong>Zero-Downtime Failover:</strong> Transparently falls back to backup providers in order of priority level (sorted lower to higher priority number) if primary models fail.</li>
+              <li><strong>Decaying Priority Penalties:</strong> Instead of simple hard failures, rate-limited providers receive a priority penalty (+3.0 penalty for 429s, +1.5 for general errors) which increases their effective priority number. This penalty decays back by 1.0 point every 120 seconds, allowing recovering backends to gradually move back to their original position in the queue.</li>
+              <li><strong>Success Recovery:</strong> A successful response automatically reduces that provider's active priority penalty by 1.0, speeding up its rehabilitation.</li>
+              <li><strong>Sticky Session Routing (Session Affinity):</strong> Once a provider successfully responds inside a session, it is pinned as the preferred model for subsequent turns in that same conversation. This guarantees context consistency and prevents model-switching hallucinations midway through a chat.</li>
+              <li><strong>Circuit-Breaker Cooldowns:</strong> Temporarily breaks the circuit (120s cooldown on 429 rate limits, 60s cooldown on server errors) to prevent overloading failing API endpoints.</li>
+              <li><strong>Equal-Priority Load Balancing:</strong> Shuffles and shunts requests automatically across multiple providers sharing the same priority level.</li>
             </ul>
           </div>
 

@@ -58,6 +58,17 @@ Most AI tools give you a chatbot. CyberClaw gives you a **complete AI operating 
 
 ---
 
+## 🌟 Key Benefits
+
+*   **⚡ Native Multi-Model Routing Engine:** Features native decaying priority penalties and sticky session routing built in pure Python. No external proxies or databases required.
+*   **💰 Massive API Cost Savings:** Dynamic failovers and circuit breakers automatically downgrade rate-limited (429) API endpoints and reroute traffic to cheaper or free local providers (Ollama), preventing billing shocks.
+*   **🔒 Machine-Bound Privacy & Security:** Encrypts your API tokens with AES-256 Fernet keys derived from physical hardware fingerprints. Your credentials never leave your local machine.
+*   **🛡️ Zero-Trust Sandboxed Execution:** Restricts tool runtime processes inside Win32 Job Objects (Windows) or Docker containers (Linux/macOS), coupled with automatic Git-baseline rollbacks to protect your local workspace.
+*   **📡 Conversational Access Anywhere:** Access your agent via 8+ messaging pipelines (WhatsApp, Telegram, Discord, Slack, Signal, Matrix, IRC, WebChat) with automatic pairing locks and inbound message debouncing.
+*   **🚀 Zero-Touch Multi-Platform Deployment:** Runs seamlessly on Windows, macOS, Linux, Android (Termux), and iOS (iSH) via a unified installer.
+
+---
+
 ## 🏗️ Architecture
 
 CyberClaw is composed of **12 self-contained modules** — each independently testable, each with a clean internal API.
@@ -194,7 +205,7 @@ Every tool invocation runs inside an isolation boundary. On Windows, **Win32 Job
 ### 🤖 Multi-Provider LLM Gateway
 
 <details>
-<summary><strong>8 providers with circuit-breaker failover</strong></summary>
+<summary><strong>8 providers with native priority routing, decaying penalties, and sticky sessions</strong></summary>
 
 | Provider | Models | Notes |
 |----------|--------|-------|
@@ -207,7 +218,13 @@ Every tool invocation runs inside an isolation boundary. On Windows, **Win32 Job
 | **DeepSeek** | deepseek-chat, deepseek-reasoner | Cost-effective reasoning |
 | **Ollama** | Any GGUF model | Fully local, zero API keys |
 
-The **circuit-breaker** pattern monitors provider health with configurable cooldowns (60 s / 120 s). When a provider fails, traffic is seamlessly rerouted to the next available backend. Equal-priority providers are load-balanced automatically.
+#### ⚡ Native Routing Engine Features
+CyberClaw features a built-in, highly resilient multi-provider model routing layer running natively in Python:
+*   **Decaying Priority Penalties:** Instead of binary cooldowns, failing backends receive a priority penalty (+3.0 penalty for 429 rate limits, +1.5 for other failures). This penalty decays back by 1.0 point every 120 seconds, allowing recovering providers to gradually move back to the front of the queue.
+*   **Success Recovery:** A successful completion call to a provider automatically reduces its current active penalty by 1.0, speeding up rehabilitation when the API is stable.
+*   **Sticky Session Routing (Session Affinity):** Once a provider successfully resolves a completion inside a session, subsequent turns in that same conversation are pinned to that specific provider. This maintains context consistency and prevents model-switching hallucinations mid-chat.
+*   **Circuit-Breaker Cooldowns:** Temporarily breaks the circuit (120s cooldown on 429 rate limits, 60s cooldown on server errors) to avoid spamming failing API endpoints.
+*   **Equal-Priority Load Balancing:** Shuffles and load-balances requests across multiple active providers sharing the same priority level.
 
 </details>
 
