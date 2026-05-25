@@ -352,11 +352,11 @@ class AgentSession:
             messages = self.state.build_messages()
             self.state = await self.context_guard.check_and_compact(self.state)
             try:
-                content, tool_calls = await self.agent.llm.chat(messages, tool_schemas)
+                content, tool_calls = await self.agent.llm.chat(messages, tool_schemas, session_id=self.session_id)
             except Exception:
                 if not tool_schemas:
                     raise
-                content, tool_calls = await self.agent.llm.chat(messages, None)
+                content, tool_calls = await self.agent.llm.chat(messages, None, session_id=self.session_id)
 
             # Fallback parsing for text JSON tool calls
             if not tool_calls:
@@ -411,7 +411,7 @@ class AgentSession:
         collected_content = ""
         collected_tool_calls: list["LLMToolCall"] = []
 
-        async for chunk in self.agent.llm.chat_stream(messages, tool_schemas):
+        async for chunk in self.agent.llm.chat_stream(messages, tool_schemas, session_id=self.session_id):
             if chunk.type == ChunkType.TOKEN:
                 collected_content += chunk.content
                 yield chunk

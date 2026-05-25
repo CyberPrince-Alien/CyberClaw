@@ -19,6 +19,12 @@ class MultiLLMProvider:
     # Shared circuit-breaker cache: provider_id -> cooldown_until_timestamp
     _failed_providers: dict[str, float] = {}
 
+    # Rate-limit penalty registry: provider_id -> {"count": int, "penalty": float, "last_hit": float}
+    _provider_penalties: dict[str, dict] = {}
+
+    # Sticky sessions registry: session_id -> provider_id
+    _session_providers: dict[str, str] = {}
+
     def __init__(self, config: "LLMConfig"):
         """Initialize multi-provider manager."""
         self.config = config
@@ -71,10 +77,69 @@ class MultiLLMProvider:
         # Return highest priority provider as default
         return self.providers[0][2] if self.providers else None
 
+    def _get_provider_penalty(self, provider_id: str) -> float:
+        """Get the current rate limit penalty for a provider with time-based decay."""
+        import time
+        entry = self._provider_penalties.get(provider_id)
+        if not entry:
+            return 0.0
+
+        now = time.time()
+        elapsed = now - entry["last_hit"]
+        decay_interval = 120.0  # decay 1 point every 2 minutes
+        decay_steps = int(elapsed // decay_interval)
+        
+        if decay_steps > 0:
+            entry["penalty"] = max(0.0, entry["penalty"] - decay_steps)
+            entry["last_hit"] = now
+            if entry["penalty"] <= 0.0:
+                self._provider_penalties.pop(provider_id, None)
+                return 0.0
+                
+        return entry["penalty"]
+
+    def _record_provider_success(self, provider_id: str) -> None:
+        """Record a success for a provider, reducing its penalty."""
+        entry = self._provider_penalties.get(provider_id)
+        if entry:
+            entry["penalty"] = max(0.0, entry["penalty"] - 1.0)
+            if entry["penalty"] <= 0.0:
+                self._provider_penalties.pop(provider_id, None)
+
+    def _record_provider_failure(self, provider_id: str, error: Exception) -> float:
+        """Record a failure for a provider, adding rate limit penalties."""
+        import time
+        error_str = str(error).lower()
+        is_rate_limit = "429" in error_str or "rate limit" in error_str
+        cooldown_duration = 120.0 if is_rate_limit else 60.0
+        
+        # Cooldown circuit breaker
+        self._failed_providers[provider_id] = time.time() + cooldown_duration
+        
+        # Add priority penalty
+        now = time.time()
+        entry = self._provider_penalties.get(provider_id)
+        penalty_increment = 3.0 if is_rate_limit else 1.5
+        max_penalty = 10.0
+        
+        if entry:
+            entry["count"] += 1
+            entry["last_hit"] = now
+            entry["penalty"] = min(max_penalty, entry["penalty"] + penalty_increment)
+        else:
+            self._provider_penalties[provider_id] = {
+                "count": 1,
+                "penalty": penalty_increment,
+                "last_hit": now
+            }
+            
+        return cooldown_duration
+
     async def chat_with_failover(
         self,
         messages: list[Message],
         tools: Optional[list[dict[str, Any]]] = None,
+        session_id: Optional[str] = None,
         **kwargs: Any,
     ) -> tuple[str, list[LLMToolCall]]:
         """Attempt chat with failover to backup providers."""
@@ -101,44 +166,51 @@ class MultiLLMProvider:
         if not available_providers:
             available_providers = self.providers
 
-        # 2. Priority-based Load Balancing: group by priority and shuffle within groups
-        priority_groups = {}
+        # 2. Priority + Penalty dynamic sorting
+        provider_items = []
         for priority, pid, provider in available_providers:
-            priority_groups.setdefault(priority, []).append((priority, pid, provider))
+            penalty = self._get_provider_penalty(pid)
+            effective_priority = priority + penalty
+            provider_items.append((effective_priority, priority, pid, provider))
 
-        sorted_available = []
-        for prio in sorted(priority_groups.keys()):
-            group = priority_groups[prio]
-            random.shuffle(group)  # Load-balance traffic by shuffling equal priorities
-            sorted_available.extend(group)
+        # Sort primarily by effective_priority (lower number = higher priority)
+        provider_items.sort(key=lambda x: x[0])
 
-        for priority, provider_id, provider in sorted_available:
+        # Sticky sessions: check if there is an active session provider
+        if session_id and session_id in self._session_providers:
+            preferred_pid = self._session_providers[session_id]
+            idx = next((i for i, x in enumerate(provider_items) if x[2] == preferred_pid), -1)
+            if idx > 0:
+                preferred_item = provider_items.pop(idx)
+                provider_items.insert(0, preferred_item)
+
+        for effective_priority, base_priority, provider_id, provider in provider_items:
             try:
                 self.logger.info(
-                    "Attempting provider: %s/%s (priority: %d)",
+                    "Attempting provider: %s/%s (effective priority: %.1f)",
                     provider_id,
                     provider.model,
-                    priority,
+                    effective_priority,
                 )
 
                 result = await provider.chat(messages, tools, **kwargs)
                 self.logger.info("Success with provider: %s", provider.model)
 
                 # Reset circuit breaker on success
-                if provider_id in self._failed_providers:
-                    del self._failed_providers[provider_id]
+                self._failed_providers.pop(provider_id, None)
+                self._record_provider_success(provider_id)
+
+                # Record sticky session
+                if session_id:
+                    self._session_providers[session_id] = provider_id
 
                 return result
 
             except Exception as e:
-                # 3. Add to cooling-off period
-                error_str = str(e).lower()
-                cooldown_duration = 120.0 if ("429" in error_str or "rate limit" in error_str) else 60.0
-                self._failed_providers[provider_id] = time.time() + cooldown_duration
-
+                cooldown_duration = self._record_provider_failure(provider_id, e)
                 last_error = e
                 self.logger.warning(
-                    "Provider %s failed: %s. Applying %.1fs cooldown.",
+                    "Provider %s failed: %s. Applying %.1fs cooldown and rate limit penalty.",
                     provider_id,
                     str(e),
                     cooldown_duration,
@@ -162,6 +234,7 @@ class MultiLLMProvider:
         messages: list[Message],
         tools: Optional[list[dict[str, Any]]] = None,
         provider_id: Optional[str] = None,
+        session_id: Optional[str] = None,
         **kwargs: Any,
     ) -> tuple[str, list[LLMToolCall]]:
         """Chat using specific provider or with failover."""
@@ -171,13 +244,14 @@ class MultiLLMProvider:
                 raise ValueError(f"Provider {provider_id} not found or disabled")
             return await provider.chat(messages, tools, **kwargs)
 
-        return await self.chat_with_failover(messages, tools, **kwargs)
+        return await self.chat_with_failover(messages, tools, session_id=session_id, **kwargs)
 
     async def chat_stream(
         self,
         messages: list[Message],
         tools: Optional[list[dict[str, Any]]] = None,
         provider_id: Optional[str] = None,
+        session_id: Optional[str] = None,
         **kwargs: Any,
     ) -> AsyncIterator[StreamChunk]:
         """Stream chat with failover to backup providers."""
@@ -213,20 +287,27 @@ class MultiLLMProvider:
         if not available_providers:
             available_providers = self.providers
 
-        # 2. Priority-based Load Balancing: group by priority and shuffle within groups
-        priority_groups = {}
+        # 2. Priority + Penalty dynamic sorting
+        provider_items = []
         for priority, pid, provider in available_providers:
-            priority_groups.setdefault(priority, []).append((priority, pid, provider))
+            penalty = self._get_provider_penalty(pid)
+            effective_priority = priority + penalty
+            provider_items.append((effective_priority, priority, pid, provider))
 
-        sorted_available = []
-        for prio in sorted(priority_groups.keys()):
-            group = priority_groups[prio]
-            random.shuffle(group)  # Load-balance traffic by shuffling equal priorities
-            sorted_available.extend(group)
+        # Sort primarily by effective_priority (lower number = higher priority)
+        provider_items.sort(key=lambda x: x[0])
 
-        for priority, pid, provider in sorted_available:
+        # Sticky sessions: check if there is an active session provider
+        if session_id and session_id in self._session_providers:
+            preferred_pid = self._session_providers[session_id]
+            idx = next((i for i, x in enumerate(provider_items) if x[2] == preferred_pid), -1)
+            if idx > 0:
+                preferred_item = provider_items.pop(idx)
+                provider_items.insert(0, preferred_item)
+
+        for effective_priority, base_priority, pid, provider in provider_items:
             try:
-                self.logger.info("Streaming with provider: %s (priority: %d)", pid, priority)
+                self.logger.info("Streaming with provider: %s (effective priority: %.1f)", pid, effective_priority)
                 success = False
                 async for chunk in provider.chat_stream(messages, tools, **kwargs):
                     if chunk.type == ChunkType.ERROR:
@@ -236,19 +317,19 @@ class MultiLLMProvider:
 
                 if success:
                     # Reset circuit breaker on success
-                    if pid in self._failed_providers:
-                        del self._failed_providers[pid]
+                    self._failed_providers.pop(pid, None)
+                    self._record_provider_success(pid)
+                    
+                    # Record sticky session
+                    if session_id:
+                        self._session_providers[session_id] = pid
                     return  # Success
 
             except Exception as e:
-                # 3. Add to cooling-off period
-                error_str = str(e).lower()
-                cooldown_duration = 120.0 if ("429" in error_str or "rate limit" in error_str) else 60.0
-                self._failed_providers[pid] = time.time() + cooldown_duration
-
+                cooldown_duration = self._record_provider_failure(pid, e)
                 last_error = e
                 self.logger.warning(
-                    "Stream provider %s failed: %s. Applying %.1fs cooldown.",
+                    "Stream provider %s failed: %s. Applying %.1fs cooldown and rate limit penalty.",
                     pid,
                     str(e),
                     cooldown_duration,
