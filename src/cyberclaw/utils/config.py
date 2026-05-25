@@ -34,6 +34,9 @@ class LLMConfig(BaseModel):
     temperature: float = Field(default=0.7, ge=0.0, le=2.0)
     max_tokens: int = Field(default=2048, gt=0)
     enable_failover: bool = True
+    enable_sticky_sessions: bool = True
+    enable_priority_penalties: bool = True
+    penalty_decay_interval: float = Field(default=120.0, ge=10.0)
 
     @model_validator(mode="after")
     def normalize_legacy_provider(self) -> "LLMConfig":

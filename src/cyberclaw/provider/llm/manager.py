@@ -79,6 +79,8 @@ class MultiLLMProvider:
 
     def _get_provider_penalty(self, provider_id: str) -> float:
         """Get the current rate limit penalty for a provider with time-based decay."""
+        if not getattr(self.config, "enable_priority_penalties", True):
+            return 0.0
         import time
         entry = self._provider_penalties.get(provider_id)
         if not entry:
@@ -86,7 +88,7 @@ class MultiLLMProvider:
 
         now = time.time()
         elapsed = now - entry["last_hit"]
-        decay_interval = 120.0  # decay 1 point every 2 minutes
+        decay_interval = getattr(self.config, "penalty_decay_interval", 120.0)
         decay_steps = int(elapsed // decay_interval)
         
         if decay_steps > 0:
@@ -117,21 +119,22 @@ class MultiLLMProvider:
         self._failed_providers[provider_id] = time.time() + cooldown_duration
         
         # Add priority penalty
-        now = time.time()
-        entry = self._provider_penalties.get(provider_id)
-        penalty_increment = 3.0 if is_rate_limit else 1.5
-        max_penalty = 10.0
-        
-        if entry:
-            entry["count"] += 1
-            entry["last_hit"] = now
-            entry["penalty"] = min(max_penalty, entry["penalty"] + penalty_increment)
-        else:
-            self._provider_penalties[provider_id] = {
-                "count": 1,
-                "penalty": penalty_increment,
-                "last_hit": now
-            }
+        if getattr(self.config, "enable_priority_penalties", True):
+            now = time.time()
+            entry = self._provider_penalties.get(provider_id)
+            penalty_increment = 3.0 if is_rate_limit else 1.5
+            max_penalty = 10.0
+            
+            if entry:
+                entry["count"] += 1
+                entry["last_hit"] = now
+                entry["penalty"] = min(max_penalty, entry["penalty"] + penalty_increment)
+            else:
+                self._provider_penalties[provider_id] = {
+                    "count": 1,
+                    "penalty": penalty_increment,
+                    "last_hit": now
+                }
             
         return cooldown_duration
 
@@ -177,7 +180,7 @@ class MultiLLMProvider:
         provider_items.sort(key=lambda x: x[0])
 
         # Sticky sessions: check if there is an active session provider
-        if session_id and session_id in self._session_providers:
+        if getattr(self.config, "enable_sticky_sessions", True) and session_id and session_id in self._session_providers:
             preferred_pid = self._session_providers[session_id]
             idx = next((i for i, x in enumerate(provider_items) if x[2] == preferred_pid), -1)
             if idx > 0:
@@ -201,7 +204,7 @@ class MultiLLMProvider:
                 self._record_provider_success(provider_id)
 
                 # Record sticky session
-                if session_id:
+                if getattr(self.config, "enable_sticky_sessions", True) and session_id:
                     self._session_providers[session_id] = provider_id
 
                 return result
@@ -298,7 +301,7 @@ class MultiLLMProvider:
         provider_items.sort(key=lambda x: x[0])
 
         # Sticky sessions: check if there is an active session provider
-        if session_id and session_id in self._session_providers:
+        if getattr(self.config, "enable_sticky_sessions", True) and session_id and session_id in self._session_providers:
             preferred_pid = self._session_providers[session_id]
             idx = next((i for i, x in enumerate(provider_items) if x[2] == preferred_pid), -1)
             if idx > 0:
@@ -321,7 +324,7 @@ class MultiLLMProvider:
                     self._record_provider_success(pid)
                     
                     # Record sticky session
-                    if session_id:
+                    if getattr(self.config, "enable_sticky_sessions", True) and session_id:
                         self._session_providers[session_id] = pid
                     return  # Success
 

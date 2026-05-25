@@ -326,6 +326,39 @@ async function loadProviders() {
                 </label>
               </div>
             </div>
+
+            <div class="form-group">
+              <label class="form-label">Sticky Sessions (Context Continuity)</label>
+              <div class="toggle-switch-container">
+                <div class="toggle-info">
+                  <span class="toggle-title">Enable Sticky Sessions</span>
+                  <span class="toggle-desc">Pin conversations to successful models</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="setting-sticky-sessions" ${llm.enable_sticky_sessions !== false ? 'checked' : ''}>
+                  <span class="slider-toggle"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Priority Penalties (Rate Limit Defense)</label>
+              <div class="toggle-switch-container">
+                <div class="toggle-info">
+                  <span class="toggle-title">Enable Priority Penalties</span>
+                  <span class="toggle-desc">Deprioritize rate-limited providers</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="setting-priority-penalties" ${llm.enable_priority_penalties !== false ? 'checked' : ''}>
+                  <span class="slider-toggle"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Penalty Decay Cooldown (Seconds)</label>
+              <input type="number" id="setting-penalty-decay" class="form-input" min="10" value="${llm.penalty_decay_interval ?? 120}">
+            </div>
           </div>
 
           <div class="save-section">
@@ -576,6 +609,9 @@ async function saveGlobalSettings(e) {
   const temperature = parseFloat(document.getElementById('setting-temperature').value);
   const maxTokens = parseInt(document.getElementById('setting-max-tokens').value);
   const failover = document.getElementById('setting-failover').checked;
+  const stickySessions = document.getElementById('setting-sticky-sessions').checked;
+  const priorityPenalties = document.getElementById('setting-priority-penalties').checked;
+  const penaltyDecay = parseFloat(document.getElementById('setting-penalty-decay').value);
 
   showToast('Saving global settings...', 'info');
 
@@ -600,6 +636,21 @@ async function saveGlobalSettings(e) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key: 'llm.enable_failover', value: failover.toString() })
+      }),
+      fetch(`${API}/config/set`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'llm.enable_sticky_sessions', value: stickySessions.toString() })
+      }),
+      fetch(`${API}/config/set`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'llm.enable_priority_penalties', value: priorityPenalties.toString() })
+      }),
+      fetch(`${API}/config/set`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'llm.penalty_decay_interval', value: penaltyDecay.toString() })
       })
     ]);
 
